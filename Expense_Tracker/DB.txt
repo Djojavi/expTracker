@@ -1,0 +1,14 @@
+ CREATE TABLE IF NOT EXISTS Categorias(
+categoria_id INTEGER PRIMARY KEY AUTOINCREMENT,
+categoria_nombre TEXT NOT NULL,
+categoria_tipo TEXT NOT NULL CHECK (categoria_tipo IN ('Ingreso', 'Gasto', 'Inversion'))
+);
+CREATE TABLE IF NOT EXISTS Transacciones (
+transacciones_id INTEGER PRIMARY KEY AUTOINCREMENT,
+categoria_id INTEGER,
+transacciones_monto REAL NOT NULL,
+transacciones_fecha INTEGER NOT NULL,
+transacciones_descripcion TEXT,
+transacciones_tipo TEXT NOT NULL CHECK (transacciones_tipo IN('Ingreso','Gasto','Inversion')),
+FOREIGN KEY (categoria_id) REFERENCES Categorias (categoria_id)
+);
