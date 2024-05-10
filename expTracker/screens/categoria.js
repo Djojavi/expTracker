@@ -1,7 +1,8 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, TextInput, Button } from 'react-native';
+import { StyleSheet, View, TextInput } from 'react-native';
 import * as SQLite from 'expo-sqlite';
 import {useState, useEffect} from 'react'
+import {Button, Text} from '@rneui/themed'
 import Home from './home';
 
 export default function App() {
@@ -12,6 +13,10 @@ export default function App() {
   const [descripcionActual, setDescripcionActual] = useState(undefined);
 
   useEffect(() => {
+    db.transaction(tx => {
+      tx.executeSql('CREATE TABLE IF NOT EXISTS Usuario (usuario_nombre TEXT NOT NULL, usuario_password TEXT NOT NULL,usuario_balance REAL NOT NULL, usuario_ingresos REAL NOT NULL, usuario_gastos REAL NOT NULL)')
+    });
+
     db.transaction(tx => {
       tx.executeSql('CREATE TABLE IF NOT EXISTS Categorias(categoria_id INTEGER PRIMARY KEY AUTOINCREMENT, categoria_nombre TEXT NOT NULL, categoria_descripcion TEXT NOT NULL)')
     });
@@ -61,9 +66,16 @@ export default function App() {
     return categorias.map((categoria, index) => {
       return (
         <View key={index} style={styles.row}>
-          <Button title='eliminar' onPress={() => deleteCategoria(categoria.categoria_nombre)} />
-          <Text>{categoria.categoria_nombre}</Text>
-          <Text>{categoria.categoria_descripcion}</Text>
+          <Button title='eliminar'
+            buttonStyle={{
+              backgroundColor: 'black',
+              borderWidth: 2,
+              borderColor: 'white',
+              borderRadius: 30,
+            }}  
+          onPress={() => deleteCategoria(categoria.categoria_nombre)} />
+          <Text >{categoria.categoria_nombre}</Text>
+          <Text >{categoria.categoria_descripcion}</Text>
         </View>
       )
     });
@@ -93,11 +105,19 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      <Text style={{fontSize: 30}}>Añadir categoria</Text>
-      <TextInput value={categoriaActual} placeholder='Categoria' onChangeText={setCategoriaActual} />
+      <Text style={{fontSize: 20, backgroundColor:'#dddddd', padding: 10, marginBottom: 20}}>Añadir categoria</Text>
+      <TextInput  style={{backgroundColor:'#a4a4a4', padding: 10, borderRadius:5}} value={categoriaActual} placeholder='Categoria' onChangeText={setCategoriaActual} />
       <TextInput value={descripcionActual} placeholder='Descripcion' onChangeText={setDescripcionActual} />
 
-      <Button title='Añadir Categoria' onPress={addCategoria} />
+      <Button title='Añadir Categoria' 
+      buttonStyle={{
+        backgroundColor: 'black',
+        borderWidth: 2,
+        borderColor: 'white',
+        borderRadius: 30,
+        padding: 10
+      }}
+      onPress={addCategoria} />
       {showCategorias()}
       <StatusBar style="auto" />
     </View>

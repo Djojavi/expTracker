@@ -1,6 +1,6 @@
 // App.js
 import React from 'react';
-import Navigation from './navigation/Navigation'; // Path to your Navigation component
+import Navigation from './navigation/Navigation';
 
 const App = () => {
   return <Navigation />;
