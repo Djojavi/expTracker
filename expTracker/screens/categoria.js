@@ -1,141 +1,87 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, View, TextInput } from 'react-native';
-import * as SQLite from 'expo-sqlite';
-import {useState, useEffect} from 'react'
-import {Button, Text} from '@rneui/themed'
-import Home from './home';
+import React, { useContext, useState } from 'react';
+import { Text, View, TextInput, StyleSheet, FlatList } from 'react-native';
+import { DataContext } from '../App';
+import { Button } from '@rneui/base';
 
-export default function App() {
-  const db = SQLite.openDatabase('example.db');
-  const [isLoading, setIsLoading] = useState(true);
-  const [categorias, setCategorias] = useState([]);
-  const [categoriaActual, setCategoriaActual] = useState(undefined);
-  const [descripcionActual, setDescripcionActual] = useState(undefined);
+const Categoria = () => {
+  const {categorias, addCategoria, deleteCategoria } = useContext(DataContext);
+  const [nombre, setNombre] = useState('');
+  const [descripcion, setDescripcion] = useState('');
 
-  useEffect(() => {
-    db.transaction(tx => {
-      tx.executeSql('CREATE TABLE IF NOT EXISTS Usuario (usuario_nombre TEXT NOT NULL, usuario_password TEXT NOT NULL,usuario_balance REAL NOT NULL, usuario_ingresos REAL NOT NULL, usuario_gastos REAL NOT NULL)')
-    });
-
-    db.transaction(tx => {
-      tx.executeSql('CREATE TABLE IF NOT EXISTS Categorias(categoria_id INTEGER PRIMARY KEY AUTOINCREMENT, categoria_nombre TEXT NOT NULL, categoria_descripcion TEXT NOT NULL)')
-    });
-
-    db.transaction(tx => {
-      tx.executeSql('CREATE TABLE IF NOT EXISTS Transacciones (transaccion_id INTEGER PRIMARY KEY AUTOINCREMENT, categoria_id INTEGER, transaccion_monto REAL NOT NULL, transaccion_fecha INTEGER NOT NULL,transaccion_descripcion TEXT, transaccion_tipo TEXT NOT NULL , FOREIGN KEY (categoria_id) REFERENCES Categorias (categoria_id)')
-    });
-
-    db.transaction(tx => {
-      tx.executeSql('SELECT * FROM Categorias', null,
-        (txObj, resultSet) => setCategorias(resultSet.rows._array),
-        (txObj, error) => console.log(error)
-      );
-    });
-    setIsLoading(false)
-  }, []);
-
-  if(isLoading){
-    return(
-      <View style={styles.container}>
-        <Text>Loading database...</Text>
-      </View>
-    )
-  }
-
-  const deleteCategoria = (nombre) => {
-    db.transaction(tx => {
-      tx.executeSql(
-        'DELETE FROM Categorias WHERE categoria_nombre = ?',
-        [nombre],
-        () => {
-          db.transaction(tx => {
-            tx.executeSql(
-              'SELECT * FROM Categorias',
-              null,
-              (txObj, resultSet) => setCategorias(resultSet.rows._array),
-              (txObj, error) => console.log(error)
-            );
-          });
-        },
-        (txObj, error) => console.log(error)
-      );
-    });
-  }
-
-  const showCategorias = () => {
-    return categorias.map((categoria, index) => {
-      return (
-        <View key={index} style={styles.row}>
-          <Button title='eliminar'
-            buttonStyle={{
-              backgroundColor: 'black',
-              borderWidth: 2,
-              borderColor: 'white',
-              borderRadius: 30,
-            }}  
-          onPress={() => deleteCategoria(categoria.categoria_nombre)} />
-          <Text >{categoria.categoria_nombre}</Text>
-          <Text >{categoria.categoria_descripcion}</Text>
-        </View>
-      )
-    });
+  const handleAddCategoria = () => {
+    if (nombre && descripcion) {
+      addCategoria(nombre, descripcion);
+      setNombre('');
+      setDescripcion('');
+    }
   };
 
-  
+  const handleDeleteCategoria = (nombre) => {
+    deleteCategoria(nombre);
+  };
 
-  const addCategoria = () => {
-    if (categoriaActual && descripcionActual) {
-      db.transaction(tx => {
-        tx.executeSql('INSERT INTO Categorias (categoria_nombre, categoria_descripcion) VALUES (?, ?)', [categoriaActual, descripcionActual], () => {
-          setCategoriaActual('');
-          setDescripcionActual('');
-          db.transaction(tx => {
-            tx.executeSql('SELECT * FROM Categorias', null,
-              (txObj, resultSet) => setCategorias(resultSet.rows._array),
-              (txObj, error) => console.log(error)
-            );
-          });
-        },
-        (txObj, error) => console.log(error));
-      });
-    } else {
-      alert('Por favor ingrese una categoría y descripción');
-    }
-  }
+  const Item = ({ title, descripcion }) => (
+    <View style={styles.item}>
+      <View style={styles.row}>
+        
+        <Text style={styles.title}>{title}</Text>
+        <Text style={styles.description}>{descripcion}</Text>
+        <Button title='Eliminar' onPress={() => handleDeleteCategoria(title)}/>
+      </View>
+    </View>
+  );
+  
 
   return (
     <View style={styles.container}>
-      <Text style={{fontSize: 20, backgroundColor:'#dddddd', padding: 10, marginBottom: 20}}>Añadir categoria</Text>
-      <TextInput  style={{backgroundColor:'#a4a4a4', padding: 10, borderRadius:5}} value={categoriaActual} placeholder='Categoria' onChangeText={setCategoriaActual} />
-      <TextInput value={descripcionActual} placeholder='Descripcion' onChangeText={setDescripcionActual} />
-
-      <Button title='Añadir Categoria' 
-      buttonStyle={{
-        backgroundColor: 'black',
-        borderWidth: 2,
-        borderColor: 'white',
-        borderRadius: 30,
-        padding: 10
-      }}
-      onPress={addCategoria} />
-      {showCategorias()}
-      <StatusBar style="auto" />
+      <Text style={styles.title}>Categorias</Text>
+      <FlatList
+        data={categorias}
+        renderItem={({ item }) => <Item title={item.categoria_nombre} descripcion={item.categoria_descripcion} />}
+        keyExtractor={(item) => item.categoria_id.toString()}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Nombre de la Categoria"
+        value={nombre}
+        onChangeText={setNombre}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Descripcion"
+        value={descripcion}
+        onChangeText={setDescripcion}
+      />
+      <Button title="Agregar Categoria"  color="#000000" onPress={handleAddCategoria} />
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+  input:{
+    color:'black',
+    padding: 10,
+    borderColor:'black'
   },
-  row:{
+  item: {
+    backgroundColor: '#f9c2ff',
+    padding: 20,
+    marginVertical: 8,
+  },
+  row: {
     flexDirection: 'row',
-    alignItems: 'center',
-    alignSelf: 'stretch',
-    justifyContent: 'space-between', 
-    margin: 8
-  }
+    justifyContent: 'space-between',
+  },
+  title: {
+    fontSize: 18,
+    flex: 1, 
+  },
+  description: {
+    fontSize: 14,
+    color: 'gray',
+    textAlign: 'right',
+    marginRight: 100
+  },
 });
+
+export default Categoria;
