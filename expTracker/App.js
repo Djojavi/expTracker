@@ -10,10 +10,10 @@ const db = SQLite.openDatabase('example.db');
 const App = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [categorias, setCategorias] = useState([]);
-  const [categoriaActual, setCategoriaActual] = useState(undefined);
-  const [descripcionActual, setDescripcionActual] = useState(undefined);
+  const [transacciones, setTransacciones] = useState([]);
 
   useEffect(() => {
+    
     db.transaction(tx => {
       tx.executeSql(
         'CREATE TABLE IF NOT EXISTS Usuario (usuario_nombre TEXT NOT NULL, usuario_password TEXT NOT NULL, usuario_balance REAL NOT NULL, usuario_ingresos REAL NOT NULL, usuario_gastos REAL NOT NULL)',
@@ -38,6 +38,20 @@ const App = () => {
         [],
         () => console.log('Transacciones table created successfully'),
         (txObj, error) => console.log('Error creating Transacciones table', error)
+      );
+    });
+
+    db.transaction(tx => {
+      tx.executeSql('SELECT * FROM Transacciones',
+        [],
+        (txObj, resultSet) => {
+          setTransacciones(resultSet.rows._array);
+          setIsLoading(false);
+        },
+        (txObj, error) => {
+          console.log('Error fetching data from Transacciones', error);
+          setIsLoading(false)
+        }
       );
     });
 
@@ -90,6 +104,24 @@ const App = () => {
     });
   };
 
+  /*const addTransaccion = (monto, fecha, descripcion, tipo) => {
+    db.transaction(tx => {
+      tx.executeSql(
+        'INSERT INTO Transacciones (categoria_id, transaccion_monto, transaccion_fecha, transaccion_descripcion, transaccion_tipo) VALUES (?, ?)',
+        [nombre, descripcion],
+        (txObj, resultSet) => {
+          setCategorias(prevCategorias => [
+            ...prevCategorias,
+            { categoria_id: resultSet.insertId, categoria_nombre: nombre, categoria_descripcion: descripcion }
+          ]);
+        },
+        (txObj, error) => {
+          console.log('Error inserting data into Categorias table', error);
+        }
+      );
+    });
+  };*/
+
   if (isLoading) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -99,7 +131,7 @@ const App = () => {
   }
 
   return (
-    <DataContext.Provider value={{ categorias, setCategoriaActual, setDescripcionActual, addCategoria, deleteCategoria }}>
+    <DataContext.Provider value={{ categorias, addCategoria, deleteCategoria }}>
       <Navigation />
     </DataContext.Provider>
   );

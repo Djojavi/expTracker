@@ -2,10 +2,8 @@ import React, { useContext, useState } from 'react';
 import { Text, View, TextInput, StyleSheet, FlatList } from 'react-native';
 import { DataContext } from '../App';
 import { Button } from '@rneui/base';
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-const Categoria = ({navigation}) => {
+const AddTransaccion = () => {
   const { categorias, addCategoria, deleteCategoria } = useContext(DataContext);
   const [nombre, setNombre] = useState('');
   const [descripcion, setDescripcion] = useState('');
@@ -29,7 +27,7 @@ const Categoria = ({navigation}) => {
       <View style={styles.row}>
         <Text style={styles.title}>{title}</Text>
         <Text style={styles.description}>{descripcion}</Text>
-        <Button title='Eliminar'  titleStyle={{color: '#000000'}} type='outline'buttonStyle={{height:39, borderColor:'#000000' }} onPress={() => handleDeleteCategoria(title)} />
+        <Button title='Eliminar'  onPress={() => handleDeleteCategoria(title)} />
       </View>
     </View>
   );
@@ -37,9 +35,10 @@ const Categoria = ({navigation}) => {
   return (
     <View style={styles.container} >
       <View style ={styles.row}>
-        <Button title='Inicio' size='sm' buttonStyle={{ width: 175, borderColor:'#000000' }} titleStyle={{color: '#000000'}} type='outline' onPress={() => navigation.navigate('Añadir Transaccion')} />
-        <Button title='Estadisticas' size='sm' titleStyle={{color: '#000000'}} buttonStyle={{ width: 175, borderColor:'#000000' }} type='outline'/>
+        <Button title='Inicio' size='sm' buttonStyle={{ width: 175 }} type='outline' te/>
+        <Button title='Estadisticas' size='sm' buttonStyle={{ width: 175 }} type='outline'/>
       </View>
+ 
       
       <FlatList
         data={categorias}
@@ -78,7 +77,7 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
   item: {
-    backgroundColor: '#f0f0f0',
+    backgroundColor: '#e4e4e4',
     padding: 20,
     marginVertical: 8,
     borderRadius: 4,
@@ -105,4 +104,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Categoria;
+export default AddTransaccion;
