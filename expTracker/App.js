@@ -1,7 +1,7 @@
 import React, { createContext, useState, useEffect } from 'react';
 import Navigation from './navigation/Navigation';
 import * as SQLite from 'expo-sqlite';
-import { ActivityIndicator, View } from 'react-native';
+import { ActivityIndicator, View, Alert } from 'react-native';
 
 export const DataContext = createContext();
 
@@ -23,14 +23,15 @@ const App = () => {
       );
     });
 
-    db.transaction(tx => {
+   db.transaction(tx => {
       tx.executeSql(
-        'CREATE TABLE IF NOT EXISTS Categorias (categoria_id INTEGER PRIMARY KEY AUTOINCREMENT, categoria_nombre TEXT NOT NULL, categoria_descripcion TEXT NOT NULL)',
+        'CREATE TABLE IF NOT EXISTS  Categorias (categoria_id INTEGER PRIMARY KEY AUTOINCREMENT, categoria_nombre TEXT NOT NULL, categoria_descripcion TEXT NOT NULL, categoria_color TEXT NOT NULL)',
         [],
         () => console.log('Categorias table created successfully'),
         (txObj, error) => console.log('Error creating Categorias table', error)
       );
     });
+
 
     db.transaction(tx => {
       tx.executeSql(
@@ -86,15 +87,15 @@ const App = () => {
     });
   };
 
-  const addCategoria = (nombre, descripcion) => {
+  const addCategoria = (nombre, descripcion, color) => {
     db.transaction(tx => {
       tx.executeSql(
-        'INSERT INTO Categorias (categoria_nombre, categoria_descripcion) VALUES (?, ?)',
-        [nombre, descripcion],
+        'INSERT INTO Categorias (categoria_nombre, categoria_descripcion, categoria_color) VALUES (?, ?, ?)',
+        [nombre, descripcion, color],
         (txObj, resultSet) => {
           setCategorias(prevCategorias => [
             ...prevCategorias,
-            { categoria_id: resultSet.insertId, categoria_nombre: nombre, categoria_descripcion: descripcion }
+            { categoria_id: resultSet.insertId, categoria_nombre: nombre, categoria_descripcion: descripcion, categoria_color: color }
           ]);
         },
         (txObj, error) => {
@@ -103,6 +104,7 @@ const App = () => {
       );
     });
   };
+  
 
   /*const addTransaccion = (monto, fecha, descripcion, tipo) => {
     db.transaction(tx => {
