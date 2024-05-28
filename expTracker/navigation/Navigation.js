@@ -4,8 +4,8 @@ import { NavigationContainer } from '@react-navigation/native';
 import React from 'react';
 
 import Categoria  from '../screens/categoria'; 
-import AddTransaccion from '../screens/AddTransaccion';
-import Welcome from '../screens/welcome'
+import Welcome from '../screens/welcome';
+import Transacciones from '../screens/transacciones';
 
 
 const Stack = createStackNavigator();
@@ -15,9 +15,8 @@ const Navigation = () => {
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Welcome" screenOptions={{headerShown: false}}>
         <Stack.Screen name="Categoria" component={Categoria} />
-        <Stack.Screen name="Añadir Transaccion" component={AddTransaccion} />
         <Stack.Screen name="Welcome" component={Welcome} />
-
+        <Stack.Screen name="Transacciones" component={Transacciones}/>
       </Stack.Navigator>
     </NavigationContainer>
   );

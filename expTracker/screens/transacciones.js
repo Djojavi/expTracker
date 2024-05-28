@@ -4,53 +4,65 @@ import { DataContext } from '../App';
 import { Button } from '@rneui/base';
 import RBSheet from 'react-native-raw-bottom-sheet';
 
-const Categoria = ({ navigation }) => {
-  const { categorias, addCategoria, deleteCategoria } = useContext(DataContext);
+const RadioButton = (props) => {
+  return (
+    <TouchableWithoutFeedback onPress={props.onPress}>
+      <View style={[{
+        height: 24,
+        width: 24,
+        borderRadius: 12,
+        borderWidth: 2,
+        borderColor: '#000',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }, props.style]}>
+        {
+          props.selected ?
+            <View style={{
+              height: 12,
+              width: 12,
+              borderRadius: 6,
+              backgroundColor: '#000',
+            }}/>
+            : null
+        }
+      </View>
+    </TouchableWithoutFeedback>
+  );
+};
+
+const Transacciones = ({ navigation }) => {
+  const { transacciones, addTransaccion } = useContext(DataContext);
   const [nombre, setNombre] = useState('');
   const [descripcion, setDescripcion] = useState('');
-  const [selectedColor, setSelectedColor] = useState(null);
+  const [monto, setMonto] = useState('');
+  const [tipo, setTipo] = useState('');
+  const [fecha, setFecha] = useState('');
+  const [categoria, setCategoria] = useState('');
+
   const refRBSheet = useRef();
 
-  const colors = ['#F50C00', '#E70D68', '#FA75AF', '#E75A0D', '#FF961F', '#973E20', '#A18668', '#FFCE0A', '#4B6A10', '#5BDC00', '#25F8EA', '#5C92CC', '#000FB6', '#A168DE'];
-
-  const handleAddCategoria = () => {
-    if (nombre && descripcion && selectedColor !== null) {
-      addCategoria(nombre, descripcion, colors[selectedColor]);
+  const handleAddTransaccion = () => {
+    if (nombre && descripcion) {
+      addTransaccion(categoria, nombre, monto, fecha, descripcion, tipo);
       setNombre('');
       setDescripcion('');
-      setSelectedColor(null);
+      setMonto('');
+      setFecha('');
+      setCategoria('');
+      setTipo('');
       refRBSheet.current.close();
     }
   };
 
-  const handleDeleteCategoria = (nombre) => {
-    deleteCategoria(nombre);
-  };
-
-  const ordenarCategorias = (array) => {
-    return array.sort((a, b) => a.categoria_nombre.localeCompare(b.categoria_nombre));
-  }
-
-  const categoriasOrdenadas = ordenarCategorias(categorias);
-
   const Item = ({ title, descripcion, color }) => (
     <View style={styles.item}>
       <View style={styles.itemContent}>
+        <View style={styles.itemText}>
           <View style={[styles.circularTextView, { backgroundColor: color }]} />
-          <View style={styles.itemText}>
           <Text style={styles.title}>{title}</Text>
           <Text style={styles.description}>{descripcion}</Text>
         </View>
-        <Button
-          icon={
-            <Image
-              source={require('../assets/icons/delete.png')}
-              style={{ width: 18, height: 18, opacity: 0.8 }}
-            />
-          }
-          buttonStyle={styles.deleteButton}
-          onPress={() => handleDeleteCategoria(title)}
-        />
       </View>
     </View>
   );
@@ -68,26 +80,11 @@ const Categoria = ({ navigation }) => {
           onPress={() => navigation.navigate('Welcome')}
         />
         <Button
-          icon={<Image source={require('../assets/icons/dinero.png')} style={{ width: 25, height: 25 }} />}
+          icon={<Image source={require('../assets/icons/categoria.png')} style={{ width: 25, height: 25 }} />}
           buttonStyle={[styles.homeButton, { marginRight: 110 }]}
-          onPress={() => navigation.navigate('Transacciones')}
+          onPress={() => navigation.navigate('Categoria')}
         />
         <Image source={require('../assets/images/Logo.png')} style={{ width: 152, height: 40, marginTop: 29 }} />
-      </View>
-
-      <View style={styles.content}>
-        <FlatList
-          data={categoriasOrdenadas}
-          renderItem={({ item }) => (
-            <Item
-              title={item.categoria_nombre}
-              descripcion={item.categoria_descripcion}
-              color={item.categoria_color}
-            />
-          )}
-          keyExtractor={(item) => item.categoria_id.toString()}
-          style={styles.flatList}
-        />
       </View>
 
       <RBSheet
@@ -104,13 +101,39 @@ const Categoria = ({ navigation }) => {
           }
         }}
       >
-        <Text style={styles.addCategoria}>Añadir Categoria</Text>
+        <Text style={styles.addTransaccion}>Añadir Transaccion</Text>
+        <View style={styles.radioButtonContainer}>
+          <View style={styles.radioButtonRow}>
+            <RadioButton
+              selected={tipo === 'Ingreso'}
+              onPress={() => setTipo('Ingreso')}
+              style={styles.radioButton}
+            />
+            <Text style={styles.radioText}>Ingreso</Text>
+          </View>
+          <View style={styles.radioButtonRow}>
+            <RadioButton
+              selected={tipo === 'Gasto'}
+              onPress={() => setTipo('Gasto')}
+              style={styles.radioButton}
+            />
+            <Text style={styles.radioText}>Gasto</Text>
+          </View>
+        </View>
         <View style={styles.nombreContainer}>
           <TextInput
             style={styles.inputNombre}
             placeholder="Nombre"
             value={nombre}
             onChangeText={setNombre}
+          />
+          <Text style={styles.signoDolar}>$</Text>
+          <TextInput
+            style={styles.inputMonto}
+            placeholder='Monto'
+            keyboardType='numeric'
+            value={monto}
+            onChangeText={setMonto}
           />
         </View>
         <TextInput
@@ -119,56 +142,38 @@ const Categoria = ({ navigation }) => {
           value={descripcion}
           onChangeText={setDescripcion}
         />
-
-        <Text style={styles.text}>Escoge el color para tu categoría!</Text>
-        <View style={styles.colorContainer}>
-          {colors.map((color, index) => {
-            const isActive = selectedColor === index;
-            return (
-              <TouchableWithoutFeedback
-                key={index}
-                onPress={() => setSelectedColor(index)}
-              >
-                <View
-                  style={[
-                    styles.circle,
-                    isActive && { borderColor: color },
-                  ]}
-                >
-                  <View
-                    style={[styles.circleInside, { backgroundColor: color }]}
-                  />
-                </View>
-              </TouchableWithoutFeedback>
-            );
-          })}
-          
-        </View>
         <Button
           buttonStyle={styles.addNombreButton}
-          onPress={handleAddCategoria}
+          onPress={handleAddTransaccion}
           titleStyle={{ color: '#fff' }}
           title="Listo!"
         />
       </RBSheet>
 
-        <Button
-          title='Nueva categoría'
-          buttonStyle={styles.changeColor}
-          onPress={() => refRBSheet.current.open()}
-        />
-  
+      <Button
+        title='Añadir nueva transaccion'
+        buttonStyle={styles.changeColor}
+        onPress={() => refRBSheet.current.open()}
+      />
     </KeyboardAvoidingView>
   );
 };
 
 const styles = StyleSheet.create({
+  inputMonto: {
+    fontSize: 18,
+    marginRight: 35,
+    marginTop: 1
+  },
+  signoDolar: {
+    fontSize: 25,
+    fontWeight: '400',
+    marginRight: 10
+  },
   circularTextView: {
-    width: 10,
-    height: 40,
+    width: 75,
+    height: 10,
     borderRadius: 50,
-    marginLeft: 10,
-    marginRight:15
   },
   text: {
     fontSize: 18,
@@ -176,8 +181,8 @@ const styles = StyleSheet.create({
     color: 'black',
   },
   changeColor: {
-    alignSelf:'center',
-    marginVertical:20,
+    alignSelf: 'center',
+    marginVertical: 20,
     width: 250,
     height: 50,
     marginHorizontal: 10,
@@ -186,22 +191,8 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     backgroundColor: '#A37366',
   },
-  profile: {
-    marginTop: 20,
-    alignSelf: 'center',
-    width: 50,
-    height: 50,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 30,
-    marginBottom: 24,
-    shadowColor: '#6B4E71',
-    shadowOpacity: 0.1,
-    elevation: 1,
-    backgroundColor: '#000000'
-  },
-  addCategoria: {
-    fontSize: 23,
+  addTransaccion: {
+    fontSize: 25,
     fontWeight: 'bold',
     marginBottom: 10,
     color: '#333',
@@ -255,6 +246,7 @@ const styles = StyleSheet.create({
     borderColor: '#FFFFFF',
     borderWidth: 1,
     marginRight: 10,
+    fontSize: 18
   },
   input: {
     color: '#000',
@@ -265,12 +257,13 @@ const styles = StyleSheet.create({
     width: '100%',
     borderColor: '#FFFFFF',
     borderWidth: 1,
+    fontSize: 18
   },
   addNombreButton: {
     backgroundColor: '#A37366',
     borderRadius: 20,
     height: 45,
-    width:120,
+    width: 120,
     paddingHorizontal: 15,
     marginHorizontal: 10,
   },
@@ -323,21 +316,23 @@ const styles = StyleSheet.create({
     marginVertical: 10,
     width: '100%',
   },
-  circle: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    borderWidth: 2,
-    borderColor: 'transparent',
-    justifyContent: 'center',
-    alignItems: 'center',
-    margin: 5,
+  radioButtonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginVertical: 10,
+    width: '90%',
   },
-  circleInside: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
+  radioButtonRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 8,
+  },
+  radioButton: {
+    marginHorizontal: 6,
+  },
+  radioText: {
+    fontSize: 18,
   },
 });
 
-export default Categoria;
+export default Transacciones;

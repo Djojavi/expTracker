@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ImageBackground, Image } from 'react-native';
+import { View, StyleSheet, Image } from 'react-native';
 import { Button } from '@rneui/base';
 import { useNavigation } from '@react-navigation/native';
 
@@ -15,13 +15,13 @@ const Welcome = () => {
                 </View>
                 <View style={styles.buttonContainer}>
                     <Button
-                        title='Categorías'
-                        buttonStyle={styles.button}
+                        title='Transacciones'
+                        buttonStyle={styles.buttonTransacciones}
                         titleStyle={styles.buttonTitle}
-                        onPress={() => navigation.navigate('Categoria')}
+                        onPress={() => navigation.navigate('Transacciones')}
                     />
                     <Button
-                        title='Transacciones'
+                        title='Categorías'
                         buttonStyle={styles.button}
                         titleStyle={styles.buttonTitle}
                         onPress={() => navigation.navigate('Categoria')}
@@ -32,6 +32,13 @@ const Welcome = () => {
 };
 
 const styles = StyleSheet.create({
+    buttonTransacciones:{
+        backgroundColor: '#A37366',
+        height: 40,
+        width: 200,
+        borderColor:'#A37366',
+        borderRadius:10
+    },
     images:{
         alignItems:'center'
     },

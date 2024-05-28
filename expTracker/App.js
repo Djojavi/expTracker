@@ -35,12 +35,13 @@ const App = () => {
 
     db.transaction(tx => {
       tx.executeSql(
-        'CREATE TABLE IF NOT EXISTS Transacciones (transaccion_id INTEGER PRIMARY KEY AUTOINCREMENT, categoria_id INTEGER, transaccion_monto REAL NOT NULL, transaccion_fecha INTEGER NOT NULL, transaccion_descripcion TEXT, transaccion_tipo TEXT NOT NULL, FOREIGN KEY (categoria_id) REFERENCES Categorias (categoria_id))',
+        'CREATE TABLE IF NOT EXISTS Transacciones (transaccion_id INTEGER PRIMARY KEY AUTOINCREMENT, categoria_id INTEGER, transaccion_nombre TEXT NOT NULL,transaccion_monto REAL NOT NULL, transaccion_fecha INTEGER NOT NULL, transaccion_descripcion TEXT, transaccion_tipo TEXT NOT NULL, FOREIGN KEY (categoria_id) REFERENCES Categorias (categoria_id))',
         [],
         () => console.log('Transacciones table created successfully'),
         (txObj, error) => console.log('Error creating Transacciones table', error)
       );
     });
+
 
     db.transaction(tx => {
       tx.executeSql('SELECT * FROM Transacciones',
@@ -106,23 +107,23 @@ const App = () => {
   };
   
 
-  /*const addTransaccion = (monto, fecha, descripcion, tipo) => {
+  const addTransaccion = (categoria,nombre,monto, fecha, descripcion,tipo) => {
     db.transaction(tx => {
       tx.executeSql(
-        'INSERT INTO Transacciones (categoria_id, transaccion_monto, transaccion_fecha, transaccion_descripcion, transaccion_tipo) VALUES (?, ?)',
-        [nombre, descripcion],
+        'INSERT INTO Transacciones (categoria_id, transaccion_nombre,transaccion_monto, transaccion_fecha, transaccion_descripcion, transaccion_tipo) VALUES (?, ?,?,?,?,?)',
+        [categoria,nombre,monto, fecha, descripcion,tipo],
         (txObj, resultSet) => {
-          setCategorias(prevCategorias => [
-            ...prevCategorias,
-            { categoria_id: resultSet.insertId, categoria_nombre: nombre, categoria_descripcion: descripcion }
+          setCategorias(prevTransacciones => [
+            ...prevTransacciones,
+            { transaccion_id: resultSet.insertId, categoria_id: categoria, transaccion_nombre: nombre, transaccion_monto: monto, transaccion_fecha: fecha, transaccion_descripcion:descripcion, transaccion_tipo: tipo }
           ]);
         },
         (txObj, error) => {
-          console.log('Error inserting data into Categorias table', error);
+          console.log('Error inserting data into T table', error);
         }
       );
     });
-  };*/
+  };
 
   if (isLoading) {
     return (
@@ -133,7 +134,7 @@ const App = () => {
   }
 
   return (
-    <DataContext.Provider value={{ categorias, addCategoria, deleteCategoria }}>
+    <DataContext.Provider value={{ categorias, addCategoria, deleteCategoria, transacciones, addTransaccion }}>
       <Navigation />
     </DataContext.Provider>
   );
