@@ -255,6 +255,7 @@ const styles = StyleSheet.create({
     borderColor: '#FFFFFF',
     borderWidth: 1,
     marginRight: 10,
+    fontSize: 18
   },
   input: {
     color: '#000',
@@ -265,6 +266,7 @@ const styles = StyleSheet.create({
     width: '100%',
     borderColor: '#FFFFFF',
     borderWidth: 1,
+    fontSize:18
   },
   addNombreButton: {
     backgroundColor: '#A37366',

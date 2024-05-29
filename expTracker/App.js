@@ -35,7 +35,7 @@ const App = () => {
 
     db.transaction(tx => {
       tx.executeSql(
-        'CREATE TABLE IF NOT EXISTS Transacciones (transaccion_id INTEGER PRIMARY KEY AUTOINCREMENT, categoria_id INTEGER, transaccion_nombre TEXT NOT NULL,transaccion_monto REAL NOT NULL, transaccion_fecha INTEGER NOT NULL, transaccion_descripcion TEXT, transaccion_tipo TEXT NOT NULL, FOREIGN KEY (categoria_id) REFERENCES Categorias (categoria_id))',
+        'CREATE TABLE IF NOT EXISTS Transacciones (transaccion_id INTEGER PRIMARY KEY AUTOINCREMENT, categoria_id INTEGER, transaccion_nombre TEXT NOT NULL,transaccion_monto REAL NOT NULL, transaccion_fecha TEXT NOT NULL, transaccion_descripcion TEXT, transaccion_tipo TEXT NOT NULL, FOREIGN KEY (categoria_id) REFERENCES Categorias (categoria_id))',
         [],
         () => console.log('Transacciones table created successfully'),
         (txObj, error) => console.log('Error creating Transacciones table', error)
@@ -107,23 +107,47 @@ const App = () => {
   };
   
 
-  const addTransaccion = (categoria,nombre,monto, fecha, descripcion,tipo) => {
+  const addTransaccion = (categoria, nombre, monto, fecha, descripcion, tipo) => {
+  
     db.transaction(tx => {
-      tx.executeSql(
-        'INSERT INTO Transacciones (categoria_id, transaccion_nombre,transaccion_monto, transaccion_fecha, transaccion_descripcion, transaccion_tipo) VALUES (?, ?,?,?,?,?)',
-        [categoria,nombre,monto, fecha, descripcion,tipo],
-        (txObj, resultSet) => {
-          setCategorias(prevTransacciones => [
-            ...prevTransacciones,
-            { transaccion_id: resultSet.insertId, categoria_id: categoria, transaccion_nombre: nombre, transaccion_monto: monto, transaccion_fecha: fecha, transaccion_descripcion:descripcion, transaccion_tipo: tipo }
-          ]);
-        },
-        (txObj, error) => {
-          console.log('Error inserting data into T table', error);
-        }
-      );
+      try {
+        tx.executeSql(
+          'INSERT INTO Transacciones (categoria_id, transaccion_nombre, transaccion_monto, transaccion_fecha, transaccion_descripcion, transaccion_tipo) VALUES (?, ?, ?, ?, ?, ?)',
+          [categoria, nombre, parseFloat(monto), fecha, descripcion, tipo],
+          (txObj, resultSet) => {
+            const newTransaccion = {
+              transaccion_id: resultSet.insertId,
+              categoria_id: categoria,
+              transaccion_nombre: nombre,
+              transaccion_monto: parseFloat(monto),
+              transaccion_fecha: fecha,
+              transaccion_descripcion: descripcion,
+              transaccion_tipo: tipo
+            };
+            setTransacciones(prevTransacciones => [
+              ...prevTransacciones,
+              newTransaccion
+            ]);
+            console.log('Updated transacciones state:', newTransaccion);
+          },
+          (txObj, error) => {
+            console.error('Error inserting data into Transacciones table', error);
+          }
+        );
+      } catch (error) {
+        console.error('Error executing transaction:', error);
+      }
+      console.log('Transaction ended');
+    }, 
+    (error) => {
+      console.error('Transaction error:', error);
+    }, 
+    () => {
+      console.log('Transaction success');
     });
   };
+  
+  
 
   if (isLoading) {
     return (

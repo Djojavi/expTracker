@@ -1,5 +1,5 @@
-import React, { useContext, useRef, useState } from 'react';
-import { Text, View, TextInput, StyleSheet, FlatList, KeyboardAvoidingView, Platform, Image, TouchableWithoutFeedback } from 'react-native';
+import React, { useContext, useRef, useState, useEffect } from 'react';
+import { Text, View, TextInput, StyleSheet, FlatList, KeyboardAvoidingView, Platform, Image, TouchableWithoutFeedback, } from 'react-native';
 import { DataContext } from '../App';
 import { Button } from '@rneui/base';
 import RBSheet from 'react-native-raw-bottom-sheet';
@@ -8,22 +8,22 @@ const RadioButton = (props) => {
   return (
     <TouchableWithoutFeedback onPress={props.onPress}>
       <View style={[{
-        height: 24,
-        width: 24,
+        height: 22,
+        width: 22,
         borderRadius: 12,
         borderWidth: 2,
-        borderColor: '#000',
+        borderColor: '#A37366',
         alignItems: 'center',
         justifyContent: 'center',
       }, props.style]}>
         {
           props.selected ?
             <View style={{
-              height: 12,
-              width: 12,
-              borderRadius: 6,
-              backgroundColor: '#000',
-            }}/>
+              height: 14,
+              width: 14,
+              borderRadius: 10,
+              backgroundColor: '#A37366',
+            }} />
             : null
         }
       </View>
@@ -32,7 +32,7 @@ const RadioButton = (props) => {
 };
 
 const Transacciones = ({ navigation }) => {
-  const { transacciones, addTransaccion } = useContext(DataContext);
+  const { transacciones, addTransaccion, categorias } = useContext(DataContext);
   const [nombre, setNombre] = useState('');
   const [descripcion, setDescripcion] = useState('');
   const [monto, setMonto] = useState('');
@@ -42,8 +42,15 @@ const Transacciones = ({ navigation }) => {
 
   const refRBSheet = useRef();
 
+  useEffect(() => {
+    console.log('transacciones:', transacciones);
+  }, [transacciones]);
+
   const handleAddTransaccion = () => {
-    if (nombre && descripcion) {
+    console.log('handleAddTransaccion called');
+    console.log('Current state values:', { nombre, descripcion, monto, tipo, categoria });
+    if (nombre && descripcion && monto && tipo && categoria) {
+      const fecha = new Date().toLocaleString();
       addTransaccion(categoria, nombre, monto, fecha, descripcion, tipo);
       setNombre('');
       setDescripcion('');
@@ -52,15 +59,22 @@ const Transacciones = ({ navigation }) => {
       setCategoria('');
       setTipo('');
       refRBSheet.current.close();
+    } else {
+      console.log('All fields are required');
     }
   };
+  
 
-  const Item = ({ title, descripcion, color }) => (
+  const ordenarCategorias = (array) => {
+    return array.sort((a, b) => a.categoria_nombre.localeCompare(b.categoria_nombre));
+  }
+  const categoriasOrdenadas = ordenarCategorias(categorias);
+
+  const Item = ({ nombre, descripcion }) => (
     <View style={styles.item}>
       <View style={styles.itemContent}>
         <View style={styles.itemText}>
-          <View style={[styles.circularTextView, { backgroundColor: color }]} />
-          <Text style={styles.title}>{title}</Text>
+          <Text style={styles.title}>{nombre}</Text>
           <Text style={styles.description}>{descripcion}</Text>
         </View>
       </View>
@@ -89,7 +103,7 @@ const Transacciones = ({ navigation }) => {
 
       <RBSheet
         ref={refRBSheet}
-        height={400}
+        height={600}
         openDuration={300}
         customStyles={{
           container: {
@@ -101,7 +115,8 @@ const Transacciones = ({ navigation }) => {
           }
         }}
       >
-        <Text style={styles.addTransaccion}>Añadir Transaccion</Text>
+
+        <Text style={styles.addTransaccion}>Añadir Transacción</Text>
         <View style={styles.radioButtonContainer}>
           <View style={styles.radioButtonRow}>
             <RadioButton
@@ -113,7 +128,7 @@ const Transacciones = ({ navigation }) => {
           </View>
           <View style={styles.radioButtonRow}>
             <RadioButton
-              selected={tipo === 'Gasto'}
+              selected={tipo  === 'Gasto'}
               onPress={() => setTipo('Gasto')}
               style={styles.radioButton}
             />
@@ -138,10 +153,26 @@ const Transacciones = ({ navigation }) => {
         </View>
         <TextInput
           style={styles.input}
-          placeholder="Descripcion"
+          placeholder="Descripción"
           value={descripcion}
           onChangeText={setDescripcion}
         />
+        <Text style={styles.catText}>Selecciona una categoría!</Text>
+        <FlatList
+          data={categoriasOrdenadas}
+          renderItem={({ item }) => (
+            <TouchableWithoutFeedback onPress={() => setCategoria(item.categoria_id)}>
+              <View style={[styles.item, categoria === item.categoria_id && styles.selectedItem]}>
+                <View style={{ flexDirection: 'row' }}>
+                  <View style={[styles.circularTextView, { backgroundColor: item.categoria_color }]} />
+                  <Text style={styles.itemText}>{item.categoria_nombre}</Text>
+                </View>
+              </View>
+            </TouchableWithoutFeedback>
+          )}
+          keyExtractor={(item, index) => index.toString()}
+        />
+
         <Button
           buttonStyle={styles.addNombreButton}
           onPress={handleAddTransaccion}
@@ -150,8 +181,22 @@ const Transacciones = ({ navigation }) => {
         />
       </RBSheet>
 
+      <View style={styles.content}>
+        <FlatList
+          data={transacciones}
+          renderItem={({ item }) => (
+            <Item
+              nombre={item.transaccion_nombre}
+              descripcion={item.transaccion_descripcion}
+            />
+          )}
+          keyExtractor={(item) => item.transaccion_id.toString()}
+          style={styles.flatList}
+        />
+      </View>
+
       <Button
-        title='Añadir nueva transaccion'
+        title='Añadir nueva transacción'
         buttonStyle={styles.changeColor}
         onPress={() => refRBSheet.current.open()}
       />
@@ -160,6 +205,11 @@ const Transacciones = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
+  catText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10
+  },
   inputMonto: {
     fontSize: 18,
     marginRight: 35,
@@ -171,9 +221,11 @@ const styles = StyleSheet.create({
     marginRight: 10
   },
   circularTextView: {
-    width: 75,
-    height: 10,
+    width: 10,
+    height: 30,
     borderRadius: 50,
+    marginLeft: 10,
+    marginRight: 15
   },
   text: {
     fontSize: 18,
@@ -275,8 +327,10 @@ const styles = StyleSheet.create({
   },
   item: {
     backgroundColor: '#fff',
-    padding: 15,
-    marginVertical: 6,
+    padding: 10,
+    marginVertical: 8,
+    paddingHorizontal: 100,
+    marginHorizontal: 10,
     borderRadius: 8,
     shadowColor: '#000',
     shadowOffset: {
@@ -287,17 +341,22 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
     elevation: 5,
   },
+  selectedItem: {
+    backgroundColor: '#D3AEA2',
+  },
+  itemText: {
+    alignSelf: 'center',
+    fontSize: 15,
+  },
   itemContent: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  itemText: {
-    flex: 1,
-  },
   title: {
     fontSize: 17,
     fontWeight: 'bold',
+    color: '#000'
   },
   description: {
     fontSize: 14,
