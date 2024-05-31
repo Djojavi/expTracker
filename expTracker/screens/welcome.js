@@ -3,6 +3,7 @@ import { View, StyleSheet, Image } from 'react-native';
 import { Button } from '@rneui/base';
 import { useNavigation } from '@react-navigation/native';
 
+//Pantalla de bienvenida
 
 const Welcome = () => {
     const navigation = useNavigation();

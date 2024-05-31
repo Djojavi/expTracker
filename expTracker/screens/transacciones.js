@@ -1,8 +1,10 @@
 import React, { useContext, useRef, useState, useEffect } from 'react';
-import { Text, View, TextInput, StyleSheet, FlatList, KeyboardAvoidingView, Platform, Image, TouchableWithoutFeedback, } from 'react-native';
+import { Text, View, TextInput, StyleSheet, FlatList, KeyboardAvoidingView, Platform, Image, TouchableWithoutFeedback, Pressable, } from 'react-native';
 import { DataContext } from '../App';
 import { Button } from '@rneui/base';
 import RBSheet from 'react-native-raw-bottom-sheet';
+
+//Pantalla con las transacciones
 
 const RadioButton = (props) => {
   return (
@@ -39,12 +41,35 @@ const Transacciones = ({ navigation }) => {
   const [tipo, setTipo] = useState('');
   const [fecha, setFecha] = useState('');
   const [categoria, setCategoria] = useState('');
+  const [balance, setBalance] = useState(0);
+  const [ingresos, setIngresos] = useState(0);
+  const [gastos, setGastos] = useState(0);
+
 
   const refRBSheet = useRef();
 
   useEffect(() => {
-    console.log('transacciones:', transacciones);
+    calcularBalance(transacciones);
   }, [transacciones]);
+
+  const calcularBalance = (arrayTransacciones) => {
+    let nuevoBalance = 0, nuevoIngresos = 0, nuevoGastos = 0;
+    arrayTransacciones.forEach(item => {
+      if (item.transaccion_tipo === 'Ingreso') {
+        nuevoBalance += item.transaccion_monto;
+        nuevoIngresos += item.transaccion_monto;
+      } else if (item.transaccion_tipo === 'Gasto') {
+        nuevoBalance -= item.transaccion_monto;
+        nuevoGastos -= item.transaccion_monto;
+      }
+    });
+    if (nuevoGastos !== 0) {
+      nuevoGastos = nuevoGastos * -1
+    }
+    setBalance(nuevoBalance);
+    setIngresos(nuevoIngresos);
+    setGastos(nuevoGastos);
+  };
 
   const handleAddTransaccion = () => {
     console.log('handleAddTransaccion called');
@@ -63,23 +88,38 @@ const Transacciones = ({ navigation }) => {
       console.log('All fields are required');
     }
   };
-  
+
 
   const ordenarCategorias = (array) => {
     return array.sort((a, b) => a.categoria_nombre.localeCompare(b.categoria_nombre));
   }
   const categoriasOrdenadas = ordenarCategorias(categorias);
 
-  const Item = ({ nombre, descripcion }) => (
+  const getCategoriaNombre = (array, idCategoria) => {
+    const filtrado = array.find(item => item.categoria_id === idCategoria);
+    return filtrado ? filtrado.categoria_nombre : '';
+  }
+
+  const Item = ({ nombre, descripcion, monto, fecha, categoriaNombre, tipo }) => (
     <View style={styles.item}>
       <View style={styles.itemContent}>
-        <View style={styles.itemText}>
+        <View style={styles.containerLeft}>
           <Text style={styles.title}>{nombre}</Text>
           <Text style={styles.description}>{descripcion}</Text>
+          <Text style={styles.description}>{fecha}</Text>
+        </View>
+        <View style={styles.containerRight}>
+          <Text style={styles.category}>{categoriaNombre}</Text>
+          {monto ? (
+            <Text style={tipo === 'Ingreso' ? styles.montoIngreso : tipo === 'Gasto' ? styles.montoGasto : styles.montoDefault}>
+              {tipo === 'Ingreso' ? `+$${parseFloat(monto).toFixed(2)}` : tipo === 'Gasto' ? `-$${parseFloat(monto).toFixed(2)}` : `$${parseFloat(monto).toFixed(2)}`}
+            </Text>
+          ) : null}
         </View>
       </View>
     </View>
   );
+
 
   return (
     <KeyboardAvoidingView
@@ -128,7 +168,7 @@ const Transacciones = ({ navigation }) => {
           </View>
           <View style={styles.radioButtonRow}>
             <RadioButton
-              selected={tipo  === 'Gasto'}
+              selected={tipo === 'Gasto'}
               onPress={() => setTipo('Gasto')}
               style={styles.radioButton}
             />
@@ -181,18 +221,25 @@ const Transacciones = ({ navigation }) => {
         />
       </RBSheet>
 
-      <View style={styles.content}>
-        <FlatList
-          data={transacciones}
-          renderItem={({ item }) => (
-            <Item
-              nombre={item.transaccion_nombre}
-              descripcion={item.transaccion_descripcion}
-            />
-          )}
-          keyExtractor={(item) => item.transaccion_id.toString()}
-          style={styles.flatList}
-        />
+      <View style={styles.conatinerEstadisticas}>
+        <Text style={{ fontSize: 35, alignSelf: 'center' }}>$ {parseFloat(balance).toFixed(2)}</Text>
+      </View>
+
+      <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
+      <Pressable onPress={() => navigation.navigate('Ingreso')}>
+        <View style={styles.ingresos}>
+          <Text style={styles.balanceIngreso}>+ ${parseFloat(ingresos).toFixed(2)} </Text>
+          <Text style={{ marginLeft: 20, color:'#0e3800' }}>Ingresos</Text>
+        </View>
+        </Pressable>
+
+
+        <Pressable onPress={() => navigation.navigate('Gasto')}> 
+        <View style={styles.gastos}>
+          <Text style={styles.balanceGastos}>- ${parseFloat(gastos).toFixed(2)}</Text>
+          <Text style={{ marginLeft: 20, color:'#690000' }}>Gastos</Text>
+        </View>
+        </Pressable>
       </View>
 
       <Button
@@ -200,11 +247,102 @@ const Transacciones = ({ navigation }) => {
         buttonStyle={styles.changeColor}
         onPress={() => refRBSheet.current.open()}
       />
+      <View style={styles.content}>
+        <FlatList
+          inverted
+          data={transacciones}
+          renderItem={({ item }) => (
+            <Item
+              nombre={item.transaccion_nombre}
+              descripcion={item.transaccion_descripcion}
+              monto={item.transaccion_monto}
+              fecha={item.transaccion_fecha}
+              tipo={item.transaccion_tipo}
+              categoriaNombre={getCategoriaNombre(categorias, item.categoria_id)}
+
+            />
+          )}
+          keyExtractor={(item) => item.transaccion_id.toString()}
+          style={styles.flatList}
+        />
+      </View>
+
+
     </KeyboardAvoidingView>
   );
 };
 
 const styles = StyleSheet.create({
+  ingresos:{
+    backgroundColor: '#fff', 
+    flexDirection: 'column', 
+    justifyContent: 'center', 
+    marginHorizontal: 5, 
+    padding: 15, 
+    paddingHorizontal: 35, 
+    borderRadius: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  gastos:{
+    backgroundColor: '#fff',
+  flexDirection: 'column',
+  justifyContent: 'center',
+  marginHorizontal: 5,
+  padding: 15,
+  paddingHorizontal: 45,
+  borderRadius: 8,
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.25,
+  shadowRadius: 3.84,
+  elevation: 5,
+},
+  conatinerEstadisticas: {
+    backgroundColor: '#fff',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    marginHorizontal: 15,
+    padding: 15,
+    paddingHorizontal: 40,
+    borderRadius: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+    marginBottom:10
+  },
+  balanceGastos: {
+    color: '#BF0000',
+    fontSize: 24,
+  },
+  balanceIngreso: {
+    color: '#1F7900',
+    fontSize: 24,
+  },
+  containerLeft: {
+    justifyContent: 'flex-start',
+  },
+  containerRight: {
+    justifyContent: 'flex-end',
+    alignItems: 'flex-end',
+  },
+  montoIngreso: {
+    fontSize: 18,
+    color: '#1F7900'
+  },
+  montoGasto: {
+    fontSize: 18,
+    color: '#BF0000'
+  },
+  montoDefault: {
+    color: '#fefefe',
+    backgroundColor: '#BF0000'
+  },
   catText: {
     fontSize: 18,
     fontWeight: 'bold',
@@ -327,10 +465,11 @@ const styles = StyleSheet.create({
   },
   item: {
     backgroundColor: '#fff',
-    padding: 10,
-    marginVertical: 8,
-    paddingHorizontal: 100,
-    marginHorizontal: 10,
+    padding: 8,
+    marginVertical: 1,
+    marginBottom: 8,
+    paddingHorizontal: 8,
+    marginHorizontal: 3,
     borderRadius: 8,
     shadowColor: '#000',
     shadowOffset: {
@@ -345,8 +484,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#D3AEA2',
   },
   itemText: {
-    alignSelf: 'center',
-    fontSize: 15,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '100%'
   },
   itemContent: {
     flexDirection: 'row',
