@@ -75,8 +75,19 @@ const Transacciones = ({ navigation }) => {
     console.log('handleAddTransaccion called');
     console.log('Current state values:', { nombre, descripcion, monto, tipo, categoria });
     if (nombre && descripcion && monto && tipo && categoria) {
-      const fecha = new Date().toLocaleString();
-      addTransaccion(categoria, nombre, monto, fecha, descripcion, tipo);
+      const mes = new Date().getMonth() + 1;
+      const anio = new Date().getFullYear();
+      const dia = new Date().getDate();
+      let hora = new Date().getHours();
+      let minutos = new Date().getMinutes();
+      if(minutos <10){
+        minutos = "0"+minutos;
+      }
+      if(hora < 10){
+        hora = "0"+hora;
+      }
+      const horaActual = hora + ":" + minutos;
+      addTransaccion(categoria, nombre, monto, anio, mes, dia, horaActual, descripcion, tipo);
       setNombre('');
       setDescripcion('');
       setMonto('');
@@ -100,13 +111,13 @@ const Transacciones = ({ navigation }) => {
     return filtrado ? filtrado.categoria_nombre : '';
   }
 
-  const Item = ({ nombre, descripcion, monto, fecha, categoriaNombre, tipo }) => (
+  const Item = ({ nombre, descripcion, monto, anio, mes, dia, hora, categoriaNombre, tipo }) => (
     <View style={styles.item}>
       <View style={styles.itemContent}>
         <View style={styles.containerLeft}>
           <Text style={styles.title}>{nombre}</Text>
           <Text style={styles.description}>{descripcion}</Text>
-          <Text style={styles.description}>{fecha}</Text>
+          <Text style={styles.description}>{dia}/{mes}/{anio} {hora} </Text>
         </View>
         <View style={styles.containerRight}>
           <Text style={styles.category}>{categoriaNombre}</Text>
@@ -222,7 +233,8 @@ const Transacciones = ({ navigation }) => {
       </RBSheet>
 
       <View style={styles.conatinerEstadisticas}>
-        <Text style={{ fontSize: 35, alignSelf: 'center' }}>$ {parseFloat(balance).toFixed(2)}</Text>
+        <Text style={styles.description}>Balance:</Text>
+        <Text style={{ fontSize: 35, alignSelf: 'center'}}>$ {parseFloat(balance).toFixed(2)}</Text>
       </View>
 
       <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
@@ -256,7 +268,10 @@ const Transacciones = ({ navigation }) => {
               nombre={item.transaccion_nombre}
               descripcion={item.transaccion_descripcion}
               monto={item.transaccion_monto}
-              fecha={item.transaccion_fecha}
+              anio ={item.transaccion_anio}
+              mes ={item.transaccion_mes}
+              dia ={item.transaccion_dia}
+              hora ={item.transaccion_hora}
               tipo={item.transaccion_tipo}
               categoriaNombre={getCategoriaNombre(categorias, item.categoria_id)}
 
@@ -306,7 +321,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'center',
     marginHorizontal: 15,
-    padding: 15,
+    padding: 8,
     paddingHorizontal: 40,
     borderRadius: 8,
     shadowColor: '#000',

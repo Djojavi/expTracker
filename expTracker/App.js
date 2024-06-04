@@ -38,7 +38,7 @@ const App = () => {
 
     db.transaction(tx => { //Creación de la tabla transacciones
       tx.executeSql(
-        'CREATE TABLE IF NOT EXISTS Transacciones (transaccion_id INTEGER PRIMARY KEY AUTOINCREMENT, categoria_id INTEGER, transaccion_nombre TEXT NOT NULL,transaccion_monto REAL NOT NULL, transaccion_fecha TEXT NOT NULL, transaccion_descripcion TEXT, transaccion_tipo TEXT NOT NULL, FOREIGN KEY (categoria_id) REFERENCES Categorias (categoria_id))',
+        'CREATE TABLE IF NOT EXISTS Transacciones (transaccion_id INTEGER PRIMARY KEY AUTOINCREMENT, categoria_id INTEGER, transaccion_nombre TEXT NOT NULL,transaccion_monto REAL NOT NULL, transaccion_anio INTEGER, transaccion_mes INTEGER, transaccion_dia INTEGER, transaccion_hora TEXT, transaccion_descripcion TEXT, transaccion_tipo TEXT NOT NULL, FOREIGN KEY (categoria_id) REFERENCES Categorias (categoria_id))',
         [],
         () => console.log('Transacciones table created successfully'),
         (txObj, error) => console.log('Error creating Transacciones table', error)
@@ -124,20 +124,23 @@ const App = () => {
   };
   
 
-  const addTransaccion = (categoria, nombre, monto, fecha, descripcion, tipo) => {
+  const addTransaccion = (categoria, nombre, monto, anio, mes, dia, hora, descripcion, tipo) => {
   //Añade una nueva transacción
     db.transaction(tx => {
       try {
         tx.executeSql(
-          'INSERT INTO Transacciones (categoria_id, transaccion_nombre, transaccion_monto, transaccion_fecha, transaccion_descripcion, transaccion_tipo) VALUES (?, ?, ?, ?, ?, ?)',
-          [categoria, nombre, parseFloat(monto), fecha, descripcion, tipo],
+          'INSERT INTO Transacciones (categoria_id, transaccion_nombre, transaccion_monto, transaccion_anio, transaccion_mes, transaccion_dia, transaccion_hora, transaccion_descripcion, transaccion_tipo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+          [categoria, nombre, parseFloat(monto), anio, mes, dia, hora, descripcion, tipo],
           (txObj, resultSet) => {
             const newTransaccion = {
               transaccion_id: resultSet.insertId,
               categoria_id: categoria,
               transaccion_nombre: nombre,
               transaccion_monto: parseFloat(monto),
-              transaccion_fecha: fecha,
+              transaccion_anio: anio,
+              transaccion_mes: mes,
+              transaccion_dia: dia,
+              transaccion_hora: hora,
               transaccion_descripcion: descripcion,
               transaccion_tipo: tipo
             };
