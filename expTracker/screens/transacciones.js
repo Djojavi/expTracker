@@ -1,5 +1,5 @@
 import React, { useContext, useRef, useState, useEffect } from 'react';
-import { Text, View, TextInput, StyleSheet, FlatList, KeyboardAvoidingView, Platform, Image, TouchableWithoutFeedback, Pressable, } from 'react-native';
+import { Text, View, TextInput, StyleSheet, FlatList, KeyboardAvoidingView, Platform, Image, TouchableWithoutFeedback, Pressable, Alert } from 'react-native';
 import { DataContext } from '../App';
 import { Button } from '@rneui/base';
 import RBSheet from 'react-native-raw-bottom-sheet';
@@ -74,7 +74,7 @@ const Transacciones = ({ navigation }) => {
   const handleAddTransaccion = () => {
     console.log('handleAddTransaccion called');
     console.log('Current state values:', { nombre, descripcion, monto, tipo, categoria });
-    if (nombre && descripcion && monto && tipo && categoria) {
+    if (nombre && descripcion && monto > 0 && tipo && categoria) {
       const mes = new Date().getMonth() + 1;
       const anio = new Date().getFullYear();
       const dia = new Date().getDate();
@@ -96,7 +96,9 @@ const Transacciones = ({ navigation }) => {
       setTipo('');
       refRBSheet.current.close();
     } else {
-      console.log('All fields are required');
+      Alert.alert('Error', 'El monto debe ser mayor a 0!', [
+      {text: 'Entendido', onPress: () => console.log('OK Pressed')},
+    ]);
     }
   };
 
@@ -117,7 +119,7 @@ const Transacciones = ({ navigation }) => {
         <View style={styles.containerLeft}>
           <Text style={styles.title}>{nombre}</Text>
           <Text style={styles.description}>{descripcion}</Text>
-          <Text style={styles.description}>{dia}/{mes}/{anio} {hora} </Text>
+          <Text style={styles.description}>{anio}-{mes}-{dia} {hora} </Text>
         </View>
         <View style={styles.containerRight}>
           <Text style={styles.category}>{categoriaNombre}</Text>
@@ -294,7 +296,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center', 
     marginHorizontal: 5, 
     padding: 15, 
-    paddingHorizontal: 35, 
+    paddingHorizontal: 30, 
     borderRadius: 8,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -308,7 +310,7 @@ const styles = StyleSheet.create({
   justifyContent: 'center',
   marginHorizontal: 5,
   padding: 15,
-  paddingHorizontal: 45,
+  paddingHorizontal: 35,
   borderRadius: 8,
   shadowColor: '#000',
   shadowOffset: { width: 0, height: 2 },
@@ -334,8 +336,10 @@ const styles = StyleSheet.create({
   balanceGastos: {
     color: '#BF0000',
     fontSize: 24,
+    padding:3,
   },
   balanceIngreso: {
+    padding:3,
     color: '#1F7900',
     fontSize: 24,
   },

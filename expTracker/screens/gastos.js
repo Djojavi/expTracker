@@ -95,6 +95,31 @@ const Gasto = ({ navigation }) => {
         <Image source={require('../assets/images/Logo.png')} style={{ width: 152, height: 40, marginTop: 29 }} />
       </View>
 
+      <View style={{flexDirection:'row', gap:20, justifyContent:'center', paddingHorizontal: 10, paddingBottom:10}}>
+        <Pressable>
+          <View style={styles.dias}>
+            <Text> 7 días </Text>
+          </View>
+        </Pressable>
+
+        <Pressable>
+        <View style={styles.dias}>
+            <Text> 15 días </Text>
+          </View>
+        </Pressable>
+
+        <Pressable>
+        <View style={styles.dias}>
+            <Text> 30 días </Text>
+          </View>
+        </Pressable>
+
+        <Pressable>
+        <View style={styles.dias}>
+            <Text> 60 días </Text>
+          </View>
+        </Pressable>
+      </View>
 
 
       <View style={styles.conatinerEstadisticas}>
@@ -138,6 +163,11 @@ const Gasto = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
+  dias:{
+    backgroundColor:'#fff',
+    borderRadius: 8,
+    padding:7
+  },
   ingresos:{
     backgroundColor: '#fff', 
     flexDirection: 'column', 

@@ -26,6 +26,7 @@ const App = () => {
       );
     });
 
+
    db.transaction(tx => { //Creación de la tabla categorías
       tx.executeSql(
         'CREATE TABLE IF NOT EXISTS  Categorias (categoria_id INTEGER PRIMARY KEY AUTOINCREMENT, categoria_nombre TEXT NOT NULL, categoria_descripcion TEXT NOT NULL, categoria_color TEXT NOT NULL)',
@@ -43,7 +44,8 @@ const App = () => {
         () => console.log('Transacciones table created successfully'),
         (txObj, error) => console.log('Error creating Transacciones table', error)
       );
-    });
+    });    
+    
 
     db.transaction(tx => {
       tx.executeSql('SELECT * FROM Transacciones', //Llena el arreglo transacciones con los objetos de la base de datos
