@@ -123,16 +123,10 @@ const Ingreso = ({ navigation }) => {
         <Image source={require('../assets/images/Logo.png')} style={{ width: 152, height: 40, marginTop: 29 }} />
       </View>
 
-      <View style={{flexDirection:'row', gap:20, justifyContent:'center', paddingHorizontal: 10, paddingBottom:10}}>
+      <View style={{flexDirection:'row', gap: 5, justifyContent:'center', paddingHorizontal: 10, paddingBottom:10}}>
         <Pressable onPress={() => filterByDays(7)}>
           <View style={styles.dias}>
             <Text> 7 días </Text>
-          </View>
-        </Pressable>
-
-        <Pressable onPress={() => filterByDays(15)}>
-        <View style={styles.dias}>
-            <Text> 15 días </Text>
           </View>
         </Pressable>
 
@@ -142,21 +136,35 @@ const Ingreso = ({ navigation }) => {
           </View>
         </Pressable>
 
-        <Pressable onPress={() => filterByDays(60)}>
+        <Pressable onPress={() => filterByDays(90)}>
         <View style={styles.dias}>
-            <Text> 60 días </Text>
+            <Text> 90 días </Text>
           </View>
         </Pressable>
+
+        <Pressable onPress={() => filterByDays(365)}>
+        <View style={styles.dias}>
+            <Text> Este año </Text>
+          </View>
+        </Pressable>
+
+        <Pressable onPress={() => filterByDays(100000)}>
+        <View style={styles.dias}>
+            <Text> Siempre </Text>
+          </View>
+        </Pressable>
+
       </View>
 
       <View style={styles.conatinerEstadisticas}>
-        <Text style={{ fontSize: 38, alignSelf: 'center', color:'#1F7900'}}> + ${parseFloat(ingresos).toFixed(2)}</Text>
+        <Text style={{ fontSize: 30, alignSelf: 'center', color:'#1F7900'}}> + ${parseFloat(ingresos).toFixed(2)}</Text>
       </View>
 
       <View style={styles.chartContainer}>
         <BarChart
           overflowTop={20}
           width={275}
+          height={175}
           yAxisThickness={1}
           xAxisThickness={1}
           data={chartData}

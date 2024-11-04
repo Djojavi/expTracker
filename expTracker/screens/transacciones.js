@@ -44,6 +44,7 @@ const Transacciones = ({ navigation }) => {
   const [balance, setBalance] = useState(0);
   const [ingresos, setIngresos] = useState(0);
   const [gastos, setGastos] = useState(0);
+  const [transaccionesFiltradas, setTransaccionesFiltradas] = useState([]);
 
 
   const refRBSheet = useRef();
@@ -112,6 +113,20 @@ const Transacciones = ({ navigation }) => {
     const filtrado = array.find(item => item.categoria_id === idCategoria);
     return filtrado ? filtrado.categoria_nombre : '';
   }
+
+  const filterByDays = (days) => {
+    const now = new Date();
+  
+    const newTransacciones = transacciones.filter(item => {
+      const transaccionFecha = new Date(item.transaccion_anio, item.transaccion_mes - 1, item.transaccion_dia); // Crear objeto Date usando anio, mes y dia
+      const diffTime = Math.abs(now - transaccionFecha);
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      return  diffDays <= days;
+    });
+    
+    setTransaccionesFiltradas(newTransacciones);
+    calcularBalance(newTransacciones);
+  };
 
   const Item = ({ nombre, descripcion, monto, anio, mes, dia, hora, categoriaNombre, tipo }) => (
     <View style={styles.item}>
@@ -213,6 +228,7 @@ const Transacciones = ({ navigation }) => {
         <Text style={styles.catText}>Selecciona una categoría!</Text>
         <FlatList
           data={categoriasOrdenadas}
+          removeClippedSubviews={true}
           renderItem={({ item }) => (
             <TouchableWithoutFeedback onPress={() => setCategoria(item.categoria_id)}>
               <View style={[styles.item, categoria === item.categoria_id && styles.selectedItem]}>
@@ -234,16 +250,47 @@ const Transacciones = ({ navigation }) => {
         />
       </RBSheet>
 
+      <View style={{flexDirection:'row', gap: 5, justifyContent:'center', paddingHorizontal: 10, paddingBottom:10}}>
+        <Pressable onPress={() => filterByDays(7)}>
+          <View style={styles.dias}>
+            <Text> 7 días </Text>
+          </View>
+        </Pressable>
+
+        <Pressable onPress={() => filterByDays(30)}>
+        <View style={styles.dias}>
+            <Text> 30 días </Text>
+          </View>
+        </Pressable>
+
+        <Pressable onPress={() => filterByDays(90)}>
+        <View style={styles.dias}>
+            <Text> 90 días </Text>
+          </View>
+        </Pressable>
+
+        <Pressable onPress={() => filterByDays(365)}>
+        <View style={styles.dias}>
+            <Text> Este año </Text>
+          </View>
+        </Pressable>
+
+        <Pressable onPress={() => filterByDays(100000)}>
+        <View style={styles.dias}>
+            <Text> Siempre </Text>
+          </View>
+        </Pressable>
+
+      </View>
+
       <View style={styles.conatinerEstadisticas}>
-        <Text style={styles.description}>Balance:</Text>
-        <Text style={{ fontSize: 35, alignSelf: 'center'}}>$ {parseFloat(balance).toFixed(2)}</Text>
+        <Text style={{ fontSize: 30, alignSelf: 'center'}}>$ {parseFloat(balance).toFixed(2)}</Text>
       </View>
 
       <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
       <Pressable onPress={() => navigation.navigate('Ingreso')}>
         <View style={styles.ingresos}>
           <Text style={styles.balanceIngreso}>+ ${parseFloat(ingresos).toFixed(2)} </Text>
-          <Text style={{ marginLeft: 20, color:'#0e3800' }}>Ingresos</Text>
         </View>
         </Pressable>
 
@@ -251,7 +298,6 @@ const Transacciones = ({ navigation }) => {
         <Pressable onPress={() => navigation.navigate('Gasto')}> 
         <View style={styles.gastos}>
           <Text style={styles.balanceGastos}>- ${parseFloat(gastos).toFixed(2)}</Text>
-          <Text style={{ marginLeft: 20, color:'#690000' }}>Gastos</Text>
         </View>
         </Pressable>
       </View>
@@ -295,7 +341,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column', 
     justifyContent: 'center', 
     marginHorizontal: 5, 
-    padding: 15, 
+    padding: 9, 
     paddingHorizontal: 30, 
     borderRadius: 8,
     shadowColor: '#000',
@@ -304,12 +350,17 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
     elevation: 5,
   },
+  dias: {
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    padding: 7,
+  },
   gastos:{
     backgroundColor: '#fff',
   flexDirection: 'column',
   justifyContent: 'center',
   marginHorizontal: 5,
-  padding: 15,
+  padding: 9,
   paddingHorizontal: 35,
   borderRadius: 8,
   shadowColor: '#000',
@@ -323,8 +374,8 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'center',
     marginHorizontal: 15,
-    padding: 8,
-    paddingHorizontal: 40,
+    padding: 12 ,
+    paddingHorizontal: 45,
     borderRadius: 8,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
