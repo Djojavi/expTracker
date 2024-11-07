@@ -15,6 +15,7 @@ const App = () => {
   const [categorias, setCategorias] = useState([]); //array de objetos de categorias
   const [transacciones, setTransacciones] = useState([]); //array de objetos de transacciones
   const [usuario, setUsuario] = useState([]); //Array para ir guardando los valores del Usuario
+  const [transaccion, setTransaccion] = useState([]);
 
   useEffect(() => { //A ejecutarse al abrir la app
     
@@ -169,9 +170,32 @@ const App = () => {
       console.log('Transaction success');
     });
   };
-  
-  
 
+  const getTransaccion = (id) => {
+    // Obtener una transacción guardada
+    db.transaction(tx => {
+      try {
+        tx.executeSql(
+          'SELECT * FROM Transacciones WHERE transaccion_id = ?',
+          [id], 
+          (txObj, resultSet) => {
+            console.log(resultSet.rows._array)
+            setTransaccion(resultSet.rows._array);
+            setIsLoading(false); 
+          },
+          (txObj, error) => {
+            console.log('Error fetching data from Transaccion table', error);
+            setIsLoading(false); 
+          }
+        );
+      } catch (error) {
+        console.error('Transaction error:', error);
+        setIsLoading(false);
+      }
+    });
+  };
+  
+  
   if (isLoading) {
     return ( //Cargandose si hay algún error
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -181,7 +205,7 @@ const App = () => {
   }
 
   return (
-    <DataContext.Provider value={{ categorias, addCategoria, deleteCategoria, transacciones, addTransaccion, usuario }}>
+    <DataContext.Provider value={{ categorias, addCategoria, deleteCategoria, transacciones, addTransaccion, usuario, getTransaccion, transaccion }}>
       <Navigation />
     </DataContext.Provider>
   );

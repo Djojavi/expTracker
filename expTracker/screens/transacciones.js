@@ -34,7 +34,7 @@ const RadioButton = (props) => {
 };
 
 const Transacciones = ({ navigation }) => {
-  const { transacciones, addTransaccion, categorias } = useContext(DataContext);
+  const { transacciones, addTransaccion, categorias, getTransaccion } = useContext(DataContext);
   const [nombre, setNombre] = useState('');
   const [descripcion, setDescripcion] = useState('');
   const [monto, setMonto] = useState('');
@@ -45,12 +45,15 @@ const Transacciones = ({ navigation }) => {
   const [ingresos, setIngresos] = useState(0);
   const [gastos, setGastos] = useState(0);
   const [transaccionesFiltradas, setTransaccionesFiltradas] = useState([]);
+  const [idActualizar, setIdActualizar] = useState(0);
 
 
   const refRBSheet = useRef();
+  const updateRefRBSheet = useRef();
 
   useEffect(() => {
     calcularBalance(transacciones);
+    setTransaccionesFiltradas(transacciones);
   }, [transacciones]);
 
   const calcularBalance = (arrayTransacciones) => {
@@ -102,7 +105,6 @@ const Transacciones = ({ navigation }) => {
     ]);
     }
   };
-
 
   const ordenarCategorias = (array) => {
     return array.sort((a, b) => a.categoria_nombre.localeCompare(b.categoria_nombre));
@@ -250,6 +252,88 @@ const Transacciones = ({ navigation }) => {
         />
       </RBSheet>
 
+      <RBSheet
+        ref={updateRefRBSheet}
+        height={600}
+        openDuration={300}
+        onOpen={() => getTransaccion(idActualizar)}
+        customStyles={{
+          container: {
+            padding: 15,
+            justifyContent: 'center',
+            alignItems: 'center',
+            borderTopLeftRadius: 20,
+            borderTopRightRadius: 20,
+          }
+        }}
+      >
+
+        <Text style={styles.addTransaccion}>Actualizar Transacción</Text>
+        <View style={styles.radioButtonContainer}>
+          <View style={styles.radioButtonRow}>
+            <RadioButton
+              selected={tipo === 'Ingreso'}
+              onPress={() => setTipo('Ingreso')}
+              style={styles.radioButton}
+            />
+            <Text style={styles.radioText}>Ingreso</Text>
+          </View>
+          <View style={styles.radioButtonRow}>
+            <RadioButton
+              selected={tipo === 'Gasto'}
+              onPress={() => setTipo('Gasto')}
+              style={styles.radioButton}
+            />
+            <Text style={styles.radioText}>Gasto</Text>
+          </View>
+        </View>
+        <View style={styles.nombreContainer}>
+          <TextInput
+            style={styles.inputNombre}
+            placeholder="Nombre"
+            value={nombre}
+            onChangeText={setNombre}
+          />
+          <Text style={styles.signoDolar}>$</Text>
+          <TextInput
+            style={styles.inputMonto}
+            placeholder='Monto'
+            keyboardType='numeric'
+            value={monto}
+            onChangeText={setMonto}
+          />
+        </View>
+        <TextInput
+          style={styles.input}
+          placeholder="Descripción"
+          value={descripcion}
+          onChangeText={setDescripcion}
+        />
+        <Text style={styles.catText}>Selecciona una categoría!</Text>
+        <FlatList
+          data={categoriasOrdenadas}
+          removeClippedSubviews={true}
+          renderItem={({ item }) => (
+            <TouchableWithoutFeedback onPress={() => setCategoria(item.categoria_id)}>
+              <View style={[styles.item, categoria === item.categoria_id && styles.selectedItem]}>
+                <View style={{ flexDirection: 'row' }}>
+                  <View style={[styles.circularTextView, { backgroundColor: item.categoria_color }]} />
+                  <Text style={styles.itemText}>{item.categoria_nombre}</Text>
+                </View>
+              </View>
+            </TouchableWithoutFeedback>
+          )}
+          keyExtractor={(item, index) => index.toString()}
+        />
+
+        <Button
+          buttonStyle={styles.addNombreButton}
+          onPress={handleAddTransaccion}
+          titleStyle={{ color: '#fff' }}
+          title="Listo!"
+        />
+      </RBSheet>
+
       <View style={{flexDirection:'row', gap: 5, justifyContent:'center', paddingHorizontal: 10, paddingBottom:10}}>
         <Pressable onPress={() => filterByDays(7)}>
           <View style={styles.dias}>
@@ -310,8 +394,9 @@ const Transacciones = ({ navigation }) => {
       <View style={styles.content}>
         <FlatList
           inverted
-          data={transacciones}
+          data={transaccionesFiltradas}
           renderItem={({ item }) => (
+            <Pressable onLongPress={() => {updateRefRBSheet.current.open(), setIdActualizar(item.transaccion_id)} }>
             <Item
               nombre={item.transaccion_nombre}
               descripcion={item.transaccion_descripcion}
@@ -324,6 +409,7 @@ const Transacciones = ({ navigation }) => {
               categoriaNombre={getCategoriaNombre(categorias, item.categoria_id)}
 
             />
+            </Pressable>
           )}
           keyExtractor={(item) => item.transaccion_id.toString()}
           style={styles.flatList}
