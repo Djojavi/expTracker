@@ -205,7 +205,7 @@ const App = () => {
   }
 
   return (
-    <DataContext.Provider value={{ categorias, addCategoria, deleteCategoria, transacciones, addTransaccion, usuario, getTransaccion, transaccion }}>
+    <DataContext.Provider value={{ categorias, addCategoria, deleteCategoria, transacciones, addTransaccion, usuario, transaccion }}>
       <Navigation />
     </DataContext.Provider>
   );

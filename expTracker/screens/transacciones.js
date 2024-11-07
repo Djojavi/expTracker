@@ -1,5 +1,5 @@
 import React, { useContext, useRef, useState, useEffect } from 'react';
-import { Text, View, TextInput, StyleSheet, FlatList, KeyboardAvoidingView, Platform, Image, TouchableWithoutFeedback, Pressable, Alert } from 'react-native';
+import { Text, View, TextInput, StyleSheet, FlatList, KeyboardAvoidingView, Platform, Image, TouchableWithoutFeedback, Pressable, Alert, ActivityIndicator } from 'react-native';
 import { DataContext } from '../App';
 import { Button } from '@rneui/base';
 import RBSheet from 'react-native-raw-bottom-sheet';
@@ -34,7 +34,7 @@ const RadioButton = (props) => {
 };
 
 const Transacciones = ({ navigation }) => {
-  const { transacciones, addTransaccion, categorias, getTransaccion } = useContext(DataContext);
+  const { transacciones, addTransaccion, categorias, transaccion } = useContext(DataContext);
   const [nombre, setNombre] = useState('');
   const [descripcion, setDescripcion] = useState('');
   const [monto, setMonto] = useState('');
@@ -55,6 +55,52 @@ const Transacciones = ({ navigation }) => {
     calcularBalance(transacciones);
     setTransaccionesFiltradas(transacciones);
   }, [transacciones]);
+
+  useEffect(() => {
+    if (transaccion.length > 0) {
+      const { transaccion_nombre, transaccion_descripcion, transaccion_monto, transaccion_tipo, categoria_id } = transaccion[0];
+      setNombre(transaccion_nombre);
+      setDescripcion(transaccion_descripcion);
+      setMonto(transaccion_monto.toString());
+      setTipo(transaccion_tipo);
+      setCategoria(categoria_id);
+    }
+  }, [transaccion]);
+
+  useEffect(() => {
+    if (idActualizar !== 0) {
+      getTransaccion(idActualizar);
+    }
+  }, [idActualizar]);
+
+  const handleLongPress = (id) => {
+    setIdActualizar(id);  // Establece el id de la transacción a actualizar
+    getTransaccion(id);   // Llama a getTransaccion con el id para cargar los datos
+    updateRefRBSheet.current.open();  // Abre el RBSheet de actualización
+  };
+  
+
+  const setToNull = () => {
+      setNombre(null);
+      setDescripcion(null);
+      setMonto(null);
+      setTipo(null);
+      setCategoria(null);
+  }
+
+  const getTransaccion = (id) => {
+    const selectedTransaccion = transacciones.find(item => item.transaccion_id === id);
+    if (selectedTransaccion) {
+      setNombre(selectedTransaccion.transaccion_nombre);
+      setDescripcion(selectedTransaccion.transaccion_descripcion);
+      setMonto(selectedTransaccion.transaccion_monto.toString());
+      setTipo(selectedTransaccion.transaccion_tipo);
+      setCategoria(selectedTransaccion.categoria_id);
+      
+    } else{
+      console.log('aaaa')
+    }
+  };
 
   const calcularBalance = (arrayTransacciones) => {
     let nuevoBalance = 0, nuevoIngresos = 0, nuevoGastos = 0;
@@ -173,6 +219,7 @@ const Transacciones = ({ navigation }) => {
 
       <RBSheet
         ref={refRBSheet}
+        onOpen={() => setToNull()}
         height={600}
         openDuration={300}
         customStyles={{
@@ -255,11 +302,10 @@ const Transacciones = ({ navigation }) => {
       <RBSheet
         ref={updateRefRBSheet}
         height={600}
-        openDuration={300}
-        onOpen={() => getTransaccion(idActualizar)}
+        openDuration={200}
         customStyles={{
           container: {
-            padding: 15,
+            padding:  15,
             justifyContent: 'center',
             alignItems: 'center',
             borderTopLeftRadius: 20,
@@ -267,7 +313,6 @@ const Transacciones = ({ navigation }) => {
           }
         }}
       >
-
         <Text style={styles.addTransaccion}>Actualizar Transacción</Text>
         <View style={styles.radioButtonContainer}>
           <View style={styles.radioButtonRow}>
@@ -395,8 +440,9 @@ const Transacciones = ({ navigation }) => {
         <FlatList
           inverted
           data={transaccionesFiltradas}
+          
           renderItem={({ item }) => (
-            <Pressable onLongPress={() => {updateRefRBSheet.current.open(), setIdActualizar(item.transaccion_id)} }>
+            <Pressable onLongPress={() => {handleLongPress(item.transaccion_id)}}>
             <Item
               nombre={item.transaccion_nombre}
               descripcion={item.transaccion_descripcion}
