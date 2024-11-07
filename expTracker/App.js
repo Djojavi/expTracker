@@ -9,6 +9,7 @@ export const DataContext = createContext(); //Para exportar los arreglos y funci
 
 const db = SQLite.openDatabase('example.db');
 
+
 const App = () => {
   const [isLoading, setIsLoading] = useState(true); //Imagen del activity mientras se carga
   const [categorias, setCategorias] = useState([]); //array de objetos de categorias
@@ -44,7 +45,7 @@ const App = () => {
         () => console.log('Transacciones table created successfully'),
         (txObj, error) => console.log('Error creating Transacciones table', error)
       );
-    });    
+    });  
     
 
     db.transaction(tx => {
