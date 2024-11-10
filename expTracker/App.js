@@ -126,6 +126,29 @@ const App = () => {
       );
     });
   };
+
+
+  const updateCategoria = (id, nombre, descripcion, color) => {
+    db.transaction(tx => { // actualiza una categoría existente
+      tx.executeSql(
+        'UPDATE Categorias SET categoria_nombre = ?, categoria_descripcion = ?, categoria_color = ? WHERE categoria_id = ?',
+        [nombre, descripcion, color, id],
+        (txObj, resultSet) => {
+          setCategorias(prevCategorias =>
+            prevCategorias.map(categoria =>
+              categoria.categoria_id === id
+                ? { ...categoria, categoria_nombre: nombre, categoria_descripcion: descripcion, categoria_color: color }
+                : categoria
+            )
+          );
+        },
+        (txObj, error) => {
+          console.log('Error updating Categorias table', error);
+        }
+      );
+    });
+  };
+  
   
 
   const addTransaccion = (categoria, nombre, monto, anio, mes, dia, hora, descripcion, tipo) => {
@@ -205,7 +228,7 @@ const App = () => {
   }
 
   return (
-    <DataContext.Provider value={{ categorias, addCategoria, deleteCategoria, transacciones, addTransaccion, usuario, transaccion }}>
+    <DataContext.Provider value={{ categorias, addCategoria, deleteCategoria, transacciones, addTransaccion, usuario, transaccion, updateCategoria }}>
       <Navigation />
     </DataContext.Provider>
   );

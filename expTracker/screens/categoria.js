@@ -1,14 +1,16 @@
 import React, { useContext, useRef, useState } from 'react';
-import { Text, View, TextInput, StyleSheet, FlatList, KeyboardAvoidingView, Platform, Image, TouchableWithoutFeedback, Pressable } from 'react-native';
+import { Text, View, TextInput, StyleSheet, FlatList, KeyboardAvoidingView, Platform, Image, TouchableWithoutFeedback, Pressable, Alert } from 'react-native';
 import { DataContext } from '../App';
 import { Button } from '@rneui/base';
 import RBSheet from 'react-native-raw-bottom-sheet';
 
 const Categoria = ({ navigation }) => {
-  const { categorias, addCategoria, deleteCategoria } = useContext(DataContext);
+  const { categorias, addCategoria, deleteCategoria, updateCategoria } = useContext(DataContext);
   const [nombre, setNombre] = useState('');
   const [descripcion, setDescripcion] = useState('');
   const [selectedColor, setSelectedColor] = useState(null);
+  const [idActualizar, setIdActualizar] = useState(0);
+  const [nombreBorrar, setNombreBorrar] = useState('');
   const refRBSheet = useRef();
 
   const colors = ['#F50C00', '#E70D68', '#FA75AF', '#E75A0D', '#FF961F', '#973E20', '#A18668', '#FFCE0A', '#4B6A10', '#5BDC00', '#25F8EA', '#5C92CC', '#000FB6', '#A168DE'];
@@ -25,24 +27,46 @@ const Categoria = ({ navigation }) => {
     }
   };
 
+  const handleUpdateCategoria = (id) =>{
+    console.log(id);
+    if (nombre && descripcion && selectedColor !== null) {
+      updateCategoria(id, nombre, descripcion, colors[selectedColor]);
+      setNombre('');
+      setDescripcion('');
+      setSelectedColor(null);
+      updateCategoriaRBSheet.current.close();
+    }
+  };
+
   const setToNull = () => {
-    setNombre = null;
-    setDescripcion = null;
-    setSelectedColor = null;
+    setNombre(null);
+    setDescripcion(null);
+    setSelectedColor(null);
   }
 
   const getCategoria = (id) => {
+    setIdActualizar(id);
     const selectedCategoria = categorias.find(item => item.categoria_id == id);
     if(selectedCategoria){
+      setNombreBorrar(selectedCategoria.categoria_nombre);
       setNombre(selectedCategoria.categoria_nombre);
       setDescripcion(selectedCategoria.categoria_descripcion)
       setSelectedColor(selectedCategoria.categoria_color);
+      const colorIndex = colors.findIndex(color => color === selectedCategoria.categoria_color);
+      setSelectedColor(colorIndex); 
       //console.log(selectedCategoria.categoria_color);
     }
   }
 
   const handleDeleteCategoria = (nombre) => {
-    deleteCategoria(nombre);
+    Alert.alert('¿Está seguro de eliminar la categoría?', 'Esta acción será permanente', [
+      {  
+        text: 'Cancelar',  
+        onPress: () => updateCategoriaRBSheet.current.close(),  
+        style: 'cancel',  
+    },  
+      {text: 'Eliminar', onPress: () => [deleteCategoria(nombre), updateCategoriaRBSheet.current.close()]},
+    ]);
   };
 
   const ordenarCategorias = (array) => {
@@ -59,16 +83,6 @@ const Categoria = ({ navigation }) => {
           <Text style={styles.title}>{title}</Text>
           <Text style={styles.description}>{descripcion}</Text>
         </View>
-        <Button
-          icon={
-            <Image
-              source={require('../assets/icons/delete.png')}
-              style={{ width: 18, height: 18, opacity: 0.8 }}
-            />
-          }
-          buttonStyle={styles.deleteButton}
-          onPress={() => handleDeleteCategoria(title)}
-        />
       </View>
     </View>
   );
@@ -96,7 +110,7 @@ const Categoria = ({ navigation }) => {
 
       <RBSheet
         ref={updateCategoriaRBSheet}
-        height={400}
+        height={450}
         openDuration={300}
         customStyles={{
           container: {
@@ -150,9 +164,21 @@ const Categoria = ({ navigation }) => {
         </View>
         <Button
           buttonStyle={styles.addNombreButton}
-          onPress={handleAddCategoria}
+          onPress={() => handleUpdateCategoria(idActualizar)}
           titleStyle={{ color: '#fff' }}
           title="Listo!"
+        />
+         <Button
+         title="    Eliminar Categoría  "
+          icon={
+            <Image
+              source={require('../assets/icons/delete.png')}
+              style={{ width: 18, height: 18, opacity: 0.8 }}
+            />
+          }
+          buttonStyle={[styles.deleteButton , { marginVertical: 8 }]}
+          titleStyle={{ color: '#fff' }}
+          onPress={() => handleDeleteCategoria(nombreBorrar)}
         />
       </RBSheet>
 
@@ -240,7 +266,7 @@ const Categoria = ({ navigation }) => {
         <Button
           title='Nueva categoría'
           buttonStyle={styles.changeColor}
-          onPress={() => refRBSheet.current.open()}
+          onPress={() => {setToNull(), refRBSheet.current.open()}}
         />
   
     </KeyboardAvoidingView>
@@ -398,10 +424,14 @@ const styles = StyleSheet.create({
     color: '#757575',
     marginTop: 5,
   },
-  deleteButton: {
-    backgroundColor: '#FFFFFF',
+  deleteButton: { 
+    backgroundColor: '#ff6161',
     borderRadius: 8,
     padding: 10,
+    borderRadius: 20,
+    height: 45,
+    width:330,
+    opacity: 0.85
   },
   colorContainer: {
     flexDirection: 'row',

@@ -1,5 +1,5 @@
 import React, { useContext, useRef, useState, useEffect } from 'react';
-import { Text, View, TextInput, StyleSheet, FlatList, KeyboardAvoidingView, Platform, Image, TouchableWithoutFeedback, Pressable, Alert, ActivityIndicator } from 'react-native';
+import { Text, View, TextInput, StyleSheet, FlatList, KeyboardAvoidingView, Platform, Image, TouchableWithoutFeedback, Pressable, Alert } from 'react-native';
 import { DataContext } from '../App';
 import { Button } from '@rneui/base';
 import RBSheet from 'react-native-raw-bottom-sheet';
@@ -120,6 +120,10 @@ const Transacciones = ({ navigation }) => {
     setIngresos(nuevoIngresos);
     setGastos(nuevoGastos);
   };
+
+  const handleUpdateTransaccion = (id) => {
+
+  }
 
   const handleAddTransaccion = () => {
     console.log('handleAddTransaccion called');
