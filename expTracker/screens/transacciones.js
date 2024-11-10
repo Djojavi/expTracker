@@ -74,10 +74,10 @@ const Transacciones = ({ navigation }) => {
   }, [idActualizar]);
 
   const handleLongPress = (id) => {
-    setIdActualizar(id);  // Establece el id de la transacción a actualizar
-    getTransaccion(id);   // Llama a getTransaccion con el id para cargar los datos
-    updateRefRBSheet.current.open();  // Abre el RBSheet de actualización
-  };
+    setIdActualizar(id);  
+    getTransaccion(id);   
+    updateRefRBSheet.current.open(); 
+};
   
 
   const setToNull = () => {

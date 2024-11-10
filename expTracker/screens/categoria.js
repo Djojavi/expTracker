@@ -1,5 +1,5 @@
 import React, { useContext, useRef, useState } from 'react';
-import { Text, View, TextInput, StyleSheet, FlatList, KeyboardAvoidingView, Platform, Image, TouchableWithoutFeedback } from 'react-native';
+import { Text, View, TextInput, StyleSheet, FlatList, KeyboardAvoidingView, Platform, Image, TouchableWithoutFeedback, Pressable } from 'react-native';
 import { DataContext } from '../App';
 import { Button } from '@rneui/base';
 import RBSheet from 'react-native-raw-bottom-sheet';
@@ -12,6 +12,8 @@ const Categoria = ({ navigation }) => {
   const refRBSheet = useRef();
 
   const colors = ['#F50C00', '#E70D68', '#FA75AF', '#E75A0D', '#FF961F', '#973E20', '#A18668', '#FFCE0A', '#4B6A10', '#5BDC00', '#25F8EA', '#5C92CC', '#000FB6', '#A168DE'];
+  const updateCategoriaRBSheet = useRef();
+
 
   const handleAddCategoria = () => {
     if (nombre && descripcion && selectedColor !== null) {
@@ -22,6 +24,22 @@ const Categoria = ({ navigation }) => {
       refRBSheet.current.close();
     }
   };
+
+  const setToNull = () => {
+    setNombre = null;
+    setDescripcion = null;
+    setSelectedColor = null;
+  }
+
+  const getCategoria = (id) => {
+    const selectedCategoria = categorias.find(item => item.categoria_id == id);
+    if(selectedCategoria){
+      setNombre(selectedCategoria.categoria_nombre);
+      setDescripcion(selectedCategoria.categoria_descripcion)
+      setSelectedColor(selectedCategoria.categoria_color);
+      //console.log(selectedCategoria.categoria_color);
+    }
+  }
 
   const handleDeleteCategoria = (nombre) => {
     deleteCategoria(nombre);
@@ -61,6 +79,7 @@ const Categoria = ({ navigation }) => {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
     >
+
       <View style={styles.header}>
         <Button
           icon={<Image source={require('../assets/icons/casa.png')} style={{ width: 25, height: 25 }} />}
@@ -75,15 +94,79 @@ const Categoria = ({ navigation }) => {
         <Image source={require('../assets/images/Logo.png')} style={{ width: 152, height: 40, marginTop: 29 }} />
       </View>
 
+      <RBSheet
+        ref={updateCategoriaRBSheet}
+        height={400}
+        openDuration={300}
+        customStyles={{
+          container: {
+            padding: 15,
+            justifyContent: 'center',
+            alignItems: 'center',
+            borderTopLeftRadius: 20,
+            borderTopRightRadius: 20,
+          }
+        }}
+      >
+        <Text style={styles.addCategoria}>Actualizar Categoria</Text>
+        <View style={styles.nombreContainer}>
+          <TextInput
+            style={styles.inputNombre}
+            placeholder="Nombre"
+            value={nombre}
+            onChangeText={setNombre}
+          />
+        </View>
+        <TextInput
+          style={styles.input}
+          placeholder="Descripcion"
+          value={descripcion}
+          onChangeText={setDescripcion}
+        />
+
+        <Text style={styles.text}>Escoge el color para tu categoría!</Text>
+        <View style={styles.colorContainer}>
+          {colors.map((color, index) => {
+            const isActive = selectedColor === index;
+            return (
+              <TouchableWithoutFeedback
+                key={index}
+                onPress={() => setSelectedColor(index)}
+              >
+                <View
+                  style={[
+                    styles.circle,
+                    isActive && { borderColor: color },
+                  ]}
+                >
+                  <View
+                    style={[styles.circleInside, { backgroundColor: color }]}
+                  />
+                </View>
+              </TouchableWithoutFeedback>
+            );
+          })}
+          
+        </View>
+        <Button
+          buttonStyle={styles.addNombreButton}
+          onPress={handleAddCategoria}
+          titleStyle={{ color: '#fff' }}
+          title="Listo!"
+        />
+      </RBSheet>
+
       <View style={styles.content}>
         <FlatList
           data={categoriasOrdenadas}
           renderItem={({ item }) => (
+            <Pressable onLongPress={() => {updateCategoriaRBSheet.current.open(), getCategoria(item.categoria_id)}}>
             <Item
               title={item.categoria_nombre}
               descripcion={item.categoria_descripcion}
               color={item.categoria_color}
             />
+            </Pressable>
           )}
           keyExtractor={(item) => item.categoria_id.toString()}
           style={styles.flatList}
@@ -151,6 +234,8 @@ const Categoria = ({ navigation }) => {
           title="Listo!"
         />
       </RBSheet>
+
+      
 
         <Button
           title='Nueva categoría'
