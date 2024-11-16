@@ -34,7 +34,7 @@ const RadioButton = (props) => {
 };
 
 const Transacciones = ({ navigation }) => {
-  const { transacciones, addTransaccion, categorias, transaccion } = useContext(DataContext);
+  const { transacciones, addTransaccion, categorias, transaccion, deleteTransaccion, updateTransaccion } = useContext(DataContext);
   const [nombre, setNombre] = useState('');
   const [descripcion, setDescripcion] = useState('');
   const [monto, setMonto] = useState('');
@@ -104,25 +104,69 @@ const Transacciones = ({ navigation }) => {
 
   const calcularBalance = (arrayTransacciones) => {
     let nuevoBalance = 0, nuevoIngresos = 0, nuevoGastos = 0;
+  
     arrayTransacciones.forEach(item => {
-      if (item.transaccion_tipo === 'Ingreso') {
-        nuevoBalance += item.transaccion_monto;
-        nuevoIngresos += item.transaccion_monto;
-      } else if (item.transaccion_tipo === 'Gasto') {
-        nuevoBalance -= item.transaccion_monto;
-        nuevoGastos -= item.transaccion_monto;
+      const monto = parseFloat(item.transaccion_monto); // Convertir a número
+      if (!isNaN(monto)) { // Asegúrate de que sea un número válido
+        if (item.transaccion_tipo === 'Ingreso') {
+          nuevoBalance += monto;
+          nuevoIngresos += monto;
+        } else if (item.transaccion_tipo === 'Gasto') {
+          nuevoBalance -= monto;
+          nuevoGastos -= monto;
+        }
       }
     });
+  
     if (nuevoGastos !== 0) {
-      nuevoGastos = nuevoGastos * -1
+      nuevoGastos = nuevoGastos * -1;
     }
+  
     setBalance(nuevoBalance);
     setIngresos(nuevoIngresos);
     setGastos(nuevoGastos);
   };
+  
 
   const handleUpdateTransaccion = (id) => {
+    console.log('Current state values:', { nombre, descripcion, monto, tipo, categoria });
+    if (nombre && descripcion && monto > 0 && tipo && categoria) {
+      const mes = new Date().getMonth() + 1;
+      const anio = new Date().getFullYear();
+      const dia = new Date().getDate();
+      let hora = new Date().getHours();
+      let minutos = new Date().getMinutes();
+      if(minutos <10){
+        minutos = "0"+minutos;
+      }
+      if(hora < 10){
+        hora = "0"+hora;
+      }
+      const horaActual = hora + ":" + minutos;
+      updateTransaccion(id, nombre, descripcion,categoria, tipo, monto);
+      setNombre('');
+      setDescripcion('');
+      setMonto('');
+      setFecha('');
+      setCategoria('');
+      setTipo('');
+      refRBSheet.current.close();
+    } else {
+      Alert.alert('Error', 'El monto debe ser mayor a 0!', [
+      {text: 'Entendido', onPress: () => console.log('OK Pressed')},
+    ]);
+    }
+  }
 
+  const handleDeleteTransaccion = (id) =>{
+    Alert.alert('¿Está seguro de eliminar la transacción?', 'Esta acción será permanente', [
+      {  
+        text: 'Cancelar',  
+        onPress: () => updateRefRBSheet.current.close(),  
+        style: 'cancel',  
+    },  
+      {text: 'Eliminar', onPress: () => [deleteTransaccion(id), updateRefRBSheet.current.close()]},
+    ]);
   }
 
   const handleAddTransaccion = () => {
@@ -377,9 +421,22 @@ const Transacciones = ({ navigation }) => {
 
         <Button
           buttonStyle={styles.addNombreButton}
-          onPress={handleAddTransaccion}
+          onPress={() => handleUpdateTransaccion(idActualizar)}
           titleStyle={{ color: '#fff' }}
           title="Listo!"
+        />
+
+<Button
+         title="    Eliminar Categoría  "
+          icon={
+            <Image
+              source={require('../assets/icons/delete.png')}
+              style={{ width: 18, height: 18, opacity: 0.8 }}
+            />
+          }
+          buttonStyle={[styles.deleteButton , { marginVertical: 8 }]}
+          titleStyle={{ color: '#fff' }}
+          onPress={() => handleDeleteTransaccion(idActualizar)}
         />
       </RBSheet>
 
@@ -587,6 +644,15 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     backgroundColor: '#A37366',
   },
+  deleteButton: { 
+    backgroundColor: '#ff6161',
+    borderRadius: 8,
+    padding: 10,
+    borderRadius: 20,
+    height: 45,
+    width:330,
+    opacity: 0.85
+  },
   addTransaccion: {
     fontSize: 25,
     fontWeight: 'bold',
@@ -709,11 +775,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#757575',
     marginTop: 5,
-  },
-  deleteButton: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 8,
-    padding: 10,
   },
   colorContainer: {
     flexDirection: 'row',

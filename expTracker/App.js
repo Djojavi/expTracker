@@ -1,7 +1,7 @@
 import React, { createContext, useState, useEffect } from 'react';
 import Navigation from './navigation/Navigation';
 import * as SQLite from 'expo-sqlite';
-import { ActivityIndicator, View, Alert } from 'react-native';
+import { ActivityIndicator, View} from 'react-native';
 
 export const DataContext = createContext(); //Para exportar los arreglos y funciones
 
@@ -194,6 +194,43 @@ const App = () => {
     });
   };
 
+  const deleteTransaccion = (transaccion_id) => { //Elimina una transacción en base a su id
+    db.transaction(tx => {
+      tx.executeSql(
+        'DELETE FROM Transacciones WHERE transaccion_id = ?',
+        [transaccion_id],
+        () => {
+          setTransacciones(prevTransacciones => prevTransacciones.filter(transaccion => transaccion.transaccion_id !== transaccion_id)); //Llena el arreglo transacciones con todo menos la categoría borrada
+        },
+        (txObj, error) => {
+          console.log('Error deleting data from Transacciones table', error);
+        }
+      );
+    });
+  };
+
+
+  const updateTransaccion = (id, nombre, descripcion, categoria_id, tipo, monto) => {
+    db.transaction(tx => { // actualiza una transaccion existente
+      tx.executeSql(
+        'UPDATE Transacciones SET transaccion_nombre = ?, transaccion_descripcion = ?, categoria_id = ?, transaccion_tipo = ?, transaccion_monto = ?  WHERE categoria_id = ?',
+        [nombre, descripcion, categoria_id,tipo, monto, id],
+        (txObj, resultSet) => {
+          setTransacciones(prevTransacciones =>
+            prevTransacciones.map(transaccion =>
+              transaccion.transaccion_id === id
+                ? { ...transaccion, transaccion_nombre: nombre, transaccion_descripcion: descripcion, categoria_id: categoria_id, transaccion_tipo: tipo, transaccion_monto: monto }
+                : transaccion
+            )
+          );
+        },
+        (txObj, error) => {
+          console.log('Error updating Transaccion table', error);
+        }
+      );
+    });
+  };
+
   const getTransaccion = (id) => {
     // Obtener una transacción guardada
     db.transaction(tx => {
@@ -228,7 +265,7 @@ const App = () => {
   }
 
   return (
-    <DataContext.Provider value={{ categorias, addCategoria, deleteCategoria, transacciones, addTransaccion, usuario, transaccion, updateCategoria }}>
+    <DataContext.Provider value={{ categorias, addCategoria, deleteCategoria, transacciones, addTransaccion, usuario, transaccion, updateCategoria, deleteTransaccion, updateTransaccion }}>
       <Navigation />
     </DataContext.Provider>
   );
