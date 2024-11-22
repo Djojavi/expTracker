@@ -150,7 +150,7 @@ const Transacciones = ({ navigation }) => {
       setFecha('');
       setCategoria('');
       setTipo('');
-      refRBSheet.current.close();
+      updateRefRBSheet.current.close();
     } else {
       Alert.alert('Error', 'El monto debe ser mayor a 0!', [
       {text: 'Entendido', onPress: () => console.log('OK Pressed')},
