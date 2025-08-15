@@ -1,12 +1,9 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { Stack } from 'expo-router';
 import { SQLiteProvider } from 'expo-sqlite';
 import { StatusBar } from 'expo-status-bar';
+import { useEffect } from 'react';
 import 'react-native-reanimated';
 import { useDatabase } from '../hooks/useDatabase';
-
-import { useColorScheme } from '@/hooks/useColorScheme';
-import { useEffect } from 'react';
 
 function DatabaseInitializer() {
   const { setupDatabase } = useDatabase();
@@ -19,18 +16,14 @@ function DatabaseInitializer() {
 }
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
-
   return (
     <SQLiteProvider databaseName='antracker.db'>
       <DatabaseInitializer />
-      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-        <Stack>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="+not-found" />
-        </Stack>
-        <StatusBar style="auto" />
-      </ThemeProvider>
+      <StatusBar style="auto" />
+      <Stack>
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="+not-found" />
+      </Stack>
     </SQLiteProvider>
   );
 }

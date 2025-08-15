@@ -5,8 +5,38 @@ import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+import { useCategorias } from '@/hooks/useCategorias';
+import { useEffect, useState } from 'react';
+
+export interface Categoria {
+  categoria_id?: number,
+  categoria_nombre: string,
+  categoria_color: string
+}
 
 export default function HomeScreen() {
+  const { addCategoria, getCategorias } = useCategorias();
+  const [categorias, setCategorias] = useState<Categoria[]>([]);
+  let isMounted = true;
+
+  const initializeData = async () => {
+    try {
+      const data = await getCategorias();
+      if (isMounted) {
+        setCategorias(data);
+        console.log(data)
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+
+  useEffect(() => {
+    initializeData();
+    console.log(categorias)
+    return () => { isMounted = false };
+  }, []);
+
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
@@ -21,7 +51,12 @@ export default function HomeScreen() {
         <HelloWave />
       </ThemedView>
       <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
+        <ThemedText type="subtitle">Step 1</ThemedText>
+        <ThemedText type="subtitle">
+          {categorias.length > 0
+            ? categorias.map((c, i) => `${c.categoria_color} (${c.categoria_nombre})`).join(', ')
+            : 'No hay categorías'}
+        </ThemedText>
         <ThemedText>
           Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
           Press{' '}
