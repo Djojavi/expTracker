@@ -1,4 +1,5 @@
 import { useNavigation } from '@react-navigation/native';
+import { Link } from 'expo-router';
 import React from 'react';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
@@ -14,9 +15,12 @@ const Welcome = () => {
         <Image source={require('../../assets/images/AntWelcome.png')} style={{ marginTop: 50, width: 210, height: 190 }} />
       </View>
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.buttonTransacciones}>
-          <Text style={styles.buttonTitle}>Transacciones</Text>
-        </TouchableOpacity>
+        <Link href="/(tabs)/categoria">
+          <View style={styles.buttonTransacciones}>
+            <Text style={styles.buttonTitle}>Transacciones</Text>
+          </View>
+        </Link>
+
         <TouchableOpacity style={styles.button}>
           <Text style={styles.buttonTitle}>Categorias</Text>
         </TouchableOpacity>

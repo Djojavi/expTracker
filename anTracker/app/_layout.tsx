@@ -19,7 +19,8 @@ export default function RootLayout() {
     <SQLiteProvider databaseName='antracker.db'>
       <DatabaseInitializer />
       <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }}  />
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="(tabs)/categoria" options={{ headerShown: false }} />
         <Stack.Screen name="+not-found" />
       </Stack>
     </SQLiteProvider>
