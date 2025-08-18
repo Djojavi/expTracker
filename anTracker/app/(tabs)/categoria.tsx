@@ -63,10 +63,10 @@ const Categoria = () => {
         refRBSheet.current?.close()
         console.log(result)
         initializeCategorias();
-      }catch(e: any){
+      } catch (e: any) {
         console.log(e);
       }
-      
+
     }
   };
 
@@ -99,9 +99,7 @@ const Categoria = () => {
     setNombreBorrar(selectedCategoria.categoria_nombre);
     setNombre(selectedCategoria.categoria_nombre);
     setDescripcion(selectedCategoria.categoria_descripcion);
-    const colorIndex = colors.findIndex(
-      (color) => color === selectedCategoria.categoria_color
-    );
+    setSelectedColor(selectedCategoria.categoria_color)
   };
 
 
@@ -161,11 +159,11 @@ const Categoria = () => {
 
       <RBSheet
         ref={updateCategoriaRBSheet}
-        height={450}
+        height={480}
         openDuration={300}
         customStyles={{
           container: {
-            padding: 15,
+            padding: 2,
             justifyContent: 'center',
             alignItems: 'center',
             borderTopLeftRadius: 20,
@@ -213,11 +211,6 @@ const Categoria = () => {
           })}
 
         </View>
-        <Link href="/(tabs)">
-          <View style={{ width: 25, height: 25 }}>
-            <Image source={require('../../assets/icons/casa.png')}></Image>
-          </View>
-        </Link>
         <TouchableOpacity
           style={styles.addNombreButton}
           onPress={() => handleUpdateCategoria(idActualizar)}
@@ -226,12 +219,12 @@ const Categoria = () => {
             Listo!
           </Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.deleteButton} onPress={() => handleDeleteCategoria(nombreBorrar)}
+        <TouchableOpacity style={[styles.deleteButton, { marginTop: 5 }]} onPress={() => handleDeleteCategoria(nombreBorrar)}
         >
           <Text style={{ color: "#fff", textAlign: "center", fontWeight: "bold" }}>
             Eliminar Categoría
           </Text>
-          <Image source={require('../../assets/icons/delete.png')}></Image>
+          
         </TouchableOpacity>
       </RBSheet>
 
