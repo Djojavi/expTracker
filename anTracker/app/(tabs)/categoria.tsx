@@ -18,7 +18,7 @@ interface RBSheetRef {
 }
 
 const Categoria = () => {
-  const { addCategoria, getCategorias } = useCategorias();
+  const { addCategoria, getCategorias, updateCategoria, deleteCategoria } = useCategorias();
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   let isMounted = true;
 
@@ -45,7 +45,6 @@ const Categoria = () => {
 
   useEffect(() => {
     initializeCategorias();
-    console.log(categorias)
     return () => { isMounted = false };
   }, []);
 
@@ -61,7 +60,6 @@ const Categoria = () => {
         setDescripcion('');
         setSelectedColor('');
         refRBSheet.current?.close()
-        console.log(result)
         initializeCategorias();
       } catch (e: any) {
         console.log(e);
@@ -72,11 +70,14 @@ const Categoria = () => {
 
   const handleUpdateCategoria = (id: number) => {
     console.log(id);
-    if (nombre && descripcion && selectedColor !== null) {
-      //updateCategoria(id, nombre, descripcion, colors[selectedColor]);
+    const categoriaActualizar: Categoria = { categoria_id: id, categoria_nombre: nombre, categoria_descripcion: descripcion, categoria_color: selectedColor }
+    console.log(categoriaActualizar)
+    if (nombre && descripcion && selectedColor) {
+      updateCategoria(categoriaActualizar);
       setNombre('');
       setDescripcion('');
       setSelectedColor('');
+      initializeCategorias();
       updateCategoriaRBSheet.current?.close();
     }
   };
@@ -110,7 +111,7 @@ const Categoria = () => {
         onPress: () => updateCategoriaRBSheet.current?.close(),
         style: 'cancel',
       },
-      //{ text: 'Eliminar', onPress: () => [deleteCategoria(nombre), updateCategoriaRBSheet.current?.close()] },
+      { text: 'Eliminar', onPress: () => [deleteCategoria(nombre), updateCategoriaRBSheet.current?.close(), initializeCategorias()] },
     ]);
   };
 
@@ -224,7 +225,7 @@ const Categoria = () => {
           <Text style={{ color: "#fff", textAlign: "center", fontWeight: "bold" }}>
             Eliminar Categoría
           </Text>
-          
+
         </TouchableOpacity>
       </RBSheet>
 

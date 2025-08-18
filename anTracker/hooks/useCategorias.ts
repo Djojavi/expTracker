@@ -7,7 +7,7 @@ export function useCategorias() {
     const addCategoria = async (categoria: Categoria) => {
         await db.runAsync(
             'INSERT INTO Categorias (categoria_nombre, categoria_descripcion, categoria_color) VALUES (?, ?, ?)',
-            [categoria.categoria_nombre, categoria.categoria_descripcion ,categoria.categoria_color]
+            [categoria.categoria_nombre, categoria.categoria_descripcion, categoria.categoria_color]
         );
     };
 
@@ -15,10 +15,20 @@ export function useCategorias() {
         return await db.getAllAsync<Categoria>('SELECT * FROM Categorias');
     };
 
-    const updateCategoria = async(categoria: Categoria) =>{
-        await db.runAsync('UPDATE Categorias SET categoria_nombre =?, categoria_color=?, categoria_descripcion=? WHERE categoria_id = ?', [categoria.categoria_nombre,categoria.categoria_color,categoria.categoria_descripcion,categoria.categoria_id??null])
+    const updateCategoria = async (categoria: Categoria) => {
+        try {
+            const result = await db.runAsync('UPDATE Categorias SET categoria_nombre =?, categoria_color=?, categoria_descripcion=? WHERE categoria_id = ?', [categoria.categoria_nombre, categoria.categoria_color, categoria.categoria_descripcion, categoria.categoria_id ?? null])
+            return result;
+        }catch (e: any){
+            console.log(e)
+        }
+        
     }
 
-    return { addCategoria, getCategorias, updateCategoria}
+    const deleteCategoria = async(categoria_nombre : string) => {
+        await db.runAsync('DELETE FROM Categorias WHERE categoria_nombre = ?',[categoria_nombre])
+    }
+
+    return { addCategoria, getCategorias, updateCategoria, deleteCategoria }
 
 }
