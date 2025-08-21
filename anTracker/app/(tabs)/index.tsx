@@ -1,7 +1,7 @@
 import { useNavigation } from '@react-navigation/native';
 import { Link } from 'expo-router';
 import React from 'react';
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Image, StyleSheet, Text, View } from 'react-native';
 
 //Pantalla de bienvenida
 
@@ -15,15 +15,18 @@ const Welcome = () => {
         <Image source={require('../../assets/images/AntWelcome.png')} style={{ marginTop: 50, width: 210, height: 190 }} />
       </View>
       <View style={styles.buttonContainer}>
-        <Link href="/(tabs)/categoria">
+        <Link href="/(tabs)/transacciones">
           <View style={styles.buttonTransacciones}>
             <Text style={styles.buttonTitle}>Transacciones</Text>
           </View>
         </Link>
 
-        <TouchableOpacity style={styles.button}>
-          <Text style={styles.buttonTitle}>Categorias</Text>
-        </TouchableOpacity>
+        <Link href="/(tabs)/categoria">
+          <View style={styles.button}>
+            <Text style={styles.buttonTitle}>Categorias</Text>
+          </View>
+        </Link>
+        
       </View>
     </View>
   );
