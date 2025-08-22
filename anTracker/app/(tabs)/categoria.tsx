@@ -148,7 +148,7 @@ const Categoria = () => {
             </View>
           </Link>
 
-          <Link href="/(tabs)">
+          <Link href="/(tabs)/transacciones">
             <View >
               <Image style={{ width: 30, height: 30, marginTop: 35 }} source={require('../../assets/icons/dinero.png')}></Image>
             </View>

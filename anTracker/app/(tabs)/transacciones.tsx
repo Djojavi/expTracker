@@ -1,7 +1,10 @@
+import { useCategorias } from '@/hooks/useCategorias';
+import { useTransacciones } from '@/hooks/useTransacciones';
 import { Link } from 'expo-router';
-import React, { useRef, useState } from 'react';
-import { FlatList, Image, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { Alert, FlatList, Image, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 import RBSheet from 'react-native-raw-bottom-sheet';
+import { Categoria } from './categoria';
 
 //Pantalla con las transacciones
 
@@ -47,9 +50,9 @@ const RadioButton = (props: any) => {
     );
 };
 
- const filterByDays = (days: any) => {
+const filterByDays = (days: any) => {
     const now = new Date();
-  
+
     /*const newTransacciones = transacciones.filter(item => {
       const transaccionFecha = new Date(item.transaccion_anio, item.transaccion_mes - 1, item.transaccion_dia); // Crear objeto Date usando anio, mes y dia
       const diffTime = Math.abs(now - transaccionFecha);
@@ -59,9 +62,15 @@ const RadioButton = (props: any) => {
     
     setTransaccionesFiltradas(newTransacciones);
     calcularBalance(newTransacciones);*/
-  };
+};
 
 const Transacciones = () => {
+    const { getCategorias } = useCategorias();
+    const [categorias, setCategorias] = useState<Categoria[]>([]);
+
+    let isMounted = true;
+    const { addTransaccion, getTransacciones } = useTransacciones();
+    const [transacciones, setTransacciones] = useState<Transaccion[]>([]);
     const [nombre, setNombre] = useState('');
     const [descripcion, setDescripcion] = useState('');
     const [monto, setMonto] = useState('');
@@ -74,9 +83,68 @@ const Transacciones = () => {
     const [transaccionesFiltradas, setTransaccionesFiltradas] = useState([]);
     const [idActualizar, setIdActualizar] = useState(0);
 
+    const ordenarCategorias = (array: any) => {
+        return array.sort((a: any, b: any) => a.categoria_nombre.localeCompare(b.categoria_nombre));
+    }
+    const initializeCategorias = async () => {
+        try {
+            const data = await getCategorias();
+            if (isMounted) {
+                setCategorias(data);
+            }
+        } catch (error) {
+            console.error("Error:", error);
+        }
+    };
+    const categoriasOrdenadas = ordenarCategorias(categorias);
+
+    const initializeTransacciones = async () => {
+        try {
+            const data = await getTransacciones();
+            console.log('Transacciones guardadas:',data)
+            if (isMounted) {
+                setTransacciones(data);
+            }
+        } catch (error) {
+            console.error("Error:", error);
+        }
+    };
+
+    useEffect(() => {
+        initializeCategorias();
+        initializeTransacciones();
+        return () => { isMounted = false };
+    }, []);
+
 
     const refRBSheet = useRef<RBSheetRef>(null);
     const updateRefRBSheet = useRef<RBSheetRef>(null);
+
+    const handleAddTransaccion = async () => {
+        console.log('handleAddTransaccion called');
+        console.log('Current state values:', { nombre, descripcion, monto, tipo, categoria });
+        if (nombre && descripcion && monto && tipo && categoria) {
+            const fechaNumero = Date.now(); 
+            const nuevaTransaccion: Transaccion = { categoria_id: Number(categoria), transaccion_monto: Number(monto), transaccion_nombre: nombre, transaccion_metodo: nombre, transaccion_fecha: fechaNumero, transaccion_descripcion: descripcion, transaccion_tipo: tipo }
+            try {
+                const result = await addTransaccion(nuevaTransaccion)
+                setNombre('');
+                setDescripcion('');
+                setMonto('');
+                setFecha('');
+                setCategoria('');
+                setTipo('');
+                refRBSheet.current?.close();
+            } catch (e: any) {
+                console.log(e)
+            }
+
+        } else {
+            Alert.alert('Error', 'El monto debe ser mayor a 0!', [
+                { text: 'Entendido', onPress: () => console.log('OK Pressed') },
+            ]);
+        }
+    }
 
 
     const Item: React.FC<Transaccion> = ({ transaccion_descripcion, transaccion_nombre, transaccion_monto, transaccion_fecha, categoria_id, transaccion_tipo }) => (
@@ -174,9 +242,26 @@ const Transacciones = () => {
                     onChangeText={setDescripcion}
                 />
                 <Text style={styles.catText}>Selecciona una categoría!</Text>
-                
-
-
+                <FlatList
+                    data={categoriasOrdenadas}
+                    removeClippedSubviews={true}
+                    renderItem={({ item }) => (
+                        <TouchableWithoutFeedback onPress={() => setCategoria(item.categoria_id)}>
+                            <View style={[styles.item, categoria === item.categoria_id && styles.selectedItem]}>
+                                <View style={{ flexDirection: 'row' }}>
+                                    <View style={[styles.circularTextView, { backgroundColor: item.categoria_color }]} />
+                                    <Text style={styles.itemText}>{item.categoria_nombre}</Text>
+                                </View>
+                            </View>
+                        </TouchableWithoutFeedback>
+                    )}
+                    keyExtractor={(item, index) => index.toString()}
+                />
+                <TouchableOpacity style={styles.addNombreButton} onPress={() => handleAddTransaccion()}>
+                    <Text style={{ color: "#fff", textAlign: "center", fontWeight: "bold" }}>
+                        Listo!
+                    </Text>
+                </TouchableOpacity>
             </RBSheet>
 
             <RBSheet
@@ -248,7 +333,7 @@ const Transacciones = () => {
 
             </RBSheet>
 
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}  contentContainerStyle={{ flexDirection: 'row', gap: 5, paddingHorizontal: 10, paddingBottom: 10, overflow:'scroll' }}>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ flexDirection: 'row', gap: 5, paddingHorizontal: 10, paddingBottom: 10, overflow: 'scroll' }}>
                 <Pressable onPress={() => filterByDays(7)}>
                     <View style={styles.dias}>
                         <Text> 7 días </Text>
@@ -281,8 +366,8 @@ const Transacciones = () => {
 
             </ScrollView>
 
-            <TouchableOpacity style={[styles.changeColor, {alignItems:'center', justifyContent:'center'}]} onPress={()=> refRBSheet.current?.open()}>
-                <Text style={{color: 'white'}}>Añadir nueva transacción</Text>
+            <TouchableOpacity style={[styles.changeColor, { alignItems: 'center', justifyContent: 'center' }]} onPress={() => refRBSheet.current?.open()}>
+                <Text style={{ color: 'white' }}>Añadir nueva transacción</Text>
             </TouchableOpacity>
 
 
@@ -495,6 +580,7 @@ const styles = StyleSheet.create({
     addNombreButton: {
         backgroundColor: '#A37366',
         borderRadius: 20,
+        justifyContent: 'center',
         height: 45,
         width: 120,
         paddingHorizontal: 15,
