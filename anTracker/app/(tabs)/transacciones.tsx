@@ -69,7 +69,7 @@ const Transacciones = () => {
     const [categorias, setCategorias] = useState<Categoria[]>([]);
 
     let isMounted = true;
-    const { addTransaccion, getTransacciones } = useTransacciones();
+    const { addTransaccion, getTransacciones, getTransaccion, updateTransaccion } = useTransacciones();
     const [transacciones, setTransacciones] = useState<Transaccion[]>([]);
     const [nombre, setNombre] = useState('');
     const [descripcion, setDescripcion] = useState('');
@@ -114,8 +114,15 @@ const Transacciones = () => {
     useEffect(() => {
         initializeCategorias();
         initializeTransacciones();
+        calcularBalance(transacciones);
         return () => { isMounted = false };
     }, []);
+
+    useEffect(() => {
+        if (transacciones) {
+            calcularBalance(transacciones);
+        }
+    }, [transacciones]);
 
 
     const refRBSheet = useRef<RBSheetRef>(null);
@@ -147,6 +154,32 @@ const Transacciones = () => {
         }
     }
 
+    const handleUpdateTransaccion = async (transaccion_id: number) => {
+        console.log('handleAddTransaccion called');
+        console.log('Current state values:', { nombre, descripcion, monto, tipo, categoria, metodo });
+        if (nombre && descripcion && monto && tipo && categoria && metodo) {
+            const fechaNumero = Date.now();
+            const actualizadaTransaccion: Transaccion = { categoria_id: Number(categoria), transaccion_monto: Number(monto), transaccion_nombre: nombre, transaccion_metodo: metodo, transaccion_fecha: fechaNumero, transaccion_descripcion: descripcion, transaccion_tipo: tipo }
+            try {
+                const result = await updateTransaccion(actualizadaTransaccion, transaccion_id)
+                setNombre('');
+                setDescripcion('');
+                setMonto('');
+                setFecha('');
+                setCategoria('');
+                setTipo('');
+                updateRefRBSheet.current?.close();
+            } catch (e: any) {
+                console.log(e)
+            }
+
+        } else {
+            Alert.alert('Error', 'El monto debe ser mayor a 0!', [
+                { text: 'Entendido', onPress: () => console.log('OK Pressed') },
+            ]);
+        }
+    }
+
     function segundosATiempo(segundos: number): string {
         const fecha = new Date(segundos);
         return fecha.toLocaleString();
@@ -155,6 +188,51 @@ const Transacciones = () => {
         const categoria = categorias.find(cat => cat.categoria_id === id);
         return categoria?.categoria_nombre ?? 'Sin categoría';
     }
+
+    const calcularBalance = (arrayTransacciones: Transaccion[]) => {
+        let nuevoBalance = 0, nuevoIngresos = 0, nuevoGastos = 0;
+
+        arrayTransacciones.forEach(item => {
+            const monto = item.transaccion_monto; // Convertir a número
+            if (!isNaN(monto)) { // Asegúrate de que sea un número válido
+                if (item.transaccion_tipo === 'Ingreso') {
+                    nuevoBalance += monto;
+                    nuevoIngresos += monto;
+                } else if (item.transaccion_tipo === 'Gasto') {
+                    nuevoBalance -= monto;
+                    nuevoGastos -= monto;
+                }
+            }
+        });
+
+        if (nuevoGastos !== 0) {
+            nuevoGastos = nuevoGastos * -1;
+        }
+
+        setBalance(nuevoBalance);
+        setIngresos(nuevoIngresos);
+        setGastos(nuevoGastos);
+    };
+
+    const handleLongPress = (id: number) => {
+        setIdActualizar(id);
+        getTransaccionVista(id);
+        updateRefRBSheet.current?.open();
+    };
+
+    const getTransaccionVista = async (id: number) => {
+        const transaccionEncontrada = await getTransaccion(id);
+        if (transaccionEncontrada) {
+            setNombre(transaccionEncontrada.transaccion_nombre);
+            setDescripcion(transaccionEncontrada.transaccion_descripcion);
+            setMonto(transaccionEncontrada.transaccion_monto.toString());
+            setTipo(transaccionEncontrada.transaccion_tipo);
+            setCategoria(transaccionEncontrada.categoria_id.toString());
+            setMetodo(transaccionEncontrada.transaccion_metodo)
+        } else {
+            console.log('problema al encontrar la transaccion')
+        }
+    };
 
     const Item: React.FC<Transaccion> = ({ transaccion_descripcion, transaccion_nombre, transaccion_monto, transaccion_fecha, categoria_id, transaccion_tipo }) => (
         <View style={styles.item}>
@@ -339,65 +417,100 @@ const Transacciones = () => {
                     value={descripcion}
                     onChangeText={setDescripcion}
                 />
+                <TextInput
+                    style={styles.input}
+                    placeholder="Método"
+                    value={metodo}
+                    onChangeText={setMetodo}
+                />
                 <Text style={styles.catText}>Selecciona una categoría!</Text>
                 <FlatList
-                    data={[]}
+                    data={categoriasOrdenadas}
                     removeClippedSubviews={true}
                     renderItem={({ item }) => (
-                        <Text>fsfd</Text>
+                        <TouchableWithoutFeedback onPress={() => setCategoria(item.categoria_id)}>
+                            <View style={[styles.item, categoria === item.categoria_id && styles.selectedItem]}>
+                                <View style={{ flexDirection: 'row' }}>
+                                    <View style={[styles.circularTextView, { backgroundColor: item.categoria_color }]} />
+                                    <Text style={styles.itemText}>{item.categoria_nombre}</Text>
+                                </View>
+                            </View>
+                        </TouchableWithoutFeedback>
                     )}
                     keyExtractor={(item, index) => index.toString()}
                 />
-
+                <TouchableOpacity style={styles.addNombreButton} onPress={() => handleUpdateTransaccion(idActualizar)}>
+                    <Text style={{ color: "#fff", textAlign: "center", fontWeight: "bold" }}>
+                        Listo!
+                    </Text>
+                </TouchableOpacity>
 
 
             </RBSheet>
+            <View style={{ justifyContent: 'center', marginLeft: 10 }}>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ flexDirection: 'row', gap: 5, paddingHorizontal: 10, overflow: 'scroll', marginBottom: 15 }}>
+                    <Pressable onPress={() => filterByDays(7)}>
+                        <View style={styles.dias}>
+                            <Text> 7 días </Text>
+                        </View>
+                    </Pressable>
 
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ flexDirection: 'row', gap: 5, paddingHorizontal: 10, paddingBottom: 10, overflow: 'scroll' }}>
-                <Pressable onPress={() => filterByDays(7)}>
-                    <View style={styles.dias}>
-                        <Text> 7 días </Text>
-                    </View>
-                </Pressable>
+                    <Pressable onPress={() => filterByDays(30)}>
+                        <View style={styles.dias}>
+                            <Text> 30 días </Text>
+                        </View>
+                    </Pressable>
 
-                <Pressable onPress={() => filterByDays(30)}>
-                    <View style={styles.dias}>
-                        <Text> 30 días </Text>
-                    </View>
-                </Pressable>
+                    <Pressable onPress={() => filterByDays(90)}>
+                        <View style={styles.dias}>
+                            <Text> 90 días </Text>
+                        </View>
+                    </Pressable>
 
-                <Pressable onPress={() => filterByDays(90)}>
-                    <View style={styles.dias}>
-                        <Text> 90 días </Text>
-                    </View>
-                </Pressable>
+                    <Pressable onPress={() => filterByDays(365)}>
+                        <View style={styles.dias}>
+                            <Text> Este año </Text>
+                        </View>
+                    </Pressable>
 
-                <Pressable onPress={() => filterByDays(365)}>
-                    <View style={styles.dias}>
-                        <Text> Este año </Text>
-                    </View>
-                </Pressable>
+                    <Pressable onPress={() => filterByDays(100000)}>
+                        <View style={styles.dias}>
+                            <Text> Siempre </Text>
+                        </View>
+                    </Pressable>
 
-                <Pressable onPress={() => filterByDays(100000)}>
-                    <View style={styles.dias}>
-                        <Text> Siempre </Text>
-                    </View>
-                </Pressable>
+                </ScrollView>
 
-            </ScrollView>
+                <View style={styles.conatinerEstadisticas}>
+                    <Text style={{ fontSize: 30, alignSelf: 'center' }}>$ {balance.toFixed(2)}</Text>
+                </View>
+
+                <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
+                    <Link href={'/(tabs)/ingresos'}>
+                        <View style={styles.ingresos}>
+                            <Text style={styles.balanceIngreso}>+ ${ingresos.toFixed(2)} </Text>
+                        </View>
+                    </Link>
+
+                    <Link href={'/(tabs)/gastos'}>
+                        <View style={styles.gastos}>
+                            <Text style={styles.balanceGastos}>- ${gastos.toFixed(2)}</Text>
+                        </View>
+                    </Link>
+                </View>
 
 
 
-            <TouchableOpacity style={[styles.changeColor, { alignItems: 'center', justifyContent: 'center' }]} onPress={() => refRBSheet.current?.open()}>
-                <Text style={{ color: 'white' }}>Añadir nueva transacción</Text>
-            </TouchableOpacity>
-
+                <TouchableOpacity style={[styles.changeColor, { alignItems: 'center', justifyContent: 'center' }]} onPress={() => refRBSheet.current?.open()}>
+                    <Text style={{ color: 'white' }}>Añadir nueva transacción</Text>
+                </TouchableOpacity>
+            </View>
             <View style={styles.content}>
                 <FlatList
                     inverted
                     data={transacciones}
                     renderItem={({ item }) => (
-                        <Pressable >
+                        <Pressable onLongPress={() => { handleLongPress(item.transaccion_id ? item.transaccion_id : 0) }}>
                             <Item
                                 transaccion_nombre={item.transaccion_nombre}
                                 transaccion_descripcion={item.transaccion_descripcion}
@@ -455,10 +568,10 @@ const styles = StyleSheet.create({
     conatinerEstadisticas: {
         backgroundColor: '#fff',
         flexDirection: 'column',
-        justifyContent: 'center',
         marginHorizontal: 15,
+        marginRight: 25,
         padding: 12,
-        paddingHorizontal: 45,
+        paddingHorizontal: 55,
         borderRadius: 8,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
