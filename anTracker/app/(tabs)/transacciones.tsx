@@ -69,7 +69,7 @@ const Transacciones = () => {
     const [categorias, setCategorias] = useState<Categoria[]>([]);
 
     let isMounted = true;
-    const { addTransaccion, getTransacciones, getTransaccion, updateTransaccion } = useTransacciones();
+    const { addTransaccion, getTransacciones, getTransaccion, updateTransaccion, deleteTransaccion } = useTransacciones();
     const [transacciones, setTransacciones] = useState<Transaccion[]>([]);
     const [nombre, setNombre] = useState('');
     const [descripcion, setDescripcion] = useState('');
@@ -83,6 +83,8 @@ const Transacciones = () => {
     const [gastos, setGastos] = useState(0);
     const [transaccionesFiltradas, setTransaccionesFiltradas] = useState<Transaccion[]>([]);
     const [idActualizar, setIdActualizar] = useState(0);
+    const [idBorrar, setIdBorrar] = useState(0);
+
 
     const ordenarCategorias = (array: any) => {
         return array.sort((a: any, b: any) => a.categoria_nombre.localeCompare(b.categoria_nombre));
@@ -216,6 +218,7 @@ const Transacciones = () => {
 
     const handleLongPress = (id: number) => {
         setIdActualizar(id);
+        setIdBorrar(id);
         getTransaccionVista(id);
         updateRefRBSheet.current?.open();
     };
@@ -233,6 +236,21 @@ const Transacciones = () => {
             console.log('problema al encontrar la transaccion')
         }
     };
+
+    const handleDeleteTransaccion = async (id: number) => {
+        const resultado = await deleteTransaccion(id);
+        if (!resultado) {
+            Alert.alert('Error', 'No se eliminó correctamente, intente de nuevo', [
+                { text: 'Entendido', onPress: () => console.log('OK Pressed') },
+            ]);
+        } else {
+            updateRefRBSheet.current?.close()
+            Alert.alert('Éxito', 'Se ha eliminado correctamente la transacción', [
+                { text: 'Entendido', onPress: () => console.log('OK Pressed') },
+            ]);
+        }
+        initializeTransacciones();
+    }
 
     const Item: React.FC<Transaccion> = ({ transaccion_descripcion, transaccion_nombre, transaccion_monto, transaccion_fecha, categoria_id, transaccion_tipo }) => (
         <View style={styles.item}>
@@ -443,6 +461,13 @@ const Transacciones = () => {
                     <Text style={{ color: "#fff", textAlign: "center", fontWeight: "bold" }}>
                         Listo!
                     </Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={[styles.deleteButton, { marginTop: 5 }]} onPress={() => handleDeleteTransaccion(idBorrar)}
+                >
+                    <Text style={{ color: "#fff", textAlign: "center", fontWeight: "bold" }}>
+                        Eliminar Categoría
+                    </Text>
+
                 </TouchableOpacity>
 
 
