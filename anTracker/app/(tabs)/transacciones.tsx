@@ -76,11 +76,12 @@ const Transacciones = () => {
     const [monto, setMonto] = useState('');
     const [tipo, setTipo] = useState('');
     const [fecha, setFecha] = useState('');
+    const [metodo, setMetodo] = useState('');
     const [categoria, setCategoria] = useState('');
     const [balance, setBalance] = useState(0);
     const [ingresos, setIngresos] = useState(0);
     const [gastos, setGastos] = useState(0);
-    const [transaccionesFiltradas, setTransaccionesFiltradas] = useState([]);
+    const [transaccionesFiltradas, setTransaccionesFiltradas] = useState<Transaccion[]>([]);
     const [idActualizar, setIdActualizar] = useState(0);
 
     const ordenarCategorias = (array: any) => {
@@ -101,7 +102,7 @@ const Transacciones = () => {
     const initializeTransacciones = async () => {
         try {
             const data = await getTransacciones();
-            console.log('Transacciones guardadas:',data)
+            console.log('Transacciones guardadas:', data)
             if (isMounted) {
                 setTransacciones(data);
             }
@@ -122,10 +123,10 @@ const Transacciones = () => {
 
     const handleAddTransaccion = async () => {
         console.log('handleAddTransaccion called');
-        console.log('Current state values:', { nombre, descripcion, monto, tipo, categoria });
-        if (nombre && descripcion && monto && tipo && categoria) {
-            const fechaNumero = Date.now(); 
-            const nuevaTransaccion: Transaccion = { categoria_id: Number(categoria), transaccion_monto: Number(monto), transaccion_nombre: nombre, transaccion_metodo: nombre, transaccion_fecha: fechaNumero, transaccion_descripcion: descripcion, transaccion_tipo: tipo }
+        console.log('Current state values:', { nombre, descripcion, monto, tipo, categoria, metodo });
+        if (nombre && descripcion && monto && tipo && categoria && metodo) {
+            const fechaNumero = Date.now();
+            const nuevaTransaccion: Transaccion = { categoria_id: Number(categoria), transaccion_monto: Number(monto), transaccion_nombre: nombre, transaccion_metodo: metodo, transaccion_fecha: fechaNumero, transaccion_descripcion: descripcion, transaccion_tipo: tipo }
             try {
                 const result = await addTransaccion(nuevaTransaccion)
                 setNombre('');
@@ -146,16 +147,30 @@ const Transacciones = () => {
         }
     }
 
+    function segundosATiempo(segundos: number): string {
+        const fecha = new Date(segundos);
+        return fecha.toLocaleString();
+    }
+    function buscarCategoriaPorId(id: number): string {
+        const categoria = categorias.find(cat => cat.categoria_id === id);
+        return categoria?.categoria_nombre ?? 'Sin categoría';
+    }
 
     const Item: React.FC<Transaccion> = ({ transaccion_descripcion, transaccion_nombre, transaccion_monto, transaccion_fecha, categoria_id, transaccion_tipo }) => (
         <View style={styles.item}>
             <View style={styles.itemContent}>
                 <View style={styles.containerLeft}>
-                    <Text style={styles.title}>{nombre}</Text>
-                    <Text style={styles.description}>{descripcion}</Text>
+                    <Text style={styles.title}>{transaccion_nombre}</Text>
+                    <Text style={styles.description}>{transaccion_descripcion}</Text>
+                    <Text style={styles.description}>{segundosATiempo(transaccion_fecha)} </Text>
                 </View>
                 <View style={styles.containerRight}>
-
+                    <Text >{buscarCategoriaPorId(categoria_id)}</Text>
+                    {transaccion_monto ? (
+                        <Text style={transaccion_tipo === 'Ingreso' ? styles.montoIngreso : transaccion_tipo === 'Gasto' ? styles.montoGasto : styles.montoDefault}>
+                            {transaccion_tipo === 'Ingreso' ? `+$${transaccion_monto.toFixed(2)}` : transaccion_tipo === 'Gasto' ? `-$${transaccion_monto.toFixed(2)}` : `$${transaccion_monto.toFixed(2)}`}
+                        </Text>
+                    ) : null}
                 </View>
             </View>
         </View>
@@ -199,7 +214,6 @@ const Transacciones = () => {
                     }
                 }}
             >
-
                 <Text style={styles.addTransaccion}>Añadir Transacción</Text>
                 <View style={styles.radioButtonContainer}>
                     <View style={styles.radioButtonRow}>
@@ -240,6 +254,12 @@ const Transacciones = () => {
                     placeholder="Descripción"
                     value={descripcion}
                     onChangeText={setDescripcion}
+                />
+                <TextInput
+                    style={styles.input}
+                    placeholder="Método eg. efectivo, transferencia"
+                    value={metodo}
+                    onChangeText={setMetodo}
                 />
                 <Text style={styles.catText}>Selecciona una categoría!</Text>
                 <FlatList
@@ -366,16 +386,33 @@ const Transacciones = () => {
 
             </ScrollView>
 
+
+
             <TouchableOpacity style={[styles.changeColor, { alignItems: 'center', justifyContent: 'center' }]} onPress={() => refRBSheet.current?.open()}>
                 <Text style={{ color: 'white' }}>Añadir nueva transacción</Text>
             </TouchableOpacity>
 
-
-
             <View style={styles.content}>
-
+                <FlatList
+                    inverted
+                    data={transacciones}
+                    renderItem={({ item }) => (
+                        <Pressable >
+                            <Item
+                                transaccion_nombre={item.transaccion_nombre}
+                                transaccion_descripcion={item.transaccion_descripcion}
+                                transaccion_monto={item.transaccion_monto}
+                                transaccion_metodo={item.transaccion_metodo}
+                                transaccion_fecha={item.transaccion_fecha}
+                                transaccion_tipo={item.transaccion_tipo}
+                                categoria_id={item.categoria_id}
+                            />
+                        </Pressable>
+                    )}
+                    keyExtractor={(item, index) => item.transaccion_id?.toString() ?? index.toString()}
+                    style={styles.flatList}
+                />
             </View>
-
 
         </KeyboardAvoidingView>
     );
@@ -537,6 +574,7 @@ const styles = StyleSheet.create({
     content: {
         flex: 1,
         paddingHorizontal: 15,
+        marginBottom: 45
     },
     flatList: {
         flex: 1,
