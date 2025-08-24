@@ -50,19 +50,7 @@ const RadioButton = (props: any) => {
     );
 };
 
-const filterByDays = (days: any) => {
-    const now = new Date();
 
-    /*const newTransacciones = transacciones.filter(item => {
-      const transaccionFecha = new Date(item.transaccion_anio, item.transaccion_mes - 1, item.transaccion_dia); // Crear objeto Date usando anio, mes y dia
-      const diffTime = Math.abs(now - transaccionFecha);
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      return  diffDays <= days;
-    });
-    
-    setTransaccionesFiltradas(newTransacciones);
-    calcularBalance(newTransacciones);*/
-};
 
 const Transacciones = () => {
     const { getCategorias } = useCategorias();
@@ -84,6 +72,19 @@ const Transacciones = () => {
     const [transaccionesFiltradas, setTransaccionesFiltradas] = useState<Transaccion[]>([]);
     const [idActualizar, setIdActualizar] = useState(0);
     const [idBorrar, setIdBorrar] = useState(0);
+
+    const filterByDays = (days: any) => {
+        const now = new Date();
+
+        const newTransacciones = transacciones.filter(item => {
+            const transaccionFecha = item.transaccion_fecha;
+            const diffTime = Math.abs(now.getTime() - transaccionFecha);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            return diffDays <= days;
+        });
+        setTransaccionesFiltradas(newTransacciones);
+        calcularBalance(newTransacciones);
+    };
 
 
     const ordenarCategorias = (array: any) => {
@@ -107,6 +108,7 @@ const Transacciones = () => {
             console.log('Transacciones guardadas:', data)
             if (isMounted) {
                 setTransacciones(data);
+                setTransaccionesFiltradas(data);
             }
         } catch (error) {
             console.error("Error:", error);
@@ -195,8 +197,8 @@ const Transacciones = () => {
         let nuevoBalance = 0, nuevoIngresos = 0, nuevoGastos = 0;
 
         arrayTransacciones.forEach(item => {
-            const monto = item.transaccion_monto; // Convertir a número
-            if (!isNaN(monto)) { // Asegúrate de que sea un número válido
+            const monto = item.transaccion_monto;
+            if (!isNaN(monto)) {
                 if (item.transaccion_tipo === 'Ingreso') {
                     nuevoBalance += monto;
                     nuevoIngresos += monto;
@@ -251,6 +253,14 @@ const Transacciones = () => {
         }
         initializeTransacciones();
     }
+    const setToNull = () => {
+        setNombre('');
+        setDescripcion('');
+        setMonto('');
+        setTipo('');
+        setCategoria('');
+        setMetodo('');
+    }
 
     const Item: React.FC<Transaccion> = ({ transaccion_descripcion, transaccion_nombre, transaccion_monto, transaccion_fecha, categoria_id, transaccion_tipo }) => (
         <View style={styles.item}>
@@ -298,6 +308,7 @@ const Transacciones = () => {
 
             <RBSheet
                 ref={refRBSheet}
+                onOpen={() => setToNull()}
                 height={600}
                 openDuration={300}
                 customStyles={{
@@ -533,7 +544,7 @@ const Transacciones = () => {
             <View style={styles.content}>
                 <FlatList
                     inverted
-                    data={transacciones}
+                    data={transaccionesFiltradas}
                     renderItem={({ item }) => (
                         <Pressable onLongPress={() => { handleLongPress(item.transaccion_id ? item.transaccion_id : 0) }}>
                             <Item

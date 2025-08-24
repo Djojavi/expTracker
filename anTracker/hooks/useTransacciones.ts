@@ -26,6 +26,10 @@ export function useTransacciones(){
         return await db.runAsync('DELETE FROM Transacciones WHERE transaccion_id = ?', [transaccion_id])
     }
 
+    const getIngresos = async(): Promise <Transaccion[]> =>{
+        return await db.getAllAsync<Transaccion>(`SELECT * FROM Transacciones WHERE transaccion_tipo = 'Ingreso';`)
+    }
 
-    return { addTransaccion, getTransacciones, getTransaccion, updateTransaccion, deleteTransaccion }
+
+    return { addTransaccion, getTransacciones, getTransaccion, updateTransaccion, deleteTransaccion, getIngresos }
 }
