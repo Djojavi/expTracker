@@ -2,7 +2,7 @@ import { useCategorias } from '@/hooks/useCategorias';
 import { useTransacciones } from '@/hooks/useTransacciones';
 import { Link } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { FlatList, Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { FlatList, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { BarChart } from 'react-native-gifted-charts';
 import { Categoria } from './categoria';
 import { Transaccion } from './transacciones';
@@ -11,10 +11,10 @@ import { Transaccion } from './transacciones';
 
 const Ingreso = () => {
     const { getIngresos } = useTransacciones();
-    const [transacciones, setTransacciones] = useState<Transaccion[]>([]);
+    const [transaccionesFiltradas, setTransaccionesFiltradas] = useState<Transaccion[]>([]);
     const [ingresos, setIngresos] = useState(0)
     const [transaccionesIngresos, setTransaccionesIngresos] = useState<Transaccion[]>([]);
-    const [chartData, setChartData] = useState([]);
+    const [chartData, setChartData] = useState<{ label: string; value: number; }[]>([]);
     const [categorias, setCategorias] = useState<Categoria[]>([]);
     const { getCategorias } = useCategorias();
 
@@ -27,8 +27,10 @@ const Ingreso = () => {
     const getArrayIngresos = async () => {
         try {
             const data = await getIngresos();
-            setTransaccionesIngresos(data);
-            calcularBalance(data);
+            const dataOrdenada = data.sort((a, b) => b.transaccion_fecha - a.transaccion_fecha);
+            setTransaccionesIngresos(dataOrdenada);
+            setTransaccionesFiltradas(dataOrdenada);
+            calcularBalance(dataOrdenada);
             //generarDatosParaBarChart(data);
         } catch (error) {
             console.error("Error:", error);
@@ -36,18 +38,18 @@ const Ingreso = () => {
     };
 
     const filterByDays = (days: number) => {
-        /*const now = new Date();
+        const now = new Date();
 
-        const newTransaccionesIngresos = transacciones.filter(item => {
-            const transaccionFecha = new Date(item.transaccion_anio, item.transaccion_mes - 1, item.transaccion_dia); // Crear objeto Date usando anio, mes y dia
-            const diffTime = Math.abs(now - transaccionFecha);
+        const newTransaccionesIngresos = transaccionesIngresos.filter(item => {
+            const transaccionFecha = item.transaccion_fecha;
+            const diffTime = Math.abs(now.getTime() - transaccionFecha);
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            return item.transaccion_tipo === 'Ingreso' && diffDays <= days;
+            return diffDays <= days;
         });
 
-        setTransaccionesIngresos(newTransaccionesIngresos);
+        setTransaccionesFiltradas(newTransaccionesIngresos);
         calcularBalance(newTransaccionesIngresos);
-        generarDatosParaBarChart(newTransaccionesIngresos);*/
+        generarDatosParaBarChart(newTransaccionesIngresos);
     };
 
 
@@ -59,26 +61,22 @@ const Ingreso = () => {
         setIngresos(nuevoIngresos);
     };
 
-    /* const generarDatosParaBarChart = (arrayTransacciones : Transaccion[]) => {
-         const groupedData = arrayTransacciones.reduce((acc, item) => {
-             const fecha = `${item.transaccion_anio}-${String(item.transaccion_mes).padStart(2, '0')}-${String(item.transaccion_dia).padStart(2, '0')}`;
-             const etiqueta = `${item.transaccion_dia}-${item.transaccion_mes}`;
-             if (!acc[fecha]) {
-                 acc[fecha] = { monto: 0, etiqueta };
-             }
-             acc[fecha].monto += item.transaccion_monto;
-             return acc;
-         }, {});
- 
-         const chartDataArray = Object.keys(groupedData)
-             .sort((a, b) => b.localeCompare(a))
-             .map(fecha => ({
-                 label: groupedData[fecha].etiqueta,
-                 value: groupedData[fecha].monto
-             }));
- 
-         setChartData(chartDataArray);
-     }; */
+    const generarDatosParaBarChart = (arrayTransacciones: Transaccion[]) => {
+        const groupedData = arrayTransacciones.reduce((acc: { [key: string]: { etiqueta: string, monto: number } }, item) => {
+            const fecha = segundosATiempo(item.transaccion_fecha);
+            if (!acc[fecha]) {
+                acc[fecha] = { etiqueta: fecha, monto: 0 };
+            }
+            acc[fecha].monto += item.transaccion_monto;
+            return acc;
+        }, {});
+        const chartDataArray = Object.keys(groupedData).sort((
+            a, b) => b.localeCompare(a)).map(fecha => ({
+                label: groupedData[fecha].etiqueta,
+                value: groupedData[fecha].monto
+            }));
+        //setChartData(chartDataArray);
+    };
 
 
 
@@ -144,8 +142,9 @@ const Ingreso = () => {
                 </View>
                 <Image source={require('../../assets/images/Logo.png')} style={{ width: 152, height: 40, marginTop: 29 }} />
             </View>
+            <View style={{ justifyContent: 'center', marginLeft: 10 }}>
 
-            <View style={{ flexDirection: 'row', gap: 5, justifyContent: 'center', paddingHorizontal: 10, paddingBottom: 10 }}>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ flexDirection: 'row', gap: 5, paddingHorizontal: 10, overflow: 'scroll', marginBottom: 15 }}>
                 <Pressable onPress={() => filterByDays(7)}>
                     <View style={styles.dias}>
                         <Text> 7 días </Text>
@@ -176,7 +175,7 @@ const Ingreso = () => {
                     </View>
                 </Pressable>
 
-            </View>
+            </ScrollView>
 
             <View style={styles.conatinerEstadisticas}>
                 <Text style={{ fontSize: 30, alignSelf: 'center', color: '#1F7900' }}> + ${ingresos.toFixed(2)}</Text>
@@ -184,42 +183,42 @@ const Ingreso = () => {
 
             <View style={styles.chartContainer}>
                 {chartData.length > 0 && (
-                <BarChart
-                    overflowTop={20}
-                    width={275}
-                    height={175}
-                    yAxisThickness={1}
-                    xAxisThickness={1}
-                    data={chartData}
-                    barWidth={30}
-                    barBorderRadius={5}
-                    frontColor="#A37366"
-                    isAnimated
-                    noOfSections={4}
-                    renderTooltip={(item: any, index: any) => {
-                        return (
-                            <View
-                                style={{
-                                    marginBottom: 5,
-                                    marginTop: 50,
-                                    marginLeft: -6,
-                                    backgroundColor: '#D3AEA2 ',
-                                    paddingHorizontal: 6,
-                                    paddingVertical: 4,
-                                    borderRadius: 4,
-                                }}>
-                                <Text>${item.value}</Text>
-                            </View>
-                        );
-                    }}
-                />
+                    <BarChart
+                        overflowTop={20}
+                        width={275}
+                        height={175}
+                        yAxisThickness={1}
+                        xAxisThickness={1}
+                        data={chartData}
+                        barWidth={30}
+                        barBorderRadius={5}
+                        frontColor="#A37366"
+                        isAnimated
+                        noOfSections={4}
+                        renderTooltip={(item: any, index: any) => {
+                            return (
+                                <View
+                                    style={{
+                                        marginBottom: 5,
+                                        marginTop: 50,
+                                        marginLeft: -6,
+                                        backgroundColor: '#D3AEA2 ',
+                                        paddingHorizontal: 6,
+                                        paddingVertical: 4,
+                                        borderRadius: 4,
+                                    }}>
+                                    <Text>${item.value}</Text>
+                                </View>
+                            );
+                        }}
+                    />
                 )}
+            </View>
             </View>
 
             <View style={styles.content}>
                 <FlatList
-                    inverted
-                    data={transaccionesIngresos}
+                    data={transaccionesFiltradas}
                     renderItem={({ item }) => (
                         <Item
                             transaccion_nombre={item.transaccion_nombre}

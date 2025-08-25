@@ -105,10 +105,11 @@ const Transacciones = () => {
     const initializeTransacciones = async () => {
         try {
             const data = await getTransacciones();
+            const dataOrdenada = data.sort((a, b) => b.transaccion_fecha - a.transaccion_fecha);
             console.log('Transacciones guardadas:', data)
             if (isMounted) {
-                setTransacciones(data);
-                setTransaccionesFiltradas(data);
+                setTransacciones(dataOrdenada);
+                setTransaccionesFiltradas(dataOrdenada);
             }
         } catch (error) {
             console.error("Error:", error);
@@ -543,7 +544,6 @@ const Transacciones = () => {
             </View>
             <View style={styles.content}>
                 <FlatList
-                    inverted
                     data={transaccionesFiltradas}
                     renderItem={({ item }) => (
                         <Pressable onLongPress={() => { handleLongPress(item.transaccion_id ? item.transaccion_id : 0) }}>
