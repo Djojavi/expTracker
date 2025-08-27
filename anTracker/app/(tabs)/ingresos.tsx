@@ -67,12 +67,12 @@ const Ingreso = () => {
             if (!acc[fecha]) {
                 const arrayFecha = fecha.split('')
                 let fechaMostrar = "";
-                if(arrayFecha[1] == '/'){
-                     fechaMostrar = fecha.slice(0,4)
-                }else{
-                     fechaMostrar = fecha.slice(0,5)
+                if (arrayFecha[1] == '/') {
+                    fechaMostrar = fecha.slice(0, 4)
+                } else {
+                    fechaMostrar = fecha.slice(0, 5)
                 }
-                
+
                 acc[fecha] = { etiqueta: fechaMostrar, monto: 0 };
             }
             acc[fecha].monto += item.transaccion_monto;
@@ -247,8 +247,7 @@ const Ingreso = () => {
 };
 const styles = StyleSheet.create({
     chartContainer: {
-        flex: 1, 
-        justifyContent: 'center', 
+        justifyContent: 'center',
         alignItems: 'center',
         borderRadius: 20,
         marginHorizontal: '5%',
@@ -386,6 +385,7 @@ const styles = StyleSheet.create({
     content: {
         flex: 1,
         paddingHorizontal: 15,
+        marginBottom: 45
     },
     flatList: {
         flex: 1,
