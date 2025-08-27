@@ -31,7 +31,7 @@ const Ingreso = () => {
             setTransaccionesIngresos(dataOrdenada);
             setTransaccionesFiltradas(dataOrdenada);
             calcularBalance(dataOrdenada);
-            //generarDatosParaBarChart(data);
+            generarDatosParaBarChart(dataOrdenada);
         } catch (error) {
             console.error("Error:", error);
         }
@@ -65,7 +65,15 @@ const Ingreso = () => {
         const groupedData = arrayTransacciones.reduce((acc: { [key: string]: { etiqueta: string, monto: number } }, item) => {
             const fecha = segundosATiempo(item.transaccion_fecha);
             if (!acc[fecha]) {
-                acc[fecha] = { etiqueta: fecha, monto: 0 };
+                const arrayFecha = fecha.split('')
+                let fechaMostrar = "";
+                if(arrayFecha[1] == '/'){
+                     fechaMostrar = fecha.slice(0,4)
+                }else{
+                     fechaMostrar = fecha.slice(0,5)
+                }
+                
+                acc[fecha] = { etiqueta: fechaMostrar, monto: 0 };
             }
             acc[fecha].monto += item.transaccion_monto;
             return acc;
@@ -75,7 +83,7 @@ const Ingreso = () => {
                 label: groupedData[fecha].etiqueta,
                 value: groupedData[fecha].monto
             }));
-        //setChartData(chartDataArray);
+        setChartData(chartDataArray);
     };
 
 
@@ -95,7 +103,7 @@ const Ingreso = () => {
     };
     function segundosATiempo(segundos: number): string {
         const fecha = new Date(segundos);
-        return fecha.toLocaleString();
+        return fecha.toLocaleDateString();
     }
 
     const Item: React.FC<Transaccion> = ({ transaccion_descripcion, transaccion_nombre, transaccion_monto, transaccion_fecha, categoria_id, transaccion_tipo }) => (
@@ -145,75 +153,75 @@ const Ingreso = () => {
             <View style={{ justifyContent: 'center', marginLeft: 10 }}>
 
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ flexDirection: 'row', gap: 5, paddingHorizontal: 10, overflow: 'scroll', marginBottom: 15 }}>
-                <Pressable onPress={() => filterByDays(7)}>
-                    <View style={styles.dias}>
-                        <Text> 7 días </Text>
-                    </View>
-                </Pressable>
+                    <Pressable onPress={() => filterByDays(7)}>
+                        <View style={styles.dias}>
+                            <Text> 7 días </Text>
+                        </View>
+                    </Pressable>
 
-                <Pressable onPress={() => filterByDays(30)}>
-                    <View style={styles.dias}>
-                        <Text> 30 días </Text>
-                    </View>
-                </Pressable>
+                    <Pressable onPress={() => filterByDays(30)}>
+                        <View style={styles.dias}>
+                            <Text> 30 días </Text>
+                        </View>
+                    </Pressable>
 
-                <Pressable onPress={() => filterByDays(90)}>
-                    <View style={styles.dias}>
-                        <Text> 90 días </Text>
-                    </View>
-                </Pressable>
+                    <Pressable onPress={() => filterByDays(90)}>
+                        <View style={styles.dias}>
+                            <Text> 90 días </Text>
+                        </View>
+                    </Pressable>
 
-                <Pressable onPress={() => filterByDays(365)}>
-                    <View style={styles.dias}>
-                        <Text> Este año </Text>
-                    </View>
-                </Pressable>
+                    <Pressable onPress={() => filterByDays(365)}>
+                        <View style={styles.dias}>
+                            <Text> Este año </Text>
+                        </View>
+                    </Pressable>
 
-                <Pressable onPress={() => filterByDays(100000)}>
-                    <View style={styles.dias}>
-                        <Text> Siempre </Text>
-                    </View>
-                </Pressable>
+                    <Pressable onPress={() => filterByDays(100000)}>
+                        <View style={styles.dias}>
+                            <Text> Siempre </Text>
+                        </View>
+                    </Pressable>
 
-            </ScrollView>
+                </ScrollView>
 
-            <View style={styles.conatinerEstadisticas}>
-                <Text style={{ fontSize: 30, alignSelf: 'center', color: '#1F7900' }}> + ${ingresos.toFixed(2)}</Text>
-            </View>
+                <View style={styles.conatinerEstadisticas}>
+                    <Text style={{ fontSize: 30, alignSelf: 'center', color: '#1F7900' }}> + ${ingresos.toFixed(2)}</Text>
+                </View>
 
-            <View style={styles.chartContainer}>
-                {chartData.length > 0 && (
-                    <BarChart
-                        overflowTop={20}
-                        width={275}
-                        height={175}
-                        yAxisThickness={1}
-                        xAxisThickness={1}
-                        data={chartData}
-                        barWidth={30}
-                        barBorderRadius={5}
-                        frontColor="#A37366"
-                        isAnimated
-                        noOfSections={4}
-                        renderTooltip={(item: any, index: any) => {
-                            return (
-                                <View
-                                    style={{
-                                        marginBottom: 5,
-                                        marginTop: 50,
-                                        marginLeft: -6,
-                                        backgroundColor: '#D3AEA2 ',
-                                        paddingHorizontal: 6,
-                                        paddingVertical: 4,
-                                        borderRadius: 4,
-                                    }}>
-                                    <Text>${item.value}</Text>
-                                </View>
-                            );
-                        }}
-                    />
-                )}
-            </View>
+                <View style={styles.chartContainer}>
+                    {chartData.length > 0 && (
+                        <BarChart
+                            overflowTop={20}
+                            height={175}
+                            width={225}
+                            yAxisThickness={1}
+                            xAxisThickness={1}
+                            data={chartData}
+                            barWidth={30}
+                            barBorderRadius={5}
+                            frontColor="#A37366"
+                            isAnimated
+                            noOfSections={4}
+                            renderTooltip={(item: any, index: any) => {
+                                return (
+                                    <View
+                                        style={{
+                                            marginBottom: 5,
+                                            marginTop: 50,
+                                            marginLeft: -6,
+                                            backgroundColor: '#D3AEA2 ',
+                                            paddingHorizontal: 6,
+                                            paddingVertical: 4,
+                                            borderRadius: 4,
+                                        }}>
+                                        <Text>${item.value}</Text>
+                                    </View>
+                                );
+                            }}
+                        />
+                    )}
+                </View>
             </View>
 
             <View style={styles.content}>
@@ -239,6 +247,9 @@ const Ingreso = () => {
 };
 const styles = StyleSheet.create({
     chartContainer: {
+        flex: 1, 
+        justifyContent: 'center', 
+        alignItems: 'center',
         borderRadius: 20,
         marginHorizontal: '5%',
         paddingTop: 25,
