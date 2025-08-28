@@ -14,9 +14,11 @@ export const DrawerLayout: React.FC<DrawerProps> = ({ children, screenName }) =>
         <View style={[styles.container, styles.navigationContainer]}>
             <MenuItem source={require('../assets/icons/casa.png')} href={'../(tabs)'} text='Inicio' screenName={screenName} ></MenuItem>
             <MenuItem source={require('../assets/icons/dinero.png')} href={'../(tabs)/transacciones'} text='Transacciones' screenName={screenName}></MenuItem>
-            <MenuItem source={require('../assets/icons/income.png')} href={'../(tabs)/ingresos'} text='Ingresos'screenName={screenName} ></MenuItem>
-            <MenuItem source={require('../assets/icons/expenses.png')} href={'../(tabs)/gastos'} text='Gastos'screenName={screenName} ></MenuItem>
-            <MenuItem source={require('../assets/icons/categoria.png')} href={'../(tabs)/categoria'} text='Categoría'screenName={screenName} ></MenuItem>
+            <MenuItem source={require('../assets/icons/income.png')} href={'../(tabs)/ingresos'} text='Ingresos' screenName={screenName} ></MenuItem>
+            <MenuItem source={require('../assets/icons/expenses.png')} href={'../(tabs)/gastos'} text='Gastos' screenName={screenName} ></MenuItem>
+            <MenuItem source={require('../assets/icons/categoria.png')} href={'../(tabs)/categoria'} text='Categoría' screenName={screenName} ></MenuItem>
+            <MenuItem source={require('../assets/icons/csv.png')} href={'../(tabs)/importExport'} text='CSV' screenName={screenName} ></MenuItem>
+
         </View>
     );
 
