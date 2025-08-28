@@ -1,7 +1,7 @@
+import { DrawerLayout } from '@/components/DrawerLayout';
 import { useCategorias } from '@/hooks/useCategorias';
-import { Link } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
-import { Alert, FlatList, Image, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
+import { Alert, FlatList, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 import RBSheet from 'react-native-raw-bottom-sheet';
 
 
@@ -139,193 +139,176 @@ const Categoria = () => {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
     >
-
-      <View style={styles.header}>
-        <View style={styles.headerButtons}>
-          <Link href="/(tabs)">
-            <View >
-              <Image style={{ width: 30, height: 30, marginTop: 35 }} source={require('../../assets/icons/casa.png')}></Image>
-            </View>
-          </Link>
-
-          <Link href="/(tabs)/transacciones">
-            <View >
-              <Image style={{ width: 30, height: 30, marginTop: 35 }} source={require('../../assets/icons/dinero.png')}></Image>
-            </View>
-          </Link>
-        </View>
-
-        <Image source={require('../../assets/images/Logo.png')} style={{ width: 152, height: 40, marginTop: 29 }} />
-      </View>
-
-      <RBSheet
-        ref={updateCategoriaRBSheet}
-        height={480}
-        openDuration={300}
-        customStyles={{
-          container: {
-            padding: 2,
-            justifyContent: 'center',
-            alignItems: 'center',
-            borderTopLeftRadius: 20,
-            borderTopRightRadius: 20,
-          }
-        }}
-      >
-        <Text style={styles.addCategoria}>Actualizar Categoria</Text>
-        <View style={styles.nombreContainer}>
+      <DrawerLayout screenName='Categoría' >
+        <RBSheet
+          ref={updateCategoriaRBSheet}
+          height={480}
+          openDuration={300}
+          customStyles={{
+            container: {
+              padding: 2,
+              justifyContent: 'center',
+              alignItems: 'center',
+              borderTopLeftRadius: 20,
+              borderTopRightRadius: 20,
+            }
+          }}
+        >
+          <Text style={styles.addCategoria}>Actualizar Categoria</Text>
+          <View style={styles.nombreContainer}>
+            <TextInput
+              style={styles.inputNombre}
+              placeholder="Nombre"
+              value={nombre}
+              onChangeText={setNombre}
+            />
+          </View>
           <TextInput
-            style={styles.inputNombre}
-            placeholder="Nombre"
-            value={nombre}
-            onChangeText={setNombre}
+            style={styles.input}
+            placeholder="Descripcion"
+            value={descripcion}
+            onChangeText={setDescripcion}
           />
-        </View>
-        <TextInput
-          style={styles.input}
-          placeholder="Descripcion"
-          value={descripcion}
-          onChangeText={setDescripcion}
-        />
 
-        <Text style={styles.text}>Escoge el color para tu categoría!</Text>
-        <View style={styles.colorContainer}>
-          {colors.map((color, index) => {
-            const isActive = selectedColor === color;
-            return (
-              <TouchableWithoutFeedback
-                key={index}
-                onPress={() => setSelectedColor(color)}
-              >
-                <View
-                  style={[
-                    styles.circle,
-                    isActive && { borderColor: color },
-                  ]}
+          <Text style={styles.text}>Escoge el color para tu categoría!</Text>
+          <View style={styles.colorContainer}>
+            {colors.map((color, index) => {
+              const isActive = selectedColor === color;
+              return (
+                <TouchableWithoutFeedback
+                  key={index}
+                  onPress={() => setSelectedColor(color)}
                 >
                   <View
-                    style={[styles.circleInside, { backgroundColor: color }]}
-                  />
-                </View>
-              </TouchableWithoutFeedback>
-            );
-          })}
+                    style={[
+                      styles.circle,
+                      isActive && { borderColor: color },
+                    ]}
+                  >
+                    <View
+                      style={[styles.circleInside, { backgroundColor: color }]}
+                    />
+                  </View>
+                </TouchableWithoutFeedback>
+              );
+            })}
 
-        </View>
-        <TouchableOpacity
-          style={styles.addNombreButton}
-          onPress={() => handleUpdateCategoria(idActualizar)}
-        >
-          <Text style={{ color: "#fff", textAlign: "center", fontWeight: "bold" }}>
-            Listo!
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={[styles.deleteButton, { marginTop: 5 }]} onPress={() => handleDeleteCategoria(nombreBorrar)}
-        >
-          <Text style={{ color: "#fff", textAlign: "center", fontWeight: "bold" }}>
-            Eliminar Categoría
-          </Text>
+          </View>
+          <TouchableOpacity
+            style={styles.addNombreButton}
+            onPress={() => handleUpdateCategoria(idActualizar)}
+          >
+            <Text style={{ color: "#fff", textAlign: "center", fontWeight: "bold" }}>
+              Listo!
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.deleteButton, { marginTop: 5 }]} onPress={() => handleDeleteCategoria(nombreBorrar)}
+          >
+            <Text style={{ color: "#fff", textAlign: "center", fontWeight: "bold" }}>
+              Eliminar Categoría
+            </Text>
 
-        </TouchableOpacity>
-      </RBSheet>
+          </TouchableOpacity>
+        </RBSheet>
 
-      <View style={styles.content}>
-        <FlatList
-          data={categoriasOrdenadas}
-          renderItem={({ item }) => (
-            <Pressable
-              onLongPress={() => {
-                if (!item || item.categoria_id === undefined) return;
-                getCategoria(item.categoria_id);
-                updateCategoriaRBSheet.current?.open();
-              }}
-            >
-              <Item
-                categoria_nombre={item.categoria_nombre}
-                categoria_descripcion={item.categoria_descripcion}
-                categoria_color={item.categoria_color}
-              />
-            </Pressable>
-          )}
-          keyExtractor={(item) => String(item.categoria_id)}
-          style={styles.flatList}
-        />
-      </View>
-
-      <RBSheet
-        ref={refRBSheet}
-        height={400}
-        openDuration={300}
-        customStyles={{
-          container: {
-            padding: 5,
-            justifyContent: 'center',
-            alignItems: 'center',
-            borderTopLeftRadius: 20,
-            borderTopRightRadius: 20,
-          }
-        }}
-      >
-        <Text style={styles.addCategoria}>Añadir Categoria</Text>
-        <View style={styles.nombreContainer}>
-          <TextInput
-            style={styles.inputNombre}
-            placeholder="Nombre"
-            value={nombre}
-            onChangeText={setNombre}
+        <View style={styles.content}>
+          <FlatList
+            data={categoriasOrdenadas}
+            renderItem={({ item }) => (
+              <Pressable
+                onLongPress={() => {
+                  if (!item || item.categoria_id === undefined) return;
+                  getCategoria(item.categoria_id);
+                  updateCategoriaRBSheet.current?.open();
+                }}
+              >
+                <Item
+                  categoria_nombre={item.categoria_nombre}
+                  categoria_descripcion={item.categoria_descripcion}
+                  categoria_color={item.categoria_color}
+                />
+              </Pressable>
+            )}
+            keyExtractor={(item) => String(item.categoria_id)}
+            style={styles.flatList}
           />
         </View>
-        <TextInput
-          style={styles.input}
-          placeholder="Descripcion"
-          value={descripcion}
-          onChangeText={setDescripcion}
-        />
 
-        <Text style={styles.text}>Escoge el color para tu categoría!</Text>
-        <View style={styles.colorContainer}>
-          {colors.map((color, index) => {
-            const isActive = selectedColor === color;
-            return (
-              <TouchableWithoutFeedback
-                key={index}
-                onPress={() => setSelectedColor(color)}
-              >
-                <View
-                  style={[
-                    styles.circle,
-                    isActive && { borderColor: color },
-                  ]}
+        <RBSheet
+          ref={refRBSheet}
+          height={400}
+          openDuration={300}
+          customStyles={{
+            container: {
+              padding: 5,
+              justifyContent: 'center',
+              alignItems: 'center',
+              borderTopLeftRadius: 20,
+              borderTopRightRadius: 20,
+            }
+          }}
+        >
+          <Text style={styles.addCategoria}>Añadir Categoria</Text>
+          <View style={styles.nombreContainer}>
+            <TextInput
+              style={styles.inputNombre}
+              placeholder="Nombre"
+              value={nombre}
+              onChangeText={setNombre}
+            />
+          </View>
+          <TextInput
+            style={styles.input}
+            placeholder="Descripcion"
+            value={descripcion}
+            onChangeText={setDescripcion}
+          />
+
+          <Text style={styles.text}>Escoge el color para tu categoría!</Text>
+          <View style={styles.colorContainer}>
+            {colors.map((color, index) => {
+              const isActive = selectedColor === color;
+              return (
+                <TouchableWithoutFeedback
+                  key={index}
+                  onPress={() => setSelectedColor(color)}
                 >
                   <View
-                    style={[styles.circleInside, { backgroundColor: color }]}
-                  />
-                </View>
-              </TouchableWithoutFeedback>
-            );
-          })}
+                    style={[
+                      styles.circle,
+                      isActive && { borderColor: color },
+                    ]}
+                  >
+                    <View
+                      style={[styles.circleInside, { backgroundColor: color }]}
+                    />
+                  </View>
+                </TouchableWithoutFeedback>
+              );
+            })}
 
-        </View>
+          </View>
+
+          <TouchableOpacity
+            style={styles.addNombreButton}
+            onPress={() => handleAddCategoria()}
+          >
+            <Text style={{ color: "#fff", textAlign: "center", fontWeight: "bold" }}>
+              Listo!
+            </Text>
+          </TouchableOpacity>
+        </RBSheet>
+
 
         <TouchableOpacity
-          style={styles.addNombreButton}
-          onPress={() => handleAddCategoria()}
+          style={styles.changeColor}
+          onPress={() => { setToNull(), refRBSheet.current?.open() }}
         >
           <Text style={{ color: "#fff", textAlign: "center", fontWeight: "bold" }}>
-            Listo!
+            Nueva categoría
           </Text>
         </TouchableOpacity>
-      </RBSheet>
-
-
-      <TouchableOpacity
-        style={styles.changeColor}
-        onPress={() => { setToNull(), refRBSheet.current?.open() }}
-      >
-        <Text style={{ color: "#fff", textAlign: "center", fontWeight: "bold" }}>
-          Nueva categoría
-        </Text>
-      </TouchableOpacity>
+      </DrawerLayout>
     </KeyboardAvoidingView>
   );
 };
@@ -383,7 +366,7 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    padding: 15,
+    padding: 8,
     backgroundColor: '#fff',
     marginBottom: 10,
   },

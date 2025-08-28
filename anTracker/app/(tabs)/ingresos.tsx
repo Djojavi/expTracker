@@ -1,8 +1,8 @@
+import { DrawerLayout } from '@/components/DrawerLayout';
 import { useCategorias } from '@/hooks/useCategorias';
 import { useTransacciones } from '@/hooks/useTransacciones';
-import { Link } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { FlatList, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { FlatList, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { BarChart } from 'react-native-gifted-charts';
 import { Categoria } from './categoria';
 import { Transaccion } from './transacciones';
@@ -127,122 +127,103 @@ const Ingreso = () => {
     );
 
     return (
-        <View style={styles.container}>
-            <View style={styles.header}>
-                <View style={styles.headerButtons}>
-                    <Link href="/(tabs)">
-                        <View >
-                            <Image style={{ width: 30, height: 30, marginTop: 35 }} source={require('../../assets/icons/casa.png')}></Image>
-                        </View>
-                    </Link>
+        <DrawerLayout screenName='Ingresos' >
+            <View style={styles.container}>
 
-                    <Link href="/(tabs)">
-                        <View >
-                            <Image style={{ width: 30, height: 30, marginTop: 35 }} source={require('../../assets/icons/categoria.png')}></Image>
-                        </View>
-                    </Link>
+                <View style={{ justifyContent: 'center', marginLeft: 10 }}>
 
-                    <Link href="/(tabs)/transacciones">
-                        <View >
-                            <Image style={{ width: 30, height: 30, marginTop: 35 }} source={require('../../assets/icons/dinero.png')}></Image>
-                        </View>
-                    </Link>
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ flexDirection: 'row', gap: 5, paddingHorizontal: 10, overflow: 'scroll', marginBottom: 15 }}>
+                        <Pressable onPress={() => filterByDays(7)}>
+                            <View style={styles.dias}>
+                                <Text> 7 días </Text>
+                            </View>
+                        </Pressable>
+
+                        <Pressable onPress={() => filterByDays(30)}>
+                            <View style={styles.dias}>
+                                <Text> 30 días </Text>
+                            </View>
+                        </Pressable>
+
+                        <Pressable onPress={() => filterByDays(90)}>
+                            <View style={styles.dias}>
+                                <Text> 90 días </Text>
+                            </View>
+                        </Pressable>
+
+                        <Pressable onPress={() => filterByDays(365)}>
+                            <View style={styles.dias}>
+                                <Text> Este año </Text>
+                            </View>
+                        </Pressable>
+
+                        <Pressable onPress={() => filterByDays(100000)}>
+                            <View style={styles.dias}>
+                                <Text> Siempre </Text>
+                            </View>
+                        </Pressable>
+
+                    </ScrollView>
+
+                    <View style={styles.conatinerEstadisticas}>
+                        <Text style={{ fontSize: 30, alignSelf: 'center', color: '#1F7900' }}> + ${ingresos.toFixed(2)}</Text>
+                    </View>
+
+                    <View style={styles.chartContainer}>
+                        {chartData.length > 0 && (
+                            <BarChart
+                                overflowTop={20}
+                                height={175}
+                                width={225}
+                                yAxisThickness={1}
+                                xAxisThickness={1}
+                                data={chartData}
+                                barWidth={30}
+                                barBorderRadius={5}
+                                frontColor="#A37366"
+                                isAnimated
+                                noOfSections={4}
+                                renderTooltip={(item: any, index: any) => {
+                                    return (
+                                        <View
+                                            style={{
+                                                marginBottom: 5,
+                                                marginTop: 50,
+                                                marginLeft: -6,
+                                                backgroundColor: '#D3AEA2 ',
+                                                paddingHorizontal: 6,
+                                                paddingVertical: 4,
+                                                borderRadius: 4,
+                                            }}>
+                                            <Text>${item.value}</Text>
+                                        </View>
+                                    );
+                                }}
+                            />
+                        )}
+                    </View>
                 </View>
-                <Image source={require('../../assets/images/Logo.png')} style={{ width: 152, height: 40, marginTop: 29 }} />
-            </View>
-            <View style={{ justifyContent: 'center', marginLeft: 10 }}>
 
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ flexDirection: 'row', gap: 5, paddingHorizontal: 10, overflow: 'scroll', marginBottom: 15 }}>
-                    <Pressable onPress={() => filterByDays(7)}>
-                        <View style={styles.dias}>
-                            <Text> 7 días </Text>
-                        </View>
-                    </Pressable>
-
-                    <Pressable onPress={() => filterByDays(30)}>
-                        <View style={styles.dias}>
-                            <Text> 30 días </Text>
-                        </View>
-                    </Pressable>
-
-                    <Pressable onPress={() => filterByDays(90)}>
-                        <View style={styles.dias}>
-                            <Text> 90 días </Text>
-                        </View>
-                    </Pressable>
-
-                    <Pressable onPress={() => filterByDays(365)}>
-                        <View style={styles.dias}>
-                            <Text> Este año </Text>
-                        </View>
-                    </Pressable>
-
-                    <Pressable onPress={() => filterByDays(100000)}>
-                        <View style={styles.dias}>
-                            <Text> Siempre </Text>
-                        </View>
-                    </Pressable>
-
-                </ScrollView>
-
-                <View style={styles.conatinerEstadisticas}>
-                    <Text style={{ fontSize: 30, alignSelf: 'center', color: '#1F7900' }}> + ${ingresos.toFixed(2)}</Text>
-                </View>
-
-                <View style={styles.chartContainer}>
-                    {chartData.length > 0 && (
-                        <BarChart
-                            overflowTop={20}
-                            height={175}
-                            width={225}
-                            yAxisThickness={1}
-                            xAxisThickness={1}
-                            data={chartData}
-                            barWidth={30}
-                            barBorderRadius={5}
-                            frontColor="#A37366"
-                            isAnimated
-                            noOfSections={4}
-                            renderTooltip={(item: any, index: any) => {
-                                return (
-                                    <View
-                                        style={{
-                                            marginBottom: 5,
-                                            marginTop: 50,
-                                            marginLeft: -6,
-                                            backgroundColor: '#D3AEA2 ',
-                                            paddingHorizontal: 6,
-                                            paddingVertical: 4,
-                                            borderRadius: 4,
-                                        }}>
-                                        <Text>${item.value}</Text>
-                                    </View>
-                                );
-                            }}
-                        />
-                    )}
+                <View style={styles.content}>
+                    <FlatList
+                        data={transaccionesFiltradas}
+                        renderItem={({ item }) => (
+                            <Item
+                                transaccion_nombre={item.transaccion_nombre}
+                                transaccion_descripcion={item.transaccion_descripcion}
+                                transaccion_monto={item.transaccion_monto}
+                                transaccion_fecha={item.transaccion_fecha}
+                                transaccion_metodo={item.transaccion_metodo}
+                                transaccion_tipo='Ingreso'
+                                categoria_id={item.categoria_id}
+                            />
+                        )}
+                        keyExtractor={(item, index) => item.transaccion_id?.toString() ?? index.toString()}
+                        style={styles.flatList}
+                    />
                 </View>
             </View>
-
-            <View style={styles.content}>
-                <FlatList
-                    data={transaccionesFiltradas}
-                    renderItem={({ item }) => (
-                        <Item
-                            transaccion_nombre={item.transaccion_nombre}
-                            transaccion_descripcion={item.transaccion_descripcion}
-                            transaccion_monto={item.transaccion_monto}
-                            transaccion_fecha={item.transaccion_fecha}
-                            transaccion_metodo={item.transaccion_metodo}
-                            transaccion_tipo='Ingreso'
-                            categoria_id={item.categoria_id}
-                        />
-                    )}
-                    keyExtractor={(item, index) => item.transaccion_id?.toString() ?? index.toString()}
-                    style={styles.flatList}
-                />
-            </View>
-        </View>
+        </DrawerLayout>
     );
 };
 const styles = StyleSheet.create({
@@ -366,7 +347,7 @@ const styles = StyleSheet.create({
     header: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        padding: 15,
+        padding: 8,
         backgroundColor: '#fff',
         marginBottom: 10,
     },

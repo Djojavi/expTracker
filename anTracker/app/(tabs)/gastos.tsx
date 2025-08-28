@@ -1,8 +1,8 @@
+import { DrawerLayout } from '@/components/DrawerLayout';
 import { useCategorias } from '@/hooks/useCategorias';
 import { useTransacciones } from '@/hooks/useTransacciones';
-import { Link } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { FlatList, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { FlatList, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { BarChart } from 'react-native-gifted-charts';
 import { Categoria } from './categoria';
 import { Transaccion } from './transacciones';
@@ -127,328 +127,308 @@ const Gastos = () => {
     );
 
     return (
-        <View style={styles.container}>
-            <View style={styles.header}>
-                <View style={styles.headerButtons}>
-                    <Link href="/(tabs)">
-                        <View >
-                            <Image style={{ width: 30, height: 30, marginTop: 35 }} source={require('../../assets/icons/casa.png')}></Image>
-                        </View>
-                    </Link>
+        <DrawerLayout screenName='Gastos' >
+            <View style={styles.container}>
+                <View style={{ justifyContent: 'center', marginLeft: 10 }}>
 
-                    <Link href="/(tabs)">
-                        <View >
-                            <Image style={{ width: 30, height: 30, marginTop: 35 }} source={require('../../assets/icons/categoria.png')}></Image>
-                        </View>
-                    </Link>
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ flexDirection: 'row', gap: 5, paddingHorizontal: 10, overflow: 'scroll', marginBottom: 15 }}>
+                        <Pressable onPress={() => filterByDays(7)}>
+                            <View style={styles.dias}>
+                                <Text> 7 días </Text>
+                            </View>
+                        </Pressable>
 
-                    <Link href="/(tabs)/transacciones">
-                        <View >
-                            <Image style={{ width: 30, height: 30, marginTop: 35 }} source={require('../../assets/icons/dinero.png')}></Image>
-                        </View>
-                    </Link>
+                        <Pressable onPress={() => filterByDays(30)}>
+                            <View style={styles.dias}>
+                                <Text> 30 días </Text>
+                            </View>
+                        </Pressable>
+
+                        <Pressable onPress={() => filterByDays(90)}>
+                            <View style={styles.dias}>
+                                <Text> 90 días </Text>
+                            </View>
+                        </Pressable>
+
+                        <Pressable onPress={() => filterByDays(365)}>
+                            <View style={styles.dias}>
+                                <Text> Este año </Text>
+                            </View>
+                        </Pressable>
+
+                        <Pressable onPress={() => filterByDays(100000)}>
+                            <View style={styles.dias}>
+                                <Text> Siempre </Text>
+                            </View>
+                        </Pressable>
+
+                    </ScrollView>
+
+                    <View style={styles.conatinerEstadisticas}>
+                        <Text style={{ fontSize: 30, alignSelf: 'center', color: '#BF0000' }}> - ${gastos.toFixed(2)}</Text>
+                    </View>
+
+                    <View style={styles.chartContainer}>
+                        {chartData.length > 0 && (
+                            <BarChart
+                                overflowTop={20}
+                                height={175}
+                                width={225}
+                                yAxisThickness={1}
+                                xAxisThickness={1}
+                                data={chartData}
+                                barWidth={30}
+                                barBorderRadius={5}
+                                frontColor="#A37366"
+                                isAnimated
+                                noOfSections={4}
+                                renderTooltip={(item: any, index: any) => {
+                                    return (
+                                        <View
+                                            style={{
+                                                marginBottom: 5,
+                                                marginTop: 50,
+                                                marginLeft: -6,
+                                                backgroundColor: '#D3AEA2 ',
+                                                paddingHorizontal: 6,
+                                                paddingVertical: 4,
+                                                borderRadius: 4,
+                                            }}>
+                                            <Text>${item.value}</Text>
+                                        </View>
+                                    );
+                                }}
+                            />
+                        )}
+                    </View>
                 </View>
-                <Image source={require('../../assets/images/Logo.png')} style={{ width: 152, height: 40, marginTop: 29 }} />
-            </View>
-            <View style={{ justifyContent: 'center', marginLeft: 10 }}>
 
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ flexDirection: 'row', gap: 5, paddingHorizontal: 10, overflow: 'scroll', marginBottom: 15 }}>
-                    <Pressable onPress={() => filterByDays(7)}>
-                        <View style={styles.dias}>
-                            <Text> 7 días </Text>
-                        </View>
-                    </Pressable>
-
-                    <Pressable onPress={() => filterByDays(30)}>
-                        <View style={styles.dias}>
-                            <Text> 30 días </Text>
-                        </View>
-                    </Pressable>
-
-                    <Pressable onPress={() => filterByDays(90)}>
-                        <View style={styles.dias}>
-                            <Text> 90 días </Text>
-                        </View>
-                    </Pressable>
-
-                    <Pressable onPress={() => filterByDays(365)}>
-                        <View style={styles.dias}>
-                            <Text> Este año </Text>
-                        </View>
-                    </Pressable>
-
-                    <Pressable onPress={() => filterByDays(100000)}>
-                        <View style={styles.dias}>
-                            <Text> Siempre </Text>
-                        </View>
-                    </Pressable>
-
-                </ScrollView>
-
-                <View style={styles.conatinerEstadisticas}>
-                    <Text style={{ fontSize: 30, alignSelf: 'center', color: '#BF0000' }}> + ${gastos.toFixed(2)}</Text>
-                </View>
-
-                <View style={styles.chartContainer}>
-                    {chartData.length > 0 && (
-                        <BarChart
-                            overflowTop={20}
-                            height={175}
-                            width={225}
-                            yAxisThickness={1}
-                            xAxisThickness={1}
-                            data={chartData}
-                            barWidth={30}
-                            barBorderRadius={5}
-                            frontColor="#A37366"
-                            isAnimated
-                            noOfSections={4}
-                            renderTooltip={(item: any, index: any) => {
-                                return (
-                                    <View
-                                        style={{
-                                            marginBottom: 5,
-                                            marginTop: 50,
-                                            marginLeft: -6,
-                                            backgroundColor: '#D3AEA2 ',
-                                            paddingHorizontal: 6,
-                                            paddingVertical: 4,
-                                            borderRadius: 4,
-                                        }}>
-                                        <Text>${item.value}</Text>
-                                    </View>
-                                );
-                            }}
-                        />
-                    )}
+                <View style={styles.content}>
+                    <FlatList
+                        data={transaccionesFiltradas}
+                        renderItem={({ item }) => (
+                            <Item
+                                transaccion_nombre={item.transaccion_nombre}
+                                transaccion_descripcion={item.transaccion_descripcion}
+                                transaccion_monto={item.transaccion_monto}
+                                transaccion_fecha={item.transaccion_fecha}
+                                transaccion_metodo={item.transaccion_metodo}
+                                transaccion_tipo='Gasto'
+                                categoria_id={item.categoria_id}
+                            />
+                        )}
+                        keyExtractor={(item, index) => item.transaccion_id?.toString() ?? index.toString()}
+                        style={styles.flatList}
+                    />
                 </View>
             </View>
-
-            <View style={styles.content}>
-                <FlatList
-                    data={transaccionesFiltradas}
-                    renderItem={({ item }) => (
-                        <Item
-                            transaccion_nombre={item.transaccion_nombre}
-                            transaccion_descripcion={item.transaccion_descripcion}
-                            transaccion_monto={item.transaccion_monto}
-                            transaccion_fecha={item.transaccion_fecha}
-                            transaccion_metodo={item.transaccion_metodo}
-                            transaccion_tipo='Gasto'
-                            categoria_id={item.categoria_id}
-                        />
-                    )}
-                    keyExtractor={(item, index) => item.transaccion_id?.toString() ?? index.toString()}
-                    style={styles.flatList}
-                />
-            </View>
-        </View>
-    );
+        </DrawerLayout>
+            );
 };
-const styles = StyleSheet.create({
-    chartContainer: {
-        justifyContent: 'center',
-        alignItems: 'center',
-        borderRadius: 20,
-        marginHorizontal: '5%',
-        paddingTop: 25,
-        padding: 10,
-        backgroundColor: '#fff',
-        marginBottom: 5,
-        shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
+            const styles = StyleSheet.create({
+                chartContainer: {
+                justifyContent: 'center',
+            alignItems: 'center',
+            borderRadius: 20,
+            marginHorizontal: '5%',
+            paddingTop: 25,
+            padding: 10,
+            backgroundColor: '#fff',
+            marginBottom: 5,
+            shadowColor: '#000',
+            shadowOffset: {
+                width: 0,
             height: 2,
         },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
-        elevation: 5,
+            shadowOpacity: 0.25,
+            shadowRadius: 3.84,
+            elevation: 5,
     },
-    dias: {
-        backgroundColor: '#fff',
-        borderRadius: 8,
-        padding: 7,
+            dias: {
+                backgroundColor: '#fff',
+            borderRadius: 8,
+            padding: 7,
     },
-    ingresos: {
-        backgroundColor: '#fff',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        marginHorizontal: 5,
-        padding: 15,
-        paddingHorizontal: 35,
-        borderRadius: 8,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
-        elevation: 5,
+            ingresos: {
+                backgroundColor: '#fff',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            marginHorizontal: 5,
+            padding: 15,
+            paddingHorizontal: 35,
+            borderRadius: 8,
+            shadowColor: '#000',
+            shadowOffset: {width: 0, height: 2 },
+            shadowOpacity: 0.25,
+            shadowRadius: 3.84,
+            elevation: 5,
     },
-    gastos: {
-        backgroundColor: '#fff',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        marginHorizontal: 5,
-        padding: 15,
-        paddingHorizontal: 45,
-        borderRadius: 8,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
-        elevation: 5,
+            gastos: {
+                backgroundColor: '#fff',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            marginHorizontal: 5,
+            padding: 15,
+            paddingHorizontal: 45,
+            borderRadius: 8,
+            shadowColor: '#000',
+            shadowOffset: {width: 0, height: 2 },
+            shadowOpacity: 0.25,
+            shadowRadius: 3.84,
+            elevation: 5,
     },
-    conatinerEstadisticas: {
-        backgroundColor: '#fff',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        marginHorizontal: 15,
-        padding: 8,
-        paddingHorizontal: 40,
-        borderRadius: 8,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
-        elevation: 5,
-        marginBottom: 10,
+            conatinerEstadisticas: {
+                backgroundColor: '#fff',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            marginHorizontal: 15,
+            padding: 8,
+            paddingHorizontal: 40,
+            borderRadius: 8,
+            shadowColor: '#000',
+            shadowOffset: {width: 0, height: 2 },
+            shadowOpacity: 0.25,
+            shadowRadius: 3.84,
+            elevation: 5,
+            marginBottom: 10,
     },
-    balanceGastos: {
-        color: '#BF0000',
-        fontSize: 24,
+            balanceGastos: {
+                color: '#BF0000',
+            fontSize: 24,
     },
-    balanceIngreso: {
-        color: '#1F7900',
-        fontSize: 24,
+            balanceIngreso: {
+                color: '#1F7900',
+            fontSize: 24,
     },
-    containerLeft: {
-        justifyContent: 'flex-start',
+            containerLeft: {
+                justifyContent: 'flex-start',
     },
-    containerRight: {
-        justifyContent: 'flex-end',
-        alignItems: 'flex-end',
+            containerRight: {
+                justifyContent: 'flex-end',
+            alignItems: 'flex-end',
     },
-    montoIngreso: {
-        fontSize: 18,
-        color: '#1F7900',
+            montoIngreso: {
+                fontSize: 18,
+            color: '#1F7900',
     },
-    montoGasto: {
-        fontSize: 18,
-        color: '#BF0000',
+            montoGasto: {
+                fontSize: 18,
+            color: '#BF0000',
     },
-    montoDefault: {
-        color: '#BF0000',
-        fontSize: 18,
+            montoDefault: {
+                color: '#BF0000',
+            fontSize: 18,
     },
-    catText: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        marginBottom: 10,
+            catText: {
+                fontSize: 18,
+            fontWeight: 'bold',
+            marginBottom: 10,
     },
-    inputMonto: {
-        fontSize: 18,
-        marginRight: 35,
-        marginTop: 1,
+            inputMonto: {
+                fontSize: 18,
+            marginRight: 35,
+            marginTop: 1,
     },
-    signoDolar: {
-        fontSize: 25,
-        fontWeight: '400',
-        marginRight: 10,
+            signoDolar: {
+                fontSize: 25,
+            fontWeight: '400',
+            marginRight: 10,
     },
-    text: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        color: 'black',
+            text: {
+                fontSize: 18,
+            fontWeight: 'bold',
+            color: 'black',
     },
-    container: {
-        flex: 1,
-        backgroundColor: '#E0F7FA',
+            container: {
+                flex: 1,
+            backgroundColor: '#E0F7FA',
     },
-    header: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        padding: 15,
-        backgroundColor: '#fff',
-        marginBottom: 10,
+            header: {
+                flexDirection: 'row',
+            justifyContent: 'space-between',
+            padding: 8,
+            backgroundColor: '#fff',
+            marginBottom: 10,
     },
-    headerButtons: {
-        flexDirection: 'row',
-        gap: 15
+            headerButtons: {
+                flexDirection: 'row',
+            gap: 15
     },
-    homeButton: {
-        width: 50,
-        backgroundColor: '#fff',
-        borderColor: '#000',
-        height: 40,
-        marginTop: 30,
-        marginLeft: 10,
+            homeButton: {
+                width: 50,
+            backgroundColor: '#fff',
+            borderColor: '#000',
+            height: 40,
+            marginTop: 30,
+            marginLeft: 10,
     },
-    content: {
-        flex: 1,
-        paddingHorizontal: 15,
-        marginBottom: 45
+            content: {
+                flex: 1,
+            paddingHorizontal: 15,
+            marginBottom: 45
     },
-    flatList: {
-        flex: 1,
+            flatList: {
+                flex: 1,
     },
-    nombreContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        width: '100%',
-        marginBottom: 8,
+            nombreContainer: {
+                flexDirection: 'row',
+            alignItems: 'center',
+            width: '100%',
+            marginBottom: 8,
     },
-    item: {
-        backgroundColor: '#fff',
-        padding: 8,
-        marginVertical: 1,
-        marginBottom: 8,
-        paddingHorizontal: 8,
-        marginHorizontal: 3,
-        borderRadius: 8,
-        shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
+            item: {
+                backgroundColor: '#fff',
+            padding: 8,
+            marginVertical: 1,
+            marginBottom: 8,
+            paddingHorizontal: 8,
+            marginHorizontal: 3,
+            borderRadius: 8,
+            shadowColor: '#000',
+            shadowOffset: {
+                width: 0,
             height: 2,
         },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
-        elevation: 5,
+            shadowOpacity: 0.25,
+            shadowRadius: 3.84,
+            elevation: 5,
     },
-    selectedItem: {
-        backgroundColor: '#D3AEA2',
+            selectedItem: {
+                backgroundColor: '#D3AEA2',
     },
-    itemText: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        width: '100%',
+            itemText: {
+                flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            width: '100%',
     },
-    itemContent: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
+            itemContent: {
+                flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
     },
-    title: {
-        fontSize: 17,
-        fontWeight: 'bold',
-        color: '#000',
+            title: {
+                fontSize: 17,
+            fontWeight: 'bold',
+            color: '#000',
     },
-    description: {
-        fontSize: 14,
-        color: '#757575',
-        marginTop: 5,
+            description: {
+                fontSize: 14,
+            color: '#757575',
+            marginTop: 5,
     },
-    deleteButton: {
-        backgroundColor: '#FFFFFF',
-        borderRadius: 8,
-        padding: 10,
+            deleteButton: {
+                backgroundColor: '#FFFFFF',
+            borderRadius: 8,
+            padding: 10,
     },
-    colorContainer: {
-        flexDirection: 'row',
-        flexWrap: 'wrap-reverse',
-        justifyContent: 'space-around',
-        marginVertical: 10,
-        width: '100%',
+            colorContainer: {
+                flexDirection: 'row',
+            flexWrap: 'wrap-reverse',
+            justifyContent: 'space-around',
+            marginVertical: 10,
+            width: '100%',
     }
 });
 
-export default Gastos;
+            export default Gastos;

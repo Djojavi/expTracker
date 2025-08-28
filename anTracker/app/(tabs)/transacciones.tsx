@@ -1,8 +1,9 @@
+import { DrawerLayout } from '@/components/DrawerLayout';
 import { useCategorias } from '@/hooks/useCategorias';
 import { useTransacciones } from '@/hooks/useTransacciones';
 import { Link } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
-import { Alert, FlatList, Image, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
+import { Alert, FlatList, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 import RBSheet from 'react-native-raw-bottom-sheet';
 import { Categoria } from './categoria';
 
@@ -72,6 +73,7 @@ const Transacciones = () => {
     const [transaccionesFiltradas, setTransaccionesFiltradas] = useState<Transaccion[]>([]);
     const [idActualizar, setIdActualizar] = useState(0);
     const [idBorrar, setIdBorrar] = useState(0);
+
 
     const filterByDays = (days: any) => {
         const now = new Date();
@@ -290,23 +292,7 @@ const Transacciones = () => {
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
         >
-            <View style={styles.header}>
-                <View style={styles.headerButtons}>
-                    <Link href="/(tabs)">
-                        <View >
-                            <Image style={{ width: 30, height: 30, marginTop: 35 }} source={require('../../assets/icons/casa.png')}></Image>
-                        </View>
-                    </Link>
-
-                    <Link href="/(tabs)">
-                        <View >
-                            <Image style={{ width: 30, height: 30, marginTop: 35 }} source={require('../../assets/icons/categoria.png')}></Image>
-                        </View>
-                    </Link>
-                </View>
-                <Image source={require('../../assets/images/Logo.png')} style={{ width: 152, height: 40, marginTop: 29 }} />
-            </View>
-
+            <DrawerLayout screenName='Transacciones' >
             <RBSheet
                 ref={refRBSheet}
                 onOpen={() => setToNull()}
@@ -477,7 +463,7 @@ const Transacciones = () => {
                 <TouchableOpacity style={[styles.deleteButton, { marginTop: 5 }]} onPress={() => handleDeleteTransaccion(idBorrar)}
                 >
                     <Text style={{ color: "#fff", textAlign: "center", fontWeight: "bold" }}>
-                        Eliminar Categoría
+                        Eliminar Transacción
                     </Text>
 
                 </TouchableOpacity>
@@ -563,6 +549,9 @@ const Transacciones = () => {
                 />
             </View>
 
+                            </DrawerLayout>
+
+
         </KeyboardAvoidingView>
     );
 };
@@ -574,7 +563,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         marginHorizontal: 5,
         padding: 9,
-        paddingHorizontal: 30,
         borderRadius: 8,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
@@ -593,7 +581,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         marginHorizontal: 5,
         padding: 9,
-        paddingHorizontal: 35,
         borderRadius: 8,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
@@ -604,7 +591,7 @@ const styles = StyleSheet.create({
     conatinerEstadisticas: {
         backgroundColor: '#fff',
         flexDirection: 'column',
-        marginHorizontal: 15,
+        marginHorizontal: 19,
         marginRight: 25,
         padding: 12,
         paddingHorizontal: 55,
@@ -614,7 +601,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.25,
         shadowRadius: 3.84,
         elevation: 5,
-        marginBottom: 10
+        marginBottom: 5
     },
     balanceGastos: {
         color: '#BF0000',
@@ -700,17 +687,6 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#E0F7FA',
-    },
-    header: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        padding: 15,
-        backgroundColor: '#fff',
-        marginBottom: 10,
-    },
-    headerButtons: {
-        flexDirection: 'row',
-        gap: 15
     },
     homeButton: {
         width: 50,
