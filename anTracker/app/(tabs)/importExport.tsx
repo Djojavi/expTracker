@@ -26,16 +26,16 @@ export default function ImportExportScreen() {
     const initializeCategorias = async () => {
         try {
             const data = await getCategorias();
-                setCategorias(data);
+            setCategorias(data);
         } catch (error) {
             console.error("Error:", error);
         }
     };
 
-    useEffect(()=>{
+    useEffect(() => {
         initializeTransacciones()
         initializeCategorias()
-    },[])
+    }, [])
 
     const exportToCSV = async () => {
         try {
@@ -53,13 +53,19 @@ export default function ImportExportScreen() {
     const importFromCSV = async () => {
         try {
             const result = await DocumentPicker.getDocumentAsync({
-                type: 'text/csv'
+                type: [
+                    'text/csv',
+                    'text/comma-separated-values',
+                    'application/csv',
+                    'application/vnd.ms-excel',
+                    'text/plain'
+                ]
             });
 
             if (!result.canceled) {
                 const content = await FileSystem.readAsStringAsync(result.assets[0].uri);
                 const importedData = parseCSV(content);
-
+                console.log("data importada",importedData)
                 Alert.alert(
                     'Confirm Import',
                     'This will replace all existing data. Continue?',
@@ -71,8 +77,12 @@ export default function ImportExportScreen() {
                         {
                             text: 'OK',
                             onPress: () => {
-                                importedData.forEach((transaction: Transaccion) => addTransaccion(transaction));
-                                Alert.alert('Success', 'Data imported successfully');
+                                try {
+                                    importedData.forEach((transaction: Transaccion) => addTransaccion(transaction));
+                                    Alert.alert('Success', 'Data imported successfully');
+                                } catch (e: any) {
+                                    console.log(e)
+                                }
                             }
                         }
                     ]
@@ -93,23 +103,39 @@ export default function ImportExportScreen() {
     function segundosATiempo(segundos: number): string {
         const fecha = new Date(segundos);
         const mes = fecha.getMonth() + 1
-        const cadenaFecha = mes +"/"+fecha.getDate()+"/"+fecha.getFullYear()
+        const cadenaFecha = mes + "/" + fecha.getDate() + "/" + fecha.getFullYear()
         return cadenaFecha
+    }
+    function fechaASegundos(fecha: string): number {
+        const [mes, dia, anio] = fecha.split("/").map(Number);
+        const date = new Date(Date.UTC(anio, mes - 1, dia));
+        return date.getTime();
     }
     function buscarCategoriaPorId(id: number): string {
         const categoria = categorias.find(cat => cat.categoria_id === id);
         return categoria?.categoria_nombre ?? 'Sin categoria';
     }
 
+    function buscaCategoriaPorNombre(nombre: string): number {
+        const categoria = categorias.find(cat => cat.categoria_nombre === nombre);
+        return categoria?.categoria_id ?? 0;
+    }
+
     const parseCSV = (csvContent: any) => {
-        const rows = csvContent.split('\n').slice(1); // Skip headers
-        return rows.filter((row: string) => row.trim()).map((row: { split: (arg0: string) => [any, any, any, any]; }) => {
-            const [date, amount, category, description] = row.split(',');
+        const rows = csvContent.trim().split(/\r?\n/).slice(1);
+        return rows.filter((row: string) => row.trim()).map((row: { split: (arg0: string) => [any, any, any, any, any, any, any]; }) => {
+            const delimiter = csvContent.includes(';') ? ';' : ','
+            const [fecha_cadena, transacccion_monto, transaccion_nombre, transaccion_descripcion, transaccion_tipo, categoria_nombre, transaccion_metodo] = row.split(delimiter);
+            let categoria_id = buscaCategoriaPorNombre(categoria_nombre)
+            let transaccion_fecha = fechaASegundos(fecha_cadena)
             return {
-                date,
-                amount: parseFloat(amount),
-                category,
-                description
+                transaccion_fecha,
+                transaccion_monto: parseFloat(transacccion_monto),
+                transaccion_nombre,
+                transaccion_descripcion,
+                transaccion_tipo,
+                categoria_id,
+                transaccion_metodo
             };
         });
     };
