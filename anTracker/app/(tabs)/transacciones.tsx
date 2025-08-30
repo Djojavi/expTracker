@@ -19,6 +19,8 @@ export type Transaccion = {
     transaccion_descripcion: string,
     transaccion_tipo: string
 }
+
+
 interface RBSheetRef {
     open: () => void;
     close: () => void;
@@ -615,6 +617,9 @@ const styles = StyleSheet.create({
     },
     containerLeft: {
         justifyContent: 'flex-start',
+        flexDirection:'row',
+        flexWrap:'wrap',
+        width:'60%',
     },
     containerRight: {
         justifyContent: 'flex-end',

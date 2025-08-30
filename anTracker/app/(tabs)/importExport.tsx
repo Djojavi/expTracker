@@ -3,17 +3,23 @@ import { useCategorias } from '@/hooks/useCategorias';
 import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
-import { useEffect, useState } from 'react';
-import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { Alert, KeyboardAvoidingView, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import RBSheet from 'react-native-raw-bottom-sheet';
 import { useTransacciones } from '../../hooks/useTransacciones';
 import { Categoria } from './categoria';
 import { Transaccion } from './transacciones';
+interface RBSheetRef {
+    open: () => void;
+    close: () => void;
+}
 
 export default function ImportExportScreen() {
-    const { getTransacciones, addTransaccion } = useTransacciones();
+    const { getTransacciones, deleteTransacciones, addTransaccion, getTransaccionExistente, updateTransaccion } = useTransacciones();
     const [transacciones, setTransacciones] = useState<Transaccion[]>([])
     const { getCategorias } = useCategorias();
     const [categorias, setCategorias] = useState<Categoria[]>([]);
+    const [importarOpcion, setImportarOpcion] = useState('');
 
     const initializeTransacciones = async () => {
         try {
@@ -50,7 +56,13 @@ export default function ImportExportScreen() {
         }
     };
 
-    const importFromCSV = async () => {
+    const borrarTransacciones = async () => {
+        Alert.alert('Se eliminarán todas las transacciones', 'Esta acción no puede ser revertida',
+            [{ text: 'Cancelar', style: 'cancel' }, { text: 'OK', onPress: (() => deleteTransacciones()) }]
+        )
+    }
+
+    const importFromCSV = async (opcion: string) => {
         try {
             const result = await DocumentPicker.getDocumentAsync({
                 type: [
@@ -64,8 +76,8 @@ export default function ImportExportScreen() {
 
             if (!result.canceled) {
                 const content = await FileSystem.readAsStringAsync(result.assets[0].uri);
-                const importedData = parseCSV(content);
-                console.log("data importada",importedData)
+                const importedData: Transaccion[] = parseCSV(content);
+                console.log("data importada", importedData)
                 Alert.alert(
                     'Confirm Import',
                     'This will replace all existing data. Continue?',
@@ -76,9 +88,21 @@ export default function ImportExportScreen() {
                         },
                         {
                             text: 'OK',
-                            onPress: () => {
+                            onPress: async () => {
                                 try {
-                                    importedData.forEach((transaction: Transaccion) => addTransaccion(transaction));
+                                    if (opcion === 'sobreescribir') {
+                                        for (const imported of importedData) {
+                                            const existing = await getTransaccionExistente(imported.transaccion_nombre, fechaASegundos(imported.transaccion_fecha.toString()), imported.transaccion_descripcion)
+
+                                            if (existing) {
+                                                await updateTransaccion(imported, existing.transaccion_id ?? 0)
+                                            } else {
+                                                await addTransaccion(imported)
+                                            }
+                                        }
+                                    } else if (opcion === 'duplicar') {
+                                        importedData.forEach((transaction: Transaccion) => addTransaccion(transaction));
+                                    }
                                     Alert.alert('Success', 'Data imported successfully');
                                 } catch (e: any) {
                                     console.log(e)
@@ -108,7 +132,7 @@ export default function ImportExportScreen() {
     }
     function fechaASegundos(fecha: string): number {
         const [mes, dia, anio] = fecha.split("/").map(Number);
-        const date = new Date(Date.UTC(anio, mes - 1, dia));
+        const date = new Date(Date.UTC(anio, mes - 1, dia - 1));
         return date.getTime();
     }
     function buscarCategoriaPorId(id: number): string {
@@ -140,40 +164,181 @@ export default function ImportExportScreen() {
         });
     };
 
+
+    const refRBSheet = useRef<RBSheetRef>(null);
+    const importRefRBSheet = useRef<RBSheetRef>(null);
+
     return (
-        <DrawerLayout screenName='CSV' >
-            <View style={styles.container}>
-                <Text style={styles.title}>Import/Export Data</Text>
-                <View style={styles.buttonContainer}>
+        <KeyboardAvoidingView
+            style={styles.container}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
+        >
+            <DrawerLayout screenName='CSV' >
+                <RBSheet
+                    ref={refRBSheet}
+                    height={400}
+                    openDuration={300}
+                    customStyles={{
+                        container: {
+                            padding: 15,
+                            justifyContent: 'center',
+                            borderTopLeftRadius: 20,
+                            borderTopRightRadius: 20,
+                        }
+                    }}
+                >
+                    <Text style={{ marginBottom: 8, color: '#db0202ff', fontWeight: 'bold' }}>
+                        📄 El archivo CSV debe contener las siguientes columnas (en este orden):
+                    </Text>
+
+                    <Text style={{ marginLeft: 10, marginBottom: 4 }}>1. <Text style={{ fontWeight: 'bold' }}>fecha</Text> (formato: YYYY-MM-DD)</Text>
+                    <Text style={{ marginLeft: 10, marginBottom: 4 }}>2. <Text style={{ fontWeight: 'bold' }}>monto</Text> (usar punto “.” para decimales, sin símbolos)</Text>
+                    <Text style={{ marginLeft: 10, marginBottom: 4 }}>3. <Text style={{ fontWeight: 'bold' }}>nombre</Text> (ej: "Supermercado")</Text>
+                    <Text style={{ marginLeft: 10, marginBottom: 4 }}>4. <Text style={{ fontWeight: 'bold' }}>descripcion</Text> (detalle opcional)</Text>
+                    <Text style={{ marginLeft: 10, marginBottom: 4 }}>5. <Text style={{ fontWeight: 'bold' }}>tipo</Text> (Ingreso o Gasto)</Text>
+                    <Text style={{ marginLeft: 10, marginBottom: 4 }}>6. <Text style={{ fontWeight: 'bold' }}>categoria</Text> (ej: "Alimentos" – debe existir previamente)</Text>
+                    <Text style={{ marginLeft: 10, marginBottom: 8 }}>7. <Text style={{ fontWeight: 'bold' }}>metodo</Text> (ej: "Efectivo", "Tarjeta")</Text>
+
+                    <Text style={{ marginTop: 4, fontStyle: 'italic' }}>
+                        Ejemplo válido:
+                        {"\n"}2025-08-14,200,Venta libro usado,Ingreso extra,Ingreso,Otros,Efectivo
+                    </Text>
+
+                </RBSheet>
+
+                <RBSheet ref={importRefRBSheet}
+                    height={400}
+                    openDuration={300}
+                    customStyles={{
+                        container: {
+                            padding: 15,
+                            justifyContent: 'center',
+                            borderTopLeftRadius: 20,
+                            borderTopRightRadius: 20,
+                        }
+                    }}>
+                    <Text style={styles.title}>¿Cómo deseas importar tus datos?</Text>
+                    <Text style={styles.subtitle}>Si existen transacciones ya existentes, deseas...</Text>
+
                     <TouchableOpacity
-                        onPress={exportToCSV}
+                        onPress={() => importFromCSV('sobreescribir')}
+                        style={styles.btnOpciones}
                     >
-                        <Text>Exportar</Text>
+                        <Text style={{ color: '#000000ff', fontWeight: 'bold' }}>Sobreescribirlas</Text>
                     </TouchableOpacity>
-                    <View style={styles.separator} />
                     <TouchableOpacity
-                        onPress={importFromCSV}
+                        onPress={() => importFromCSV('duplicar')}
+                        style={styles.btnOpciones}
                     >
-                        <Text>Importar
-                        </Text>
+                        <Text style={{ color: '#000000ff', fontWeight: 'bold' }}>Duplicarlas</Text>
+                    </TouchableOpacity>
+
+                </RBSheet>
+
+                <View style={styles.card}>
+                    <Text style={styles.title}>Importar transacciones desde CSV</Text>
+                    <TouchableOpacity
+                        onPress={() => refRBSheet.current?.open()}
+                        style={styles.btnInstrucciones}
+                    >
+                        <Text style={{ color: '#000000ff', fontWeight: 'bold' }}>¿Cómo se debe importar las transacciones?</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        onPress={() => importRefRBSheet.current?.open()}
+                        style={styles.btn}
+                    >
+                        <Text style={{ color: '#fff', fontWeight: 'bold' }}>Importar</Text>
                     </TouchableOpacity>
                 </View>
-            </View>
-        </DrawerLayout>
+
+
+                <View style={styles.card}>
+                    <Text style={styles.title}>Exportar transacciones a CSV</Text>
+                    <TouchableOpacity
+                        onPress={exportToCSV}
+                        style={styles.btn}
+                    >
+                        <Text style={{ color: '#fff', fontWeight: 'bold' }}>Exportar</Text>
+                    </TouchableOpacity>
+                </View>
+
+                <View style={styles.card}>
+                    <Text style={styles.title}>Eliminar todas las Transacciones</Text>
+                    <TouchableOpacity
+                        onPress={() => borrarTransacciones()}
+                        style={styles.btnEliminar}
+                    >
+                        <Text style={{ color: '#fff', fontWeight: 'bold' }}>Eliminar</Text>
+                    </TouchableOpacity>
+                </View>
+
+            </DrawerLayout>
+        </KeyboardAvoidingView>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        backgroundColor: '#E0F7FA',
+    },
+    card: {
+        backgroundColor: '#fff',
+        borderRadius: 20,
+        justifyContent: 'center',
+        alignContent: 'center',
+        padding: 15,
+        margin: 5,
+        marginHorizontal:20
+    },
+    btn: {
+        alignSelf: 'center',
+        marginVertical: 20,
+        width: 250,
+        height: 50,
+        marginHorizontal: 10,
+        borderRadius: 10,
+        borderColor: '#A37366',
+        borderWidth: 2,
+        backgroundColor: '#A37366',
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
+    btnOpciones: {
+        alignSelf: 'center',
+        width: 250,
+        height: 50,
+        marginHorizontal: 10,
+        borderRadius: 10,
+        backgroundColor: '#c9dff8ff',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: 20,
+        marginVertical: 10
+    },
+    btnInstrucciones: {
+        alignSelf: 'center',
+        marginHorizontal: 10,
+        borderRadius: 10,
+        backgroundColor: '#d6d6d6ff',
+        padding: 10
+    },
+    btnEliminar: {
+        alignSelf: 'center',
+        marginHorizontal: 10,
+        borderRadius: 10,
+        backgroundColor: '#f80606ff',
+        padding: 10
     },
     title: {
         fontSize: 20,
         fontWeight: 'bold',
         marginBottom: 20,
+    },
+    subtitle: {
+        fontSize: 16,
+        marginBottom: 20,
+        fontStyle: 'italic'
     },
     buttonContainer: {
         width: '100%',

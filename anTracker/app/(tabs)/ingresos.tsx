@@ -2,7 +2,7 @@ import { DrawerLayout } from '@/components/DrawerLayout';
 import { useCategorias } from '@/hooks/useCategorias';
 import { useTransacciones } from '@/hooks/useTransacciones';
 import React, { useEffect, useState } from 'react';
-import { FlatList, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { FlatList, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { BarChart } from 'react-native-gifted-charts';
 import { Categoria } from './categoria';
 import { Transaccion } from './transacciones';
@@ -127,6 +127,11 @@ const Ingreso = () => {
     );
 
     return (
+        <KeyboardAvoidingView
+                    style={styles.container}
+                    behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                    keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
+                >
         <DrawerLayout screenName='Ingresos' >
             <View style={styles.container}>
 
@@ -224,6 +229,7 @@ const Ingreso = () => {
                 </View>
             </View>
         </DrawerLayout>
+        </KeyboardAvoidingView>
     );
 };
 const styles = StyleSheet.create({

@@ -17,6 +17,9 @@ export function useTransacciones() {
     const getTransaccion = async (id: number) => {
         return await db.getFirstAsync<Transaccion>('SELECT * FROM Transacciones WHERE transaccion_id = ?', [id])
     }
+    const getTransaccionExistente= async (nombre: string,fecha:number, descripcion:string) => {
+        return await db.getFirstAsync<Transaccion>('SELECT * FROM Transacciones WHERE transaccion_nombre = ?, transaccion_fecha =?, transaccion_descripcion=?', [nombre,fecha,descripcion])
+    }
 
     const updateTransaccion = async (transaccion: Transaccion, id: number) => {
         return await db.runAsync('UPDATE Transacciones SET categoria_id =?, transaccion_monto=?, transaccion_nombre=?, transaccion_metodo=?, transaccion_descripcion=?, transaccion_tipo=? WHERE transaccion_id=?', [transaccion.categoria_id, transaccion.transaccion_monto, transaccion.transaccion_nombre, transaccion.transaccion_metodo, transaccion.transaccion_descripcion, transaccion.transaccion_tipo, id])
@@ -24,6 +27,10 @@ export function useTransacciones() {
 
     const deleteTransaccion = async (transaccion_id: number) => {
         return await db.runAsync('DELETE FROM Transacciones WHERE transaccion_id = ?', [transaccion_id])
+    }
+
+    const deleteTransacciones = async () => {
+        return await db.runAsync('DELETE FROM Transacciones')
     }
 
     const getIngresos = async (): Promise<Transaccion[]> => {
@@ -35,5 +42,5 @@ export function useTransacciones() {
     }
 
 
-    return { addTransaccion, getTransacciones, getTransaccion, updateTransaccion, deleteTransaccion, getIngresos, getGastos }
+    return { addTransaccion, getTransacciones, getTransaccion, updateTransaccion, deleteTransaccion, getIngresos, getGastos, deleteTransacciones, getTransaccionExistente }
 }
