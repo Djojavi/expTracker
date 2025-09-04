@@ -23,7 +23,7 @@ export const MenuItem: React.FC<MenuProps> = ({ source, href, text, screenName }
 
 const styles = StyleSheet.create({
     link: {
-        marginVertical: 5,
+        marginVertical: 3,
     },
     menuItem: {
         flexDirection: 'row',

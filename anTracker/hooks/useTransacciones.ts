@@ -1,3 +1,4 @@
+import { MontoPorCategoria } from '@/app/(tabs)/graficos';
 import { Transaccion } from '@/app/(tabs)/transacciones';
 import { useSQLiteContext } from 'expo-sqlite';
 
@@ -41,6 +42,11 @@ export function useTransacciones() {
         return await db.getAllAsync<Transaccion>(`SELECT * FROM Transacciones WHERE transaccion_tipo = 'Gasto';`)
     }
 
+    
+    const getMontosPorCategoria = async(fechaInicio:number, fechaFin:number):Promise<MontoPorCategoria[]> =>{
+        return await db.getAllAsync('SELECT c.categoria_id, c.categoria_nombre, c.categoria_color,  SUM(t.transaccion_monto) AS total_monto FROM Transacciones t JOIN Categorias c ON t.categoria_id = c.categoria_id WHERE t.transaccion_fecha BETWEEN ? AND ? GROUP BY c.categoria_id, c.categoria_nombre, c.categoria_color;',[fechaInicio, fechaFin])
+    }
 
-    return { addTransaccion, getTransacciones, getTransaccion, updateTransaccion, deleteTransaccion, getIngresos, getGastos, deleteTransacciones, getTransaccionExistente }
+
+    return { addTransaccion, getTransacciones, getTransaccion, updateTransaccion, deleteTransaccion, getIngresos, getGastos, deleteTransacciones, getTransaccionExistente, getMontosPorCategoria }
 }

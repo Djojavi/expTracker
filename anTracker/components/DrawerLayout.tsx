@@ -18,7 +18,7 @@ export const DrawerLayout: React.FC<DrawerProps> = ({ children, screenName }) =>
             <MenuItem source={require('../assets/icons/expenses.png')} href={'../(tabs)/gastos'} text='Gastos' screenName={screenName} ></MenuItem>
             <MenuItem source={require('../assets/icons/categoria.png')} href={'../(tabs)/categoria'} text='Categoría' screenName={screenName} ></MenuItem>
             <MenuItem source={require('../assets/icons/csv.png')} href={'../(tabs)/importExport'} text='CSV' screenName={screenName} ></MenuItem>
-
+            <MenuItem source={require('../assets/icons/pie-chart.png')} href={'../(tabs)/graficos'} text='Graficos' screenName={screenName} ></MenuItem>
         </View>
     );
 
@@ -79,8 +79,8 @@ const styles = StyleSheet.create({
     menuItem: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingVertical: 12,
-        paddingHorizontal: 16,
+        paddingVertical: 1,
+        paddingHorizontal: 10,
         borderRadius: 15,
         backgroundColor: '#f9f9f9',
         width: '90%',
