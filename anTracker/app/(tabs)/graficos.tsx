@@ -1,11 +1,8 @@
 import { DrawerLayout } from '@/components/DrawerLayout';
-import { useCategorias } from '@/hooks/useCategorias';
+import { PieChartComponent } from '@/components/PieChart';
 import { useTransacciones } from '@/hooks/useTransacciones';
 import React, { useEffect, useState } from 'react';
-import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { PieChart } from 'react-native-gifted-charts';
-import { Categoria } from './categoria';
-import { Transaccion } from './transacciones';
+import { FlatList, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 // Pantalla con los graficos de las categorias
 export type MontoPorCategoria = {
@@ -18,12 +15,7 @@ export type MontoPorCategoria = {
 const Graficos = () => {
     const { getMontosPorCategoria } = useTransacciones();
     const [montosPorCategoria, setMontosPorCategoria] = useState<MontoPorCategoria[]>([]);
-    const [montosFiltrados, setMontosFiltrados] = useState<MontoPorCategoria[]>([]);
-    const [gastos, setGastos] = useState(0)
-    const [transaccionesGastos, setTransaccionesGastos] = useState<Transaccion[]>([]);
     const [pieData, setPieData] = useState<{ gradientCenterColor: string, color: string; value: number; }[]>([]);
-    const [categorias, setCategorias] = useState<Categoria[]>([]);
-    const { getCategorias } = useCategorias();
     const ahora = Date.now()
     const siempre = 1577836800000
     const sieteDias = ahora - 7 * 24 * 60 * 60 * 1000;
@@ -36,7 +28,7 @@ const Graficos = () => {
         initializeMontosPorCategoria(siempre, ahora);
     }, []);
 
-    const initializeMontosPorCategoria = async (fechaInicio:number, fechaFin:number) => {
+    const initializeMontosPorCategoria = async (fechaInicio: number, fechaFin: number) => {
         try {
             const data = await getMontosPorCategoria(fechaInicio, fechaFin);
             console.log(data)
@@ -56,16 +48,14 @@ const Graficos = () => {
         setPieData(dataPie);
     }
 
-    function darkenHexColor(hex: string, amount = 20) {
+    function darkenHexColor(hex: string, percent = 10) {
         hex = hex.replace(/^#/, '');
         let r = parseInt(hex.substring(0, 2), 16);
         let g = parseInt(hex.substring(2, 4), 16);
         let b = parseInt(hex.substring(4, 6), 16);
-
-        r = Math.max(0, r - amount);
-        g = Math.max(0, g - amount);
-        b = Math.max(0, b - amount);
-
+        r = Math.max(0, Math.floor(r * (1 - percent / 100)));
+        g = Math.max(0, Math.floor(g * (1 - percent / 100)));
+        b = Math.max(0, Math.floor(b * (1 - percent / 100)));
         const newHex = "#" +
             r.toString(16).padStart(2, "0") +
             g.toString(16).padStart(2, "0") +
@@ -74,96 +64,18 @@ const Graficos = () => {
         return newHex;
     }
 
-    const renderDot = (color: string) => {
-        return (
-            <View
-                style={{
-                    height: 10,
-                    width: 10,
-                    borderRadius: 5,
-                    backgroundColor: color,
-                    marginRight: 10,
-                }}
-            />
-        );
-    };
-
-    const renderLegendComponent = () => {
-        return (
-            <>
-                <View
-                    style={{
-                        flexDirection: 'row',
-                        justifyContent: 'center',
-                        marginBottom: 10,
-                    }}>
-                    <View
-                        style={{
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                            width: 120,
-                            marginRight: 20,
-                        }}>
-                        {renderDot('#006DFF')}
-                        <Text style={{ color: 'white' }}>Excellent: 47%</Text>
-                    </View>
-                    <View
-                        style={{ flexDirection: 'row', alignItems: 'center', width: 120 }}>
-                        {renderDot('#8F80F3')}
-                        <Text style={{ color: 'white' }}>Okay: 16%</Text>
-                    </View>
-                </View>
-                <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
-                    <View
-                        style={{
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                            width: 120,
-                            marginRight: 20,
-                        }}>
-                        {renderDot('#3BE9DE')}
-                        <Text style={{ color: 'white' }}>Good: 40%</Text>
-                    </View>
-                    <View
-                        style={{ flexDirection: 'row', alignItems: 'center', width: 120 }}>
-                        {renderDot('#FF7F97')}
-                        <Text style={{ color: 'white' }}>Poor: 3%</Text>
-                    </View>
-                </View>
-            </>
-        );
-    };
-
-
-    const filterByDays = async (fechaInicio: number, fechaFin: number) => {
-        try {
-            const data = await getMontosPorCategoria(fechaInicio, fechaFin)
-            setMontosFiltrados(data)
-            getPieData(montosFiltrados)
-        } catch (e: any) {
-            console.error(e)
-        }
-    };
-
-    const Item: React.FC<Transaccion> = ({ transaccion_descripcion, transaccion_nombre, transaccion_monto, transaccion_fecha, categoria_id, transaccion_tipo }) => (
+    const Item: React.FC<MontoPorCategoria> = ({ categoria_nombre, categoria_color, total_monto }) => (
         <View style={styles.item}>
             <View style={styles.itemContent}>
-                <View style={styles.containerLeft}>
-                    <Text style={styles.title}>{transaccion_nombre}</Text>
-                    <Text style={styles.description}>{transaccion_descripcion}</Text>
-                    <Text style={styles.description}> </Text>
+                <View style={styles.itemContent}>
+                    <View style={[styles.circularTextView, { backgroundColor: categoria_color }]} />
+                    <Text style={styles.title}>{categoria_nombre}</Text>
                 </View>
-                <View style={styles.containerRight}>
-                    <Text ></Text>
-                    {transaccion_monto ? (
-                        <Text style={transaccion_tipo === 'Ingreso' ? styles.montoIngreso : transaccion_tipo === 'Gasto' ? styles.montoGasto : styles.montoDefault}>
-                            {transaccion_tipo === 'Ingreso' ? `+$${transaccion_monto.toFixed(2)}` : transaccion_tipo === 'Gasto' ? `-$${transaccion_monto.toFixed(2)}` : `$${transaccion_monto.toFixed(2)}`}
-                        </Text>
-                    ) : null}
-                </View>
+                    <Text style={styles.total}>{total_monto}$</Text>
             </View>
         </View>
     );
+
 
     return (
         <KeyboardAvoidingView
@@ -176,7 +88,7 @@ const Graficos = () => {
                     <View style={{ justifyContent: 'center', marginLeft: 10 }}>
 
                         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ flexDirection: 'row', gap: 5, paddingHorizontal: 10, overflow: 'scroll', marginBottom: 15 }}>
-                            <Pressable onPress={() => initializeMontosPorCategoria(sieteDias,ahora)}>
+                            <Pressable onPress={() => initializeMontosPorCategoria(sieteDias, ahora)}>
                                 <View style={styles.dias}>
                                     <Text> 7 días </Text>
                                 </View>
@@ -200,7 +112,7 @@ const Graficos = () => {
                                 </View>
                             </Pressable>
 
-                            <Pressable onPress={() => initializeMontosPorCategoria(siempre,  ahora)}>
+                            <Pressable onPress={() => initializeMontosPorCategoria(siempre, ahora)}>
                                 <View style={styles.dias}>
                                     <Text> Siempre </Text>
                                 </View>
@@ -209,40 +121,25 @@ const Graficos = () => {
                         </ScrollView>
                     </View>
                     <View
-      style={{
-        margin: 20,
-        padding: 16,
-        borderRadius: 20,
-        backgroundColor: '#232B5D',
-      }}>
-      <Text style={{color: 'white', fontSize: 16, fontWeight: 'bold'}}>
-        Performance
-      </Text>
-      <View style={{padding: 20, alignItems: 'center'}}>
-        {pieData.length > 0 && (
-        <PieChart
-          data={pieData}
-          donut
-          showGradient
-          sectionAutoFocus
-          radius={90}
-          innerRadius={60}
-          innerCircleColor={'#232B5D'}
-          centerLabelComponent={() => {
-            return (
-              <View style={{justifyContent: 'center', alignItems: 'center'}}>
-                <Text
-                  style={{fontSize: 22, color: 'white', fontWeight: 'bold'}}>
-                  47%
-                </Text>
-                <Text style={{fontSize: 14, color: 'white'}}>Excellent</Text>
-              </View>
-            );
-          }}
-        />)}
-      </View>
-      {renderLegendComponent()}
-      </View>
+                        style={{
+                            marginHorizontal: 20,
+                            padding: 2,
+                            borderRadius: 20,
+                            backgroundColor: '#ffffffff',
+                        }}>
+
+                        <PieChartComponent pieData={pieData} montosPorCategoria={montosPorCategoria}></PieChartComponent>
+                    </View>
+
+                        <View style={styles.content}>
+                            <FlatList data={montosPorCategoria} renderItem={({ item }) => (
+                                <Item total_monto={item.total_monto} categoria_nombre={item.categoria_nombre} categoria_color={item.categoria_color} categoria_id={item.categoria_id}></Item>
+                            )}
+                                keyExtractor={(item, index) => item.categoria_id?.toString() ?? index.toString()}
+                                style={styles.flatList}>
+
+                            </FlatList>
+                        </View>
 
                 </View>
             </DrawerLayout>
@@ -250,163 +147,37 @@ const Graficos = () => {
     );
 };
 const styles = StyleSheet.create({
-    chartContainer: {
-        justifyContent: 'center',
-        alignItems: 'center',
-        borderRadius: 20,
-        marginHorizontal: '5%',
-        paddingTop: 25,
-        padding: 10,
-        backgroundColor: '#fff',
-        marginBottom: 5,
-        shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 2,
-        },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
-        elevation: 5,
-    },
     dias: {
         backgroundColor: '#fff',
         borderRadius: 8,
         padding: 7,
     },
-    ingresos: {
-        backgroundColor: '#fff',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        marginHorizontal: 5,
-        padding: 15,
-        paddingHorizontal: 35,
-        borderRadius: 8,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
-        elevation: 5,
-    },
-    gastos: {
-        backgroundColor: '#fff',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        marginHorizontal: 5,
-        padding: 15,
-        paddingHorizontal: 45,
-        borderRadius: 8,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
-        elevation: 5,
-    },
-    conatinerEstadisticas: {
-        backgroundColor: '#fff',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        marginHorizontal: 15,
-        padding: 8,
-        paddingHorizontal: 40,
-        borderRadius: 8,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
-        elevation: 5,
-        marginBottom: 10,
-    },
-    balanceGastos: {
-        color: '#BF0000',
-        fontSize: 24,
-    },
-    balanceIngreso: {
-        color: '#1F7900',
-        fontSize: 24,
-    },
-    containerLeft: {
-        justifyContent: 'flex-start',
-    },
-    containerRight: {
-        justifyContent: 'flex-end',
-        alignItems: 'flex-end',
-    },
-    montoIngreso: {
-        fontSize: 18,
-        color: '#1F7900',
-    },
-    montoGasto: {
-        fontSize: 18,
-        color: '#BF0000',
-    },
-    montoDefault: {
-        color: '#BF0000',
-        fontSize: 18,
-    },
-    catText: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        marginBottom: 10,
-    },
-    inputMonto: {
-        fontSize: 18,
-        marginRight: 35,
-        marginTop: 1,
-    },
-    signoDolar: {
-        fontSize: 25,
-        fontWeight: '400',
-        marginRight: 10,
-    },
-    text: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        color: 'black',
-    },
     container: {
         flex: 1,
         backgroundColor: '#E0F7FA',
     },
-    header: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        padding: 8,
-        backgroundColor: '#fff',
-        marginBottom: 10,
-    },
-    headerButtons: {
-        flexDirection: 'row',
-        gap: 15
-    },
-    homeButton: {
-        width: 50,
-        backgroundColor: '#fff',
-        borderColor: '#000',
+    circularTextView: {
+        width: 10,
         height: 40,
-        marginTop: 30,
+        borderRadius: 50,
         marginLeft: 10,
-    },
-    content: {
-        flex: 1,
-        paddingHorizontal: 15,
-        marginBottom: 45
+        marginRight: 15
     },
     flatList: {
         flex: 1,
     },
-    nombreContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        width: '100%',
-        marginBottom: 8,
+    content: {
+        marginTop:10,
+        backgroundColor:'#E0F7FA',
+        borderColor:'#fff',
+        flex: 1,
+        marginBottom: 45,
+        marginHorizontal:18
     },
     item: {
         backgroundColor: '#fff',
-        padding: 8,
-        marginVertical: 1,
-        marginBottom: 8,
-        paddingHorizontal: 8,
-        marginHorizontal: 3,
+        padding: 15,
+        marginVertical: 6,
         borderRadius: 8,
         shadowColor: '#000',
         shadowOffset: {
@@ -416,43 +187,25 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.25,
         shadowRadius: 3.84,
         elevation: 5,
-    },
-    selectedItem: {
-        backgroundColor: '#D3AEA2',
-    },
-    itemText: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        width: '100%',
     },
     itemContent: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
     },
+    itemText: {
+        flex: 1,
+        flexDirection:'column'
+    },
     title: {
         fontSize: 17,
         fontWeight: 'bold',
-        color: '#000',
     },
-    description: {
-        fontSize: 14,
+    total: {
+        fontSize: 16,
         color: '#757575',
         marginTop: 5,
     },
-    deleteButton: {
-        backgroundColor: '#FFFFFF',
-        borderRadius: 8,
-        padding: 10,
-    },
-    colorContainer: {
-        flexDirection: 'row',
-        flexWrap: 'wrap-reverse',
-        justifyContent: 'space-around',
-        marginVertical: 10,
-        width: '100%',
-    }
 });
 
 export default Graficos;

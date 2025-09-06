@@ -44,7 +44,7 @@ export function useTransacciones() {
 
     
     const getMontosPorCategoria = async(fechaInicio:number, fechaFin:number):Promise<MontoPorCategoria[]> =>{
-        return await db.getAllAsync('SELECT c.categoria_id, c.categoria_nombre, c.categoria_color,  SUM(t.transaccion_monto) AS total_monto FROM Transacciones t JOIN Categorias c ON t.categoria_id = c.categoria_id WHERE t.transaccion_fecha BETWEEN ? AND ? GROUP BY c.categoria_id, c.categoria_nombre, c.categoria_color;',[fechaInicio, fechaFin])
+        return await db.getAllAsync('SELECT c.categoria_id, c.categoria_nombre, c.categoria_color,  SUM(t.transaccion_monto) AS total_monto FROM Transacciones t JOIN Categorias c ON t.categoria_id = c.categoria_id WHERE t.transaccion_fecha BETWEEN ? AND ? GROUP BY c.categoria_id, c.categoria_nombre, c.categoria_color ORDER BY total_monto DESC;',[fechaInicio, fechaFin])
     }
 
 
