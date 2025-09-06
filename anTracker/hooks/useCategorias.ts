@@ -12,7 +12,7 @@ export function useCategorias() {
     };
 
     const getCategorias = async (): Promise<Categoria[]> => {
-        return await db.getAllAsync<Categoria>('SELECT * FROM Categorias');
+        return await db.getAllAsync<Categoria>('SELECT * FROM Categorias ORDER BY categoria_nombre ASC');
     };
 
     const updateCategoria = async (categoria: Categoria) => {

@@ -115,11 +115,6 @@ const Categoria = () => {
     ]);
   };
 
-  const ordenarCategorias = (array: Categoria[]) => {
-    return array.sort((a, b) => a.categoria_nombre.localeCompare(b.categoria_nombre));
-  }
-
-  const categoriasOrdenadas = ordenarCategorias(categorias);
 
   const Item: React.FC<Categoria> = ({ categoria_nombre, categoria_descripcion, categoria_color }) => (
     <View style={styles.item}>
@@ -213,7 +208,7 @@ const Categoria = () => {
 
         <View style={styles.content}>
           <FlatList
-            data={categoriasOrdenadas}
+            data={categorias}
             renderItem={({ item }) => (
               <Pressable
                 onLongPress={() => {

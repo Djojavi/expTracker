@@ -199,7 +199,7 @@ const styles = StyleSheet.create({
     },
     title: {
         fontSize: 17,
-        fontWeight: 'bold',
+        fontWeight: 'bold', 
     },
     total: {
         fontSize: 16,

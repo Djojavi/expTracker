@@ -40,7 +40,7 @@ export const PieChartComponent: React.FC<DrawerProps> = ({ pieData, montosPorCat
 
         return (
             <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                <Text style={{ fontSize: 22, color: '#000', fontWeight: 'bold' }}>
+                <Text style={{ fontSize: 22, color: '#A37366', fontWeight: 'bold' }}>
                     {percentage}
                 </Text>
             </View>
