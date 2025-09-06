@@ -105,8 +105,6 @@ const Transacciones = () => {
         }
     };
 
-    
-
     const initializeTransacciones = async () => {
         try {
             const data = await getTransacciones();
@@ -188,10 +186,6 @@ const Transacciones = () => {
         }
     }
 
-    function segundosATiempo(segundos: number): string {
-        const fecha = new Date(segundos);
-        return fecha.toLocaleString();
-    }
     function buscarCategoriaPorId(id: number): string {
         const categoria = categorias.find(cat => cat.categoria_id === id);
         return categoria?.categoria_nombre ?? 'Sin categoría';

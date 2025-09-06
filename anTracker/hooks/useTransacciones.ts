@@ -44,11 +44,19 @@ export function useTransacciones() {
     }
 
     const getIngresos = async (): Promise<Transaccion[]> => {
-        return await db.getAllAsync<Transaccion>(`SELECT * FROM Transacciones WHERE transaccion_tipo = 'Ingreso';`)
+        return await db.getAllAsync<Transaccion>(`SELECT * FROM Transacciones WHERE transaccion_tipo = 'Ingreso' ORDER BY transaccion_fecha DESC;`)
+    }
+
+    const getIngresosPorFecha = async (fechaInicio: number, fechaFin: number): Promise<Transaccion[]> => {
+        return await db.getAllAsync<Transaccion>(`SELECT * FROM Transacciones WHERE transaccion_tipo = 'Ingreso' AND transaccion_fecha BETWEEN ? AND ? ORDER BY transaccion_fecha DESC`, [fechaInicio, fechaFin])
     }
 
     const getGastos = async (): Promise<Transaccion[]> => {
-        return await db.getAllAsync<Transaccion>(`SELECT * FROM Transacciones WHERE transaccion_tipo = 'Gasto';`)
+        return await db.getAllAsync<Transaccion>(`SELECT * FROM Transacciones WHERE transaccion_tipo = 'Gasto' ORDER BY transaccion_fecha DESC;`)
+    }
+
+    const getGastosPorFecha = async (fechaInicio: number, fechaFin: number): Promise<Transaccion[]> => {
+        return await db.getAllAsync<Transaccion>(`SELECT * FROM Transacciones WHERE transaccion_tipo = 'Gasto' AND transaccion_fecha BETWEEN ? AND ? ORDER BY transaccion_fecha DESC`, [fechaInicio, fechaFin])
     }
 
 
@@ -58,5 +66,5 @@ export function useTransacciones() {
 
 
 
-    return { addTransaccion, getTransacciones, getTransaccion, updateTransaccion, deleteTransaccion, getIngresos, getGastos, deleteTransacciones, getTransaccionExistente, getMontosPorCategoria, getTransaccionesPorFecha, getTransaccionMinimaFecha }
+    return { addTransaccion, getTransacciones, getTransaccion, updateTransaccion, deleteTransaccion, getIngresos, getGastos, deleteTransacciones, getTransaccionExistente, getMontosPorCategoria, getTransaccionesPorFecha, getTransaccionMinimaFecha,getIngresosPorFecha, getGastosPorFecha }
 }

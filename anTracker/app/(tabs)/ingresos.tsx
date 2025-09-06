@@ -1,8 +1,10 @@
+import { DatePickers } from '@/components/DatePickers';
 import { DrawerLayout } from '@/components/DrawerLayout';
 import { useCategorias } from '@/hooks/useCategorias';
 import { useTransacciones } from '@/hooks/useTransacciones';
+import { datosBarChart, formatDate } from '@/utils/dateutils';
 import React, { useEffect, useState } from 'react';
-import { FlatList, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { FlatList, KeyboardAvoidingView, Platform, StyleSheet, Text, View } from 'react-native';
 import { BarChart } from 'react-native-gifted-charts';
 import { Categoria } from './categoria';
 import { Transaccion } from './transacciones';
@@ -10,13 +12,27 @@ import { Transaccion } from './transacciones';
 // Pantalla con los ingresos
 
 const Ingreso = () => {
-    const { getIngresos } = useTransacciones();
+    const { getIngresos, getIngresosPorFecha } = useTransacciones();
     const [transaccionesFiltradas, setTransaccionesFiltradas] = useState<Transaccion[]>([]);
     const [ingresos, setIngresos] = useState(0)
     const [transaccionesIngresos, setTransaccionesIngresos] = useState<Transaccion[]>([]);
     const [chartData, setChartData] = useState<{ label: string; value: number; }[]>([]);
     const [categorias, setCategorias] = useState<Categoria[]>([]);
     const { getCategorias } = useCategorias();
+    const [rango, setRango] = useState<{ inicio: number; fin: number } | null>(null);
+
+    const handleSeleccionFechas = async (inicio: number, fin: number) => {
+        setRango({ inicio, fin });
+        try {
+            const data = await getIngresosPorFecha(inicio, fin);
+            setTransaccionesIngresos(data);
+            setTransaccionesFiltradas(data);
+            datosBarChart(data)
+            calcularBalance(data);
+        } catch (error) {
+            console.error("Error:", error);
+        }
+    };
 
 
     useEffect(() => {
@@ -27,29 +43,13 @@ const Ingreso = () => {
     const getArrayIngresos = async () => {
         try {
             const data = await getIngresos();
-            const dataOrdenada = data.sort((a, b) => b.transaccion_fecha - a.transaccion_fecha);
-            setTransaccionesIngresos(dataOrdenada);
-            setTransaccionesFiltradas(dataOrdenada);
-            calcularBalance(dataOrdenada);
-            generarDatosParaBarChart(dataOrdenada);
+            setTransaccionesIngresos(data);
+            setTransaccionesFiltradas(data);
+            calcularBalance(data);
+            datosBarChart(data);
         } catch (error) {
             console.error("Error:", error);
         }
-    };
-
-    const filterByDays = (days: number) => {
-        const now = new Date();
-
-        const newTransaccionesIngresos = transaccionesIngresos.filter(item => {
-            const transaccionFecha = item.transaccion_fecha;
-            const diffTime = Math.abs(now.getTime() - transaccionFecha);
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            return diffDays <= days;
-        });
-
-        setTransaccionesFiltradas(newTransaccionesIngresos);
-        calcularBalance(newTransaccionesIngresos);
-        generarDatosParaBarChart(newTransaccionesIngresos);
     };
 
 
@@ -60,33 +60,6 @@ const Ingreso = () => {
         });
         setIngresos(nuevoIngresos);
     };
-
-    const generarDatosParaBarChart = (arrayTransacciones: Transaccion[]) => {
-        const groupedData = arrayTransacciones.reduce((acc: { [key: string]: { etiqueta: string, monto: number } }, item) => {
-            const fecha = segundosATiempo(item.transaccion_fecha);
-            if (!acc[fecha]) {
-                const arrayFecha = fecha.split('')
-                let fechaMostrar = "";
-                if (arrayFecha[1] == '/') {
-                    fechaMostrar = fecha.slice(0, 4)
-                } else {
-                    fechaMostrar = fecha.slice(0, 5)
-                }
-
-                acc[fecha] = { etiqueta: fechaMostrar, monto: 0 };
-            }
-            acc[fecha].monto += item.transaccion_monto;
-            return acc;
-        }, {});
-        const chartDataArray = Object.keys(groupedData).sort((
-            a, b) => b.localeCompare(a)).map(fecha => ({
-                label: groupedData[fecha].etiqueta,
-                value: groupedData[fecha].monto
-            }));
-        setChartData(chartDataArray);
-    };
-
-
 
     function buscarCategoriaPorId(id: number): string {
         const categoria = categorias.find(cat => cat.categoria_id === id);
@@ -101,10 +74,7 @@ const Ingreso = () => {
             console.error("Error:", error);
         }
     };
-    function segundosATiempo(segundos: number): string {
-        const fecha = new Date(segundos);
-        return fecha.toLocaleDateString();
-    }
+
 
     const Item: React.FC<Transaccion> = ({ transaccion_descripcion, transaccion_nombre, transaccion_monto, transaccion_fecha, categoria_id, transaccion_tipo }) => (
         <View style={styles.item}>
@@ -112,7 +82,7 @@ const Ingreso = () => {
                 <View style={styles.containerLeft}>
                     <Text style={styles.title}>{transaccion_nombre}</Text>
                     <Text style={styles.description}>{transaccion_descripcion}</Text>
-                    <Text style={styles.description}>{segundosATiempo(transaccion_fecha)} </Text>
+                    <Text style={styles.description}>{formatDate(transaccion_fecha)} </Text>
                 </View>
                 <View style={styles.containerRight}>
                     <Text >{buscarCategoriaPorId(categoria_id)}</Text>
@@ -128,107 +98,81 @@ const Ingreso = () => {
 
     return (
         <KeyboardAvoidingView
-                    style={styles.container}
-                    behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-                    keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
-                >
-        <DrawerLayout screenName='Ingresos' >
-            <View style={styles.container}>
+            style={styles.container}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
+        >
+            <DrawerLayout screenName='Ingresos' >
+                <View style={styles.container}>
 
-                <View style={{ justifyContent: 'center', marginLeft: 10 }}>
+                    <View style={{ justifyContent: 'center', marginLeft: 10 }}>
 
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ flexDirection: 'row', gap: 5, paddingHorizontal: 10, overflow: 'scroll', marginBottom: 15 }}>
-                        <Pressable onPress={() => filterByDays(7)}>
-                            <View style={styles.dias}>
-                                <Text> 7 días </Text>
-                            </View>
-                        </Pressable>
+                        <View style={{ flexDirection: 'row', justifyContent: 'flex-start' }}>
 
-                        <Pressable onPress={() => filterByDays(30)}>
-                            <View style={styles.dias}>
-                                <Text> 30 días </Text>
-                            </View>
-                        </Pressable>
+                            <DatePickers onSeleccionar={handleSeleccionFechas} />
 
-                        <Pressable onPress={() => filterByDays(90)}>
-                            <View style={styles.dias}>
-                                <Text> 90 días </Text>
-                            </View>
-                        </Pressable>
+                        </View>
 
-                        <Pressable onPress={() => filterByDays(365)}>
-                            <View style={styles.dias}>
-                                <Text> Este año </Text>
-                            </View>
-                        </Pressable>
+                        <View style={styles.conatinerEstadisticas}>
+                            <Text style={{ fontSize: 30, alignSelf: 'center', color: '#1F7900' }}> + ${ingresos.toFixed(2)}</Text>
+                        </View>
 
-                        <Pressable onPress={() => filterByDays(100000)}>
-                            <View style={styles.dias}>
-                                <Text> Siempre </Text>
-                            </View>
-                        </Pressable>
-
-                    </ScrollView>
-
-                    <View style={styles.conatinerEstadisticas}>
-                        <Text style={{ fontSize: 30, alignSelf: 'center', color: '#1F7900' }}> + ${ingresos.toFixed(2)}</Text>
+                        <View style={styles.chartContainer}>
+                            {chartData.length > 0 && (
+                                <BarChart
+                                    overflowTop={25}
+                                    height={175}
+                                    width={225}
+                                    yAxisThickness={1}
+                                    xAxisThickness={1}
+                                    data={chartData}
+                                    barWidth={30}
+                                    barBorderRadius={5}
+                                    frontColor="#A37366"
+                                    isAnimated
+                                    spacing={35}
+                                    noOfSections={4}
+                                    renderTooltip={(item: any, index: any) => {
+                                        return (
+                                            <View
+                                                style={{
+                                                    marginBottom: 5,
+                                                    marginTop: 50,
+                                                    marginLeft: -6,
+                                                    backgroundColor: '#D3AEA2 ',
+                                                    paddingHorizontal: 6,
+                                                    paddingVertical: 4,
+                                                    borderRadius: 4,
+                                                }}>
+                                                <Text>${item.value}</Text>
+                                            </View>
+                                        );
+                                    }}
+                                />
+                            )}
+                        </View>
                     </View>
 
-                    <View style={styles.chartContainer}>
-                        {chartData.length > 0 && (
-                            <BarChart
-                                overflowTop={20}
-                                height={175}
-                                width={225}
-                                yAxisThickness={1}
-                                xAxisThickness={1}
-                                data={chartData}
-                                barWidth={30}
-                                barBorderRadius={5}
-                                frontColor="#A37366"
-                                isAnimated
-                                noOfSections={4}
-                                renderTooltip={(item: any, index: any) => {
-                                    return (
-                                        <View
-                                            style={{
-                                                marginBottom: 5,
-                                                marginTop: 50,
-                                                marginLeft: -6,
-                                                backgroundColor: '#D3AEA2 ',
-                                                paddingHorizontal: 6,
-                                                paddingVertical: 4,
-                                                borderRadius: 4,
-                                            }}>
-                                            <Text>${item.value}</Text>
-                                        </View>
-                                    );
-                                }}
-                            />
-                        )}
+                    <View style={styles.content}>
+                        <FlatList
+                            data={transaccionesFiltradas}
+                            renderItem={({ item }) => (
+                                <Item
+                                    transaccion_nombre={item.transaccion_nombre}
+                                    transaccion_descripcion={item.transaccion_descripcion}
+                                    transaccion_monto={item.transaccion_monto}
+                                    transaccion_fecha={item.transaccion_fecha}
+                                    transaccion_metodo={item.transaccion_metodo}
+                                    transaccion_tipo='Ingreso'
+                                    categoria_id={item.categoria_id}
+                                />
+                            )}
+                            keyExtractor={(item, index) => item.transaccion_id?.toString() ?? index.toString()}
+                            style={styles.flatList}
+                        />
                     </View>
                 </View>
-
-                <View style={styles.content}>
-                    <FlatList
-                        data={transaccionesFiltradas}
-                        renderItem={({ item }) => (
-                            <Item
-                                transaccion_nombre={item.transaccion_nombre}
-                                transaccion_descripcion={item.transaccion_descripcion}
-                                transaccion_monto={item.transaccion_monto}
-                                transaccion_fecha={item.transaccion_fecha}
-                                transaccion_metodo={item.transaccion_metodo}
-                                transaccion_tipo='Ingreso'
-                                categoria_id={item.categoria_id}
-                            />
-                        )}
-                        keyExtractor={(item, index) => item.transaccion_id?.toString() ?? index.toString()}
-                        style={styles.flatList}
-                    />
-                </View>
-            </View>
-        </DrawerLayout>
+            </DrawerLayout>
         </KeyboardAvoidingView>
     );
 };
@@ -250,6 +194,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.25,
         shadowRadius: 3.84,
         elevation: 5,
+        paddingBottom: 15
     },
     dias: {
         backgroundColor: '#fff',

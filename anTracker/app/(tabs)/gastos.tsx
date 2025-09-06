@@ -1,8 +1,10 @@
+import { DatePickers } from '@/components/DatePickers';
 import { DrawerLayout } from '@/components/DrawerLayout';
 import { useCategorias } from '@/hooks/useCategorias';
 import { useTransacciones } from '@/hooks/useTransacciones';
+import { datosBarChart, formatDate } from '@/utils/dateutils';
 import React, { useEffect, useState } from 'react';
-import { FlatList, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { FlatList, KeyboardAvoidingView, Platform, StyleSheet, Text, View } from 'react-native';
 import { BarChart } from 'react-native-gifted-charts';
 import { Categoria } from './categoria';
 import { Transaccion } from './transacciones';
@@ -10,13 +12,28 @@ import { Transaccion } from './transacciones';
 // Pantalla con los gastos
 
 const Gastos = () => {
-    const { getGastos } = useTransacciones();
+    const { getGastos, getGastosPorFecha } = useTransacciones();
     const [transaccionesFiltradas, setTransaccionesFiltradas] = useState<Transaccion[]>([]);
     const [gastos, setGastos] = useState(0)
     const [transaccionesGastos, setTransaccionesGastos] = useState<Transaccion[]>([]);
     const [chartData, setChartData] = useState<{ label: string; value: number; }[]>([]);
     const [categorias, setCategorias] = useState<Categoria[]>([]);
     const { getCategorias } = useCategorias();
+    const [rango, setRango] = useState<{ inicio: number; fin: number } | null>(null);
+
+    const handleSeleccionFechas = async (inicio: number, fin: number) => {
+        setRango({ inicio, fin });
+        try {
+            const data = await getGastosPorFecha(inicio, fin);
+            setTransaccionesGastos(data);
+            setTransaccionesFiltradas(data);
+            datosBarChart(data)
+            calcularBalance(data);
+        } catch (error) {
+            console.error("Error:", error);
+        }
+    };
+
 
 
     useEffect(() => {
@@ -27,31 +44,14 @@ const Gastos = () => {
     const getArrayGastos = async () => {
         try {
             const data = await getGastos();
-            const dataOrdenada = data.sort((a, b) => b.transaccion_fecha - a.transaccion_fecha);
-            setTransaccionesGastos(dataOrdenada);
-            setTransaccionesFiltradas(dataOrdenada);
-            calcularBalance(dataOrdenada);
-            generarDatosParaBarChart(dataOrdenada);
+            setTransaccionesGastos(data);
+            setTransaccionesFiltradas(data);
+            calcularBalance(data);
+            datosBarChart(data);
         } catch (error) {
             console.error("Error:", error);
         }
     };
-
-    const filterByDays = (days: number) => {
-        const now = new Date();
-
-        const newTransaccionesGastos = transaccionesGastos.filter(item => {
-            const transaccionFecha = item.transaccion_fecha;
-            const diffTime = Math.abs(now.getTime() - transaccionFecha);
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            return diffDays <= days;
-        });
-
-        setTransaccionesFiltradas(newTransaccionesGastos);
-        calcularBalance(newTransaccionesGastos);
-        generarDatosParaBarChart(newTransaccionesGastos);
-    };
-
 
     const calcularBalance = (arrayTransacciones: Transaccion[]) => {
         let nuevoGastos = 0;
@@ -60,32 +60,6 @@ const Gastos = () => {
         });
         setGastos(nuevoGastos);
     };
-
-    const generarDatosParaBarChart = (arrayTransacciones: Transaccion[]) => {
-        const groupedData = arrayTransacciones.reduce((acc: { [key: string]: { etiqueta: string, monto: number } }, item) => {
-            const fecha = segundosATiempo(item.transaccion_fecha);
-            if (!acc[fecha]) {
-                const arrayFecha = fecha.split('')
-                let fechaMostrar = "";
-                if (arrayFecha[1] == '/') {
-                    fechaMostrar = fecha.slice(0, 4)
-                } else {
-                    fechaMostrar = fecha.slice(0, 5)
-                }
-
-                acc[fecha] = { etiqueta: fechaMostrar, monto: 0 };
-            }
-            acc[fecha].monto += item.transaccion_monto;
-            return acc;
-        }, {});
-        const chartDataArray = Object.keys(groupedData).sort((
-            a, b) => b.localeCompare(a)).map(fecha => ({
-                label: groupedData[fecha].etiqueta,
-                value: groupedData[fecha].monto
-            }));
-        setChartData(chartDataArray);
-    };
-
 
 
     function buscarCategoriaPorId(id: number): string {
@@ -101,10 +75,6 @@ const Gastos = () => {
             console.error("Error:", error);
         }
     };
-    function segundosATiempo(segundos: number): string {
-        const fecha = new Date(segundos);
-        return fecha.toLocaleDateString();
-    }
 
     const Item: React.FC<Transaccion> = ({ transaccion_descripcion, transaccion_nombre, transaccion_monto, transaccion_fecha, categoria_id, transaccion_tipo }) => (
         <View style={styles.item}>
@@ -112,7 +82,7 @@ const Gastos = () => {
                 <View style={styles.containerLeft}>
                     <Text style={styles.title}>{transaccion_nombre}</Text>
                     <Text style={styles.description}>{transaccion_descripcion}</Text>
-                    <Text style={styles.description}>{segundosATiempo(transaccion_fecha)} </Text>
+                    <Text style={styles.description}>{formatDate(transaccion_fecha)} </Text>
                 </View>
                 <View style={styles.containerRight}>
                     <Text >{buscarCategoriaPorId(categoria_id)}</Text>
@@ -128,313 +98,286 @@ const Gastos = () => {
 
     return (
         <KeyboardAvoidingView
-                    style={styles.container}
-                    behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-                    keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
-                >
-        <DrawerLayout screenName='Gastos' >
-            <View style={styles.container}>
-                <View style={{ justifyContent: 'center', marginLeft: 10 }}>
+            style={styles.container}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
+        >
+            <DrawerLayout screenName='Gastos' >
+                <View style={styles.container}>
+                    <View style={{ justifyContent: 'center', marginLeft: 10 }}>
+                        <View style={{ flexDirection: 'row', justifyContent: 'flex-start' }}>
 
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ flexDirection: 'row', gap: 5, paddingHorizontal: 10, overflow: 'scroll', marginBottom: 15 }}>
-                        <Pressable onPress={() => filterByDays(7)}>
-                            <View style={styles.dias}>
-                                <Text> 7 días </Text>
-                            </View>
-                        </Pressable>
+                            <DatePickers onSeleccionar={handleSeleccionFechas} />
 
-                        <Pressable onPress={() => filterByDays(30)}>
-                            <View style={styles.dias}>
-                                <Text> 30 días </Text>
-                            </View>
-                        </Pressable>
+                        </View>
 
-                        <Pressable onPress={() => filterByDays(90)}>
-                            <View style={styles.dias}>
-                                <Text> 90 días </Text>
-                            </View>
-                        </Pressable>
+                        <View style={styles.conatinerEstadisticas}>
+                            <Text style={{ fontSize: 30, alignSelf: 'center', color: '#BF0000' }}> - ${gastos.toFixed(2)}</Text>
+                        </View>
 
-                        <Pressable onPress={() => filterByDays(365)}>
-                            <View style={styles.dias}>
-                                <Text> Este año </Text>
-                            </View>
-                        </Pressable>
-
-                        <Pressable onPress={() => filterByDays(100000)}>
-                            <View style={styles.dias}>
-                                <Text> Siempre </Text>
-                            </View>
-                        </Pressable>
-
-                    </ScrollView>
-
-                    <View style={styles.conatinerEstadisticas}>
-                        <Text style={{ fontSize: 30, alignSelf: 'center', color: '#BF0000' }}> - ${gastos.toFixed(2)}</Text>
+                        <View style={styles.chartContainer}>
+                            {chartData.length > 0 && (
+                                <BarChart
+                                    overflowTop={20}
+                                    height={175}
+                                    width={225}
+                                    yAxisThickness={1}
+                                    xAxisThickness={1}
+                                    data={chartData}
+                                    barWidth={30}
+                                    barBorderRadius={5}
+                                    frontColor="#A37366"
+                                    isAnimated
+                                    spacing={35}
+                                    noOfSections={4}
+                                    renderTooltip={(item: any, index: any) => {
+                                        return (
+                                            <View
+                                                style={{
+                                                    marginBottom: 5,
+                                                    marginTop: 50,
+                                                    marginLeft: -6,
+                                                    backgroundColor: '#D3AEA2 ',
+                                                    paddingHorizontal: 6,
+                                                    paddingVertical: 4,
+                                                    borderRadius: 4,
+                                                }}>
+                                                <Text>${item.value}</Text>
+                                            </View>
+                                        );
+                                    }}
+                                />
+                            )}
+                        </View>
                     </View>
 
-                    <View style={styles.chartContainer}>
-                        {chartData.length > 0 && (
-                            <BarChart
-                                overflowTop={20}
-                                height={175}
-                                width={225}
-                                yAxisThickness={1}
-                                xAxisThickness={1}
-                                data={chartData}
-                                barWidth={30}
-                                barBorderRadius={5}
-                                frontColor="#A37366"
-                                isAnimated
-                                noOfSections={4}
-                                renderTooltip={(item: any, index: any) => {
-                                    return (
-                                        <View
-                                            style={{
-                                                marginBottom: 5,
-                                                marginTop: 50,
-                                                marginLeft: -6,
-                                                backgroundColor: '#D3AEA2 ',
-                                                paddingHorizontal: 6,
-                                                paddingVertical: 4,
-                                                borderRadius: 4,
-                                            }}>
-                                            <Text>${item.value}</Text>
-                                        </View>
-                                    );
-                                }}
-                            />
-                        )}
+                    <View style={styles.content}>
+                        <FlatList
+                            data={transaccionesFiltradas}
+                            renderItem={({ item }) => (
+                                <Item
+                                    transaccion_nombre={item.transaccion_nombre}
+                                    transaccion_descripcion={item.transaccion_descripcion}
+                                    transaccion_monto={item.transaccion_monto}
+                                    transaccion_fecha={item.transaccion_fecha}
+                                    transaccion_metodo={item.transaccion_metodo}
+                                    transaccion_tipo='Gasto'
+                                    categoria_id={item.categoria_id}
+                                />
+                            )}
+                            keyExtractor={(item, index) => item.transaccion_id?.toString() ?? index.toString()}
+                            style={styles.flatList}
+                        />
                     </View>
                 </View>
-
-                <View style={styles.content}>
-                    <FlatList
-                        data={transaccionesFiltradas}
-                        renderItem={({ item }) => (
-                            <Item
-                                transaccion_nombre={item.transaccion_nombre}
-                                transaccion_descripcion={item.transaccion_descripcion}
-                                transaccion_monto={item.transaccion_monto}
-                                transaccion_fecha={item.transaccion_fecha}
-                                transaccion_metodo={item.transaccion_metodo}
-                                transaccion_tipo='Gasto'
-                                categoria_id={item.categoria_id}
-                            />
-                        )}
-                        keyExtractor={(item, index) => item.transaccion_id?.toString() ?? index.toString()}
-                        style={styles.flatList}
-                    />
-                </View>
-            </View>
-        </DrawerLayout>
+            </DrawerLayout>
         </KeyboardAvoidingView>
-            );
+    );
 };
-            const styles = StyleSheet.create({
-                chartContainer: {
-                justifyContent: 'center',
-            alignItems: 'center',
-            borderRadius: 20,
-            marginHorizontal: '5%',
-            paddingTop: 25,
-            padding: 10,
-            backgroundColor: '#fff',
-            marginBottom: 5,
-            shadowColor: '#000',
-            shadowOffset: {
-                width: 0,
+const styles = StyleSheet.create({
+    chartContainer: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 20,
+        marginHorizontal: '5%',
+        paddingTop: 25,
+        padding: 10,
+        backgroundColor: '#fff',
+        marginBottom: 5,
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
             height: 2,
         },
-            shadowOpacity: 0.25,
-            shadowRadius: 3.84,
-            elevation: 5,
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 5,
     },
-            dias: {
-                backgroundColor: '#fff',
-            borderRadius: 8,
-            padding: 7,
+    dias: {
+        backgroundColor: '#fff',
+        borderRadius: 8,
+        padding: 7,
     },
-            ingresos: {
-                backgroundColor: '#fff',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            marginHorizontal: 5,
-            padding: 15,
-            paddingHorizontal: 35,
-            borderRadius: 8,
-            shadowColor: '#000',
-            shadowOffset: {width: 0, height: 2 },
-            shadowOpacity: 0.25,
-            shadowRadius: 3.84,
-            elevation: 5,
+    ingresos: {
+        backgroundColor: '#fff',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        marginHorizontal: 5,
+        padding: 15,
+        paddingHorizontal: 35,
+        borderRadius: 8,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 5,
     },
-            gastos: {
-                backgroundColor: '#fff',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            marginHorizontal: 5,
-            padding: 15,
-            paddingHorizontal: 45,
-            borderRadius: 8,
-            shadowColor: '#000',
-            shadowOffset: {width: 0, height: 2 },
-            shadowOpacity: 0.25,
-            shadowRadius: 3.84,
-            elevation: 5,
+    gastos: {
+        backgroundColor: '#fff',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        marginHorizontal: 5,
+        padding: 15,
+        paddingHorizontal: 45,
+        borderRadius: 8,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 5,
     },
-            conatinerEstadisticas: {
-                backgroundColor: '#fff',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            marginHorizontal: 15,
-            padding: 8,
-            paddingHorizontal: 40,
-            borderRadius: 8,
-            shadowColor: '#000',
-            shadowOffset: {width: 0, height: 2 },
-            shadowOpacity: 0.25,
-            shadowRadius: 3.84,
-            elevation: 5,
-            marginBottom: 10,
+    conatinerEstadisticas: {
+        backgroundColor: '#fff',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        marginHorizontal: 15,
+        padding: 8,
+        paddingHorizontal: 40,
+        borderRadius: 8,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 5,
+        marginBottom: 10,
     },
-            balanceGastos: {
-                color: '#BF0000',
-            fontSize: 24,
+    balanceGastos: {
+        color: '#BF0000',
+        fontSize: 24,
     },
-            balanceIngreso: {
-                color: '#1F7900',
-            fontSize: 24,
+    balanceIngreso: {
+        color: '#1F7900',
+        fontSize: 24,
     },
-            containerLeft: {
-                justifyContent: 'flex-start',
+    containerLeft: {
+        justifyContent: 'flex-start',
     },
-            containerRight: {
-                justifyContent: 'flex-end',
-            alignItems: 'flex-end',
+    containerRight: {
+        justifyContent: 'flex-end',
+        alignItems: 'flex-end',
     },
-            montoIngreso: {
-                fontSize: 18,
-            color: '#1F7900',
+    montoIngreso: {
+        fontSize: 18,
+        color: '#1F7900',
     },
-            montoGasto: {
-                fontSize: 18,
-            color: '#BF0000',
+    montoGasto: {
+        fontSize: 18,
+        color: '#BF0000',
     },
-            montoDefault: {
-                color: '#BF0000',
-            fontSize: 18,
+    montoDefault: {
+        color: '#BF0000',
+        fontSize: 18,
     },
-            catText: {
-                fontSize: 18,
-            fontWeight: 'bold',
-            marginBottom: 10,
+    catText: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginBottom: 10,
     },
-            inputMonto: {
-                fontSize: 18,
-            marginRight: 35,
-            marginTop: 1,
+    inputMonto: {
+        fontSize: 18,
+        marginRight: 35,
+        marginTop: 1,
     },
-            signoDolar: {
-                fontSize: 25,
-            fontWeight: '400',
-            marginRight: 10,
+    signoDolar: {
+        fontSize: 25,
+        fontWeight: '400',
+        marginRight: 10,
     },
-            text: {
-                fontSize: 18,
-            fontWeight: 'bold',
-            color: 'black',
+    text: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: 'black',
     },
-            container: {
-                flex: 1,
-            backgroundColor: '#E0F7FA',
+    container: {
+        flex: 1,
+        backgroundColor: '#E0F7FA',
     },
-            header: {
-                flexDirection: 'row',
-            justifyContent: 'space-between',
-            padding: 8,
-            backgroundColor: '#fff',
-            marginBottom: 10,
+    header: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        padding: 8,
+        backgroundColor: '#fff',
+        marginBottom: 10,
     },
-            headerButtons: {
-                flexDirection: 'row',
-            gap: 15
+    headerButtons: {
+        flexDirection: 'row',
+        gap: 15
     },
-            homeButton: {
-                width: 50,
-            backgroundColor: '#fff',
-            borderColor: '#000',
-            height: 40,
-            marginTop: 30,
-            marginLeft: 10,
+    homeButton: {
+        width: 50,
+        backgroundColor: '#fff',
+        borderColor: '#000',
+        height: 40,
+        marginTop: 30,
+        marginLeft: 10,
     },
-            content: {
-                flex: 1,
-            paddingHorizontal: 15,
-            marginBottom: 45
+    content: {
+        flex: 1,
+        paddingHorizontal: 15,
+        marginBottom: 45
     },
-            flatList: {
-                flex: 1,
+    flatList: {
+        flex: 1,
     },
-            nombreContainer: {
-                flexDirection: 'row',
-            alignItems: 'center',
-            width: '100%',
-            marginBottom: 8,
+    nombreContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        width: '100%',
+        marginBottom: 8,
     },
-            item: {
-                backgroundColor: '#fff',
-            padding: 8,
-            marginVertical: 1,
-            marginBottom: 8,
-            paddingHorizontal: 8,
-            marginHorizontal: 3,
-            borderRadius: 8,
-            shadowColor: '#000',
-            shadowOffset: {
-                width: 0,
+    item: {
+        backgroundColor: '#fff',
+        padding: 8,
+        marginVertical: 1,
+        marginBottom: 8,
+        paddingHorizontal: 8,
+        marginHorizontal: 3,
+        borderRadius: 8,
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
             height: 2,
         },
-            shadowOpacity: 0.25,
-            shadowRadius: 3.84,
-            elevation: 5,
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 5,
     },
-            selectedItem: {
-                backgroundColor: '#D3AEA2',
+    selectedItem: {
+        backgroundColor: '#D3AEA2',
     },
-            itemText: {
-                flexDirection: 'row',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            width: '100%',
+    itemText: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        width: '100%',
     },
-            itemContent: {
-                flexDirection: 'row',
-            justifyContent: 'space-between',
-            alignItems: 'center',
+    itemContent: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
     },
-            title: {
-                fontSize: 17,
-            fontWeight: 'bold',
-            color: '#000',
+    title: {
+        fontSize: 17,
+        fontWeight: 'bold',
+        color: '#000',
     },
-            description: {
-                fontSize: 14,
-            color: '#757575',
-            marginTop: 5,
+    description: {
+        fontSize: 14,
+        color: '#757575',
+        marginTop: 5,
     },
-            deleteButton: {
-                backgroundColor: '#FFFFFF',
-            borderRadius: 8,
-            padding: 10,
+    deleteButton: {
+        backgroundColor: '#FFFFFF',
+        borderRadius: 8,
+        padding: 10,
     },
-            colorContainer: {
-                flexDirection: 'row',
-            flexWrap: 'wrap-reverse',
-            justifyContent: 'space-around',
-            marginVertical: 10,
-            width: '100%',
+    colorContainer: {
+        flexDirection: 'row',
+        flexWrap: 'wrap-reverse',
+        justifyContent: 'space-around',
+        marginVertical: 10,
+        width: '100%',
     }
 });
 
-            export default Gastos;
+export default Gastos;
