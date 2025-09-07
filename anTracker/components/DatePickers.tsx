@@ -9,23 +9,23 @@ type DatePickerProps = {
 };
 
 export const DatePickers: React.FC<DatePickerProps> = ({ onSeleccionar }) => {
-    const {getTransaccionMinimaFecha} = useTransacciones()
+    const { getTransaccionMinimaFecha } = useTransacciones()
     const [inicio, setInicio] = useState(new Date());
     const [fin, setFin] = useState(new Date());
     const [openInicio, setOpenInicio] = useState(false);
     const [openFin, setOpenFin] = useState(false);
     const [primeraFecha, setPrimeraFecha] = useState(0)
-    
-    const getPrimeraFecha = async() =>{
+
+    const getPrimeraFecha = async () => {
         const primera = await getTransaccionMinimaFecha()
         setPrimeraFecha(primera?.transaccion_fecha ?? 0)
     }
 
-    useEffect(() =>{
+    useEffect(() => {
         getPrimeraFecha()
-    },[])
+    }, [])
 
-    const handleSiempre = () =>{
+    const handleSiempre = () => {
         setFin(new Date())
         onSeleccionar(primeraFecha, fin.getTime())
     }
@@ -35,7 +35,7 @@ export const DatePickers: React.FC<DatePickerProps> = ({ onSeleccionar }) => {
                 <Pressable onPress={() => handleSiempre()}>
                     <Image
                         style={styles.icon}
-                        source={require('../assets/icons/search.png')}
+                        source={require('../assets/icons/calendar.png')}
                     />
                 </Pressable>
             </View>
@@ -85,11 +85,11 @@ export const DatePickers: React.FC<DatePickerProps> = ({ onSeleccionar }) => {
 
 const styles = StyleSheet.create({
     container: {
+        alignItems: 'center',
         flexDirection: "row",
         justifyContent: "flex-start",
         gap: 5,
         marginHorizontal: 5,
-        marginBottom: 8
     },
     dateBox: {
         backgroundColor: "#fff",

@@ -1,9 +1,10 @@
+import { DatePickers } from '@/components/DatePickers';
 import { DrawerLayout } from '@/components/DrawerLayout';
 import { PieChartComponent } from '@/components/PieChart';
 import { useTransacciones } from '@/hooks/useTransacciones';
 import { darkenHexColor } from '@/utils/colorUtils';
 import React, { useEffect, useState } from 'react';
-import { FlatList, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { FlatList, KeyboardAvoidingView, Platform, StyleSheet, Text, View } from 'react-native';
 
 // Pantalla con los graficos de las categorias
 export type MontoPorCategoria = {
@@ -17,22 +18,27 @@ const Graficos = () => {
     const { getMontosPorCategoria } = useTransacciones();
     const [montosPorCategoria, setMontosPorCategoria] = useState<MontoPorCategoria[]>([]);
     const [pieData, setPieData] = useState<{ gradientCenterColor: string, color: string; value: number; }[]>([]);
-    const ahora = Date.now()
-    const siempre = 1577836800000
-    const sieteDias = ahora - 7 * 24 * 60 * 60 * 1000;
-    const treintaDias = ahora - 30 * 24 * 60 * 60 * 1000;
-    const noventaDias = ahora - 90 * 24 * 60 * 60 * 1000;
-    const inicioDeAno = new Date(new Date().getFullYear(), 0, 1).getTime();
+    const [rango, setRango] = useState<{ inicio: number; fin: number } | null>(null);
+
+    const handleSeleccionFechas = async (inicio: number, fin: number) => {
+        setRango({ inicio, fin });
+        try {
+            const data = await getMontosPorCategoria(inicio, fin);
+            setMontosPorCategoria(data);
+            getPieData(data)
+        } catch (error) {
+            console.error("Error:", error);
+        }
+    };
 
 
     useEffect(() => {
-        initializeMontosPorCategoria(siempre, ahora);
+        initializeMontosPorCategoria(0, new Date().getTime());
     }, []);
 
     const initializeMontosPorCategoria = async (fechaInicio: number, fechaFin: number) => {
         try {
             const data = await getMontosPorCategoria(fechaInicio, fechaFin);
-            console.log(data)
             setMontosPorCategoria(data)
             getPieData(data)
         } catch (e: any) {
@@ -57,7 +63,7 @@ const Graficos = () => {
                     <View style={[styles.circularTextView, { backgroundColor: categoria_color }]} />
                     <Text style={styles.title}>{categoria_nombre}</Text>
                 </View>
-                    <Text style={styles.total}>{total_monto}$</Text>
+                <Text style={styles.total}>{total_monto}$</Text>
             </View>
         </View>
     );
@@ -73,38 +79,11 @@ const Graficos = () => {
                 <View style={styles.container}>
                     <View style={{ justifyContent: 'center', marginLeft: 10 }}>
 
-                        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ flexDirection: 'row', gap: 5, paddingHorizontal: 10, overflow: 'scroll', marginBottom: 15 }}>
-                            <Pressable onPress={() => initializeMontosPorCategoria(sieteDias, ahora)}>
-                                <View style={styles.dias}>
-                                    <Text> 7 días </Text>
-                                </View>
-                            </Pressable>
+                        <View style={{ flexDirection: 'row', justifyContent: 'flex-start',marginBottom:5}}>
 
-                            <Pressable onPress={() => initializeMontosPorCategoria(treintaDias, ahora)}>
-                                <View style={styles.dias}>
-                                    <Text> 30 días </Text>
-                                </View>
-                            </Pressable>
+                            <DatePickers onSeleccionar={handleSeleccionFechas} />
 
-                            <Pressable onPress={() => initializeMontosPorCategoria(noventaDias, ahora)}>
-                                <View style={styles.dias}>
-                                    <Text> 90 días </Text>
-                                </View>
-                            </Pressable>
-
-                            <Pressable onPress={() => initializeMontosPorCategoria(inicioDeAno, ahora)}>
-                                <View style={styles.dias}>
-                                    <Text> Este año </Text>
-                                </View>
-                            </Pressable>
-
-                            <Pressable onPress={() => initializeMontosPorCategoria(siempre, ahora)}>
-                                <View style={styles.dias}>
-                                    <Text> Siempre </Text>
-                                </View>
-                            </Pressable>
-
-                        </ScrollView>
+                        </View>
                     </View>
                     <View
                         style={{
@@ -117,15 +96,15 @@ const Graficos = () => {
                         <PieChartComponent pieData={pieData} montosPorCategoria={montosPorCategoria}></PieChartComponent>
                     </View>
 
-                        <View style={styles.content}>
-                            <FlatList data={montosPorCategoria} renderItem={({ item }) => (
-                                <Item total_monto={item.total_monto} categoria_nombre={item.categoria_nombre} categoria_color={item.categoria_color} categoria_id={item.categoria_id}></Item>
-                            )}
-                                keyExtractor={(item, index) => item.categoria_id?.toString() ?? index.toString()}
-                                style={styles.flatList}>
+                    <View style={styles.content}>
+                        <FlatList data={montosPorCategoria} renderItem={({ item }) => (
+                            <Item total_monto={item.total_monto} categoria_nombre={item.categoria_nombre} categoria_color={item.categoria_color} categoria_id={item.categoria_id}></Item>
+                        )}
+                            keyExtractor={(item, index) => item.categoria_id?.toString() ?? index.toString()}
+                            style={styles.flatList}>
 
-                            </FlatList>
-                        </View>
+                        </FlatList>
+                    </View>
 
                 </View>
             </DrawerLayout>
@@ -153,12 +132,12 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     content: {
-        marginTop:10,
-        backgroundColor:'#E0F7FA',
-        borderColor:'#fff',
+        marginTop: 10,
+        backgroundColor: '#E0F7FA',
+        borderColor: '#fff',
         flex: 1,
         marginBottom: 45,
-        marginHorizontal:18
+        marginHorizontal: 18
     },
     item: {
         backgroundColor: '#fff',
@@ -181,11 +160,11 @@ const styles = StyleSheet.create({
     },
     itemText: {
         flex: 1,
-        flexDirection:'column'
+        flexDirection: 'column'
     },
     title: {
         fontSize: 17,
-        fontWeight: 'bold', 
+        fontWeight: 'bold',
     },
     total: {
         fontSize: 16,

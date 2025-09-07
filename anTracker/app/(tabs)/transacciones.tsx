@@ -1,11 +1,12 @@
 import { DatePickers } from '@/components/DatePickers';
 import { DrawerLayout } from '@/components/DrawerLayout';
+import { SearchExpandable } from '@/components/searchBar';
 import { useCategorias } from '@/hooks/useCategorias';
 import { useTransacciones } from '@/hooks/useTransacciones';
 import { formatDate } from '@/utils/dateutils';
 import { Link } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
-import { Alert, FlatList, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
+import { Alert, FlatList, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 import RBSheet from 'react-native-raw-bottom-sheet';
 import { Categoria } from './categoria';
 
@@ -62,7 +63,7 @@ const Transacciones = () => {
     const [categorias, setCategorias] = useState<Categoria[]>([]);
 
     let isMounted = true;
-    const { addTransaccion, getTransacciones, getTransaccion, updateTransaccion, deleteTransaccion, getTransaccionesPorFecha } = useTransacciones();
+    const { addTransaccion, getTransacciones, getTransaccion, updateTransaccion, deleteTransaccion, getTransaccionesPorFecha, getTransaccionesByName } = useTransacciones();
     const [transacciones, setTransacciones] = useState<Transaccion[]>([]);
     const [nombre, setNombre] = useState('');
     const [descripcion, setDescripcion] = useState('');
@@ -93,6 +94,16 @@ const Transacciones = () => {
         }
     };
 
+    const handleSubmitNombre = async(nombre:string) => {
+        try{
+            const data = await getTransaccionesByName(nombre);
+            setTransacciones(data)
+            setTransaccionesFiltradas(data)
+            calcularBalance(data)
+        }catch(error){
+            console.error(error)
+        }
+    }
 
     const initializeCategorias = async () => {
         try {
@@ -135,7 +146,6 @@ const Transacciones = () => {
     const updateRefRBSheet = useRef<RBSheetRef>(null);
 
     const handleAddTransaccion = async () => {
-        console.log('handleAddTransaccion called');
         console.log('Current state values:', { nombre, descripcion, monto, tipo, categoria, metodo });
         if (nombre && descripcion && monto && tipo && categoria && metodo) {
             const fechaNumero = Date.now();
@@ -287,7 +297,7 @@ const Transacciones = () => {
         <KeyboardAvoidingView
             style={styles.container}
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
+            keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : -500}
         >
             <DrawerLayout screenName='Transacciones' >
                 <RBSheet
@@ -468,11 +478,13 @@ const Transacciones = () => {
 
                 </RBSheet>
                 <View style={{ justifyContent: 'center', marginLeft: 10 }}>
-                    <View style={{ flexDirection: 'row', justifyContent: 'flex-start' }}>
-
-                        <DatePickers onSeleccionar={handleSeleccionFechas} />
-
+                    <View style={{ flexDirection: 'row', justifyContent: 'flex-start', marginBottom:5}}>
+                        <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
+                            <SearchExpandable onSubmitSearch={handleSubmitNombre}/>
+                            <DatePickers onSeleccionar={handleSeleccionFechas} />
+                        </ScrollView>
                     </View>
+
                     <View style={styles.conatinerEstadisticas}>
                         <Text style={{ fontSize: 30, alignSelf: 'center' }}>$ {balance.toFixed(2)}</Text>
                     </View>
@@ -494,7 +506,7 @@ const Transacciones = () => {
 
 
                     <TouchableOpacity style={[styles.changeColor, { alignItems: 'center', justifyContent: 'center' }]} onPress={() => refRBSheet.current?.open()}>
-                        <Text style={{ color: 'white' }}>Añadir nueva transacción</Text>
+                        <Text style={{ color: 'white' }}>Añadir transacción</Text>
                     </TouchableOpacity>
                 </View>
                 <View style={styles.content}>
@@ -515,9 +527,9 @@ const Transacciones = () => {
                         )}
                         keyExtractor={(item, index) => item.transaccion_id?.toString() ?? index.toString()}
                         style={styles.flatList}
-                        initialNumToRender={10}       
-                        maxToRenderPerBatch={10}      
-                        windowSize={5}                
+                        initialNumToRender={10}
+                        maxToRenderPerBatch={10}
+                        windowSize={5}
                         removeClippedSubviews={true}
                     />
                 </View>
@@ -637,7 +649,7 @@ const styles = StyleSheet.create({
     },
     changeColor: {
         alignSelf: 'center',
-        marginVertical: 20,
+        marginVertical: 10,
         width: 250,
         height: 50,
         marginHorizontal: 10,

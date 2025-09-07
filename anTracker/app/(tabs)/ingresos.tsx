@@ -27,7 +27,7 @@ const Ingreso = () => {
             const data = await getIngresosPorFecha(inicio, fin);
             setTransaccionesIngresos(data);
             setTransaccionesFiltradas(data);
-            datosBarChart(data)
+            setChartData(datosBarChart(data))
             calcularBalance(data);
         } catch (error) {
             console.error("Error:", error);
@@ -46,7 +46,7 @@ const Ingreso = () => {
             setTransaccionesIngresos(data);
             setTransaccionesFiltradas(data);
             calcularBalance(data);
-            datosBarChart(data);
+            setChartData(datosBarChart(data))
         } catch (error) {
             console.error("Error:", error);
         }
@@ -107,7 +107,7 @@ const Ingreso = () => {
 
                     <View style={{ justifyContent: 'center', marginLeft: 10 }}>
 
-                        <View style={{ flexDirection: 'row', justifyContent: 'flex-start' }}>
+                        <View style={{ flexDirection: 'row', justifyContent: 'flex-start',marginBottom:5 }}>
 
                             <DatePickers onSeleccionar={handleSeleccionFechas} />
 

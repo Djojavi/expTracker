@@ -27,7 +27,7 @@ const Gastos = () => {
             const data = await getGastosPorFecha(inicio, fin);
             setTransaccionesGastos(data);
             setTransaccionesFiltradas(data);
-            datosBarChart(data)
+            setChartData(datosBarChart(data))
             calcularBalance(data);
         } catch (error) {
             console.error("Error:", error);
@@ -47,7 +47,7 @@ const Gastos = () => {
             setTransaccionesGastos(data);
             setTransaccionesFiltradas(data);
             calcularBalance(data);
-            datosBarChart(data);
+            setChartData(datosBarChart(data))
         } catch (error) {
             console.error("Error:", error);
         }
@@ -105,7 +105,7 @@ const Gastos = () => {
             <DrawerLayout screenName='Gastos' >
                 <View style={styles.container}>
                     <View style={{ justifyContent: 'center', marginLeft: 10 }}>
-                        <View style={{ flexDirection: 'row', justifyContent: 'flex-start' }}>
+                        <View style={{ flexDirection: 'row', justifyContent: 'flex-start',marginBottom:5 }}>
 
                             <DatePickers onSeleccionar={handleSeleccionFechas} />
 

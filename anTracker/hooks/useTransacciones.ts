@@ -65,6 +65,16 @@ export function useTransacciones() {
     }
 
 
+    const getTransaccionesByName = async (nombre: string): Promise<Transaccion[]> => {
+    const searchTerm = `%${nombre}%`;
+    return await db.getAllAsync(
+        'SELECT * FROM Transacciones WHERE transaccion_nombre LIKE ? OR transaccion_descripcion LIKE ? ORDER BY transaccion_fecha DESC',
+        [searchTerm, searchTerm]
+    );
+};
 
-    return { addTransaccion, getTransacciones, getTransaccion, updateTransaccion, deleteTransaccion, getIngresos, getGastos, deleteTransacciones, getTransaccionExistente, getMontosPorCategoria, getTransaccionesPorFecha, getTransaccionMinimaFecha,getIngresosPorFecha, getGastosPorFecha }
+
+
+
+    return { addTransaccion, getTransacciones, getTransaccion, updateTransaccion, deleteTransaccion, getIngresos, getGastos, deleteTransacciones, getTransaccionExistente, getMontosPorCategoria, getTransaccionesPorFecha, getTransaccionMinimaFecha,getIngresosPorFecha, getGastosPorFecha, getTransaccionesByName }
 }

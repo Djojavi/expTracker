@@ -36,7 +36,6 @@ const Categoria = () => {
       const data = await getCategorias();
       if (isMounted) {
         setCategorias(data);
-        console.log(data)
       }
     } catch (error) {
       console.error("Error:", error);
@@ -132,7 +131,7 @@ const Categoria = () => {
     <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : -500}
     >
       <DrawerLayout screenName='Categoría' >
         <RBSheet
