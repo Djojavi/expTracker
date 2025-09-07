@@ -29,6 +29,10 @@ export function useCategorias() {
         await db.runAsync('DELETE FROM Categorias WHERE categoria_nombre = ?',[categoria_nombre])
     }
 
-    return { addCategoria, getCategorias, updateCategoria, deleteCategoria }
+    const getCategoriaById = async(categoria_id: number): Promise<any> =>{
+        return await db.getFirstAsync('SELECT categoria_nombre FROM Categorias WHERE categoria_id = ?',[categoria_id]) ?? ''
+    }
+
+    return { addCategoria, getCategorias, updateCategoria, deleteCategoria, getCategoriaById }
 
 }

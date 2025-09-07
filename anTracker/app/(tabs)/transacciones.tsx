@@ -1,9 +1,9 @@
 import { DatePickers } from '@/components/DatePickers';
 import { DrawerLayout } from '@/components/DrawerLayout';
 import { SearchExpandable } from '@/components/searchBar';
+import { TransaccionItemComponent } from '@/components/transaccionItem';
 import { useCategorias } from '@/hooks/useCategorias';
 import { useTransacciones } from '@/hooks/useTransacciones';
-import { formatDate } from '@/utils/dateutils';
 import { Link } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import { Alert, FlatList, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
@@ -94,13 +94,13 @@ const Transacciones = () => {
         }
     };
 
-    const handleSubmitNombre = async(nombre:string) => {
-        try{
+    const handleSubmitNombre = async (nombre: string) => {
+        try {
             const data = await getTransaccionesByName(nombre);
             setTransacciones(data)
             setTransaccionesFiltradas(data)
             calcularBalance(data)
-        }catch(error){
+        } catch (error) {
             console.error(error)
         }
     }
@@ -196,11 +196,6 @@ const Transacciones = () => {
         }
     }
 
-    function buscarCategoriaPorId(id: number): string {
-        const categoria = categorias.find(cat => cat.categoria_id === id);
-        return categoria?.categoria_nombre ?? 'Sin categoría';
-    }
-
     const calcularBalance = (arrayTransacciones: Transaccion[]) => {
         let nuevoBalance = 0, nuevoIngresos = 0, nuevoGastos = 0;
 
@@ -269,28 +264,6 @@ const Transacciones = () => {
         setCategoria('');
         setMetodo('');
     }
-
-    const Item: React.FC<Transaccion> = ({ transaccion_descripcion, transaccion_nombre, transaccion_monto, transaccion_fecha, categoria_id, transaccion_tipo }) => (
-        <View style={styles.item}>
-            <View style={styles.itemContent}>
-                <View style={styles.containerLeft}>
-                    <Text style={styles.title}>{transaccion_nombre}</Text>
-                    <View>
-                        <Text style={styles.description}>{transaccion_descripcion}</Text>
-                        <Text style={styles.description}>{formatDate(transaccion_fecha)} </Text>
-                    </View>
-                </View>
-                <View style={styles.containerRight}>
-                    <Text >{buscarCategoriaPorId(categoria_id)}</Text>
-                    {transaccion_monto ? (
-                        <Text style={transaccion_tipo === 'Ingreso' ? styles.montoIngreso : transaccion_tipo === 'Gasto' ? styles.montoGasto : styles.montoDefault}>
-                            {transaccion_tipo === 'Ingreso' ? `+$${transaccion_monto.toFixed(2)}` : transaccion_tipo === 'Gasto' ? `-$${transaccion_monto.toFixed(2)}` : `$${transaccion_monto.toFixed(2)}`}
-                        </Text>
-                    ) : null}
-                </View>
-            </View>
-        </View>
-    );
 
 
     return (
@@ -478,9 +451,9 @@ const Transacciones = () => {
 
                 </RBSheet>
                 <View style={{ justifyContent: 'center', marginLeft: 10 }}>
-                    <View style={{ flexDirection: 'row', justifyContent: 'flex-start', marginBottom:5}}>
+                    <View style={{ flexDirection: 'row', justifyContent: 'flex-start', marginBottom: 5 }}>
                         <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
-                            <SearchExpandable onSubmitSearch={handleSubmitNombre}/>
+                            <SearchExpandable onSubmitSearch={handleSubmitNombre} />
                             <DatePickers onSeleccionar={handleSeleccionFechas} />
                         </ScrollView>
                     </View>
@@ -514,12 +487,12 @@ const Transacciones = () => {
                         data={transaccionesFiltradas}
                         renderItem={({ item }) => (
                             <Pressable onLongPress={() => { handleLongPress(item.transaccion_id ? item.transaccion_id : 0) }}>
-                                <Item
+                                <TransaccionItemComponent
                                     transaccion_nombre={item.transaccion_nombre}
                                     transaccion_descripcion={item.transaccion_descripcion}
                                     transaccion_monto={item.transaccion_monto}
-                                    transaccion_metodo={item.transaccion_metodo}
                                     transaccion_fecha={item.transaccion_fecha}
+                                    transaccion_metodo={item.transaccion_metodo}
                                     transaccion_tipo={item.transaccion_tipo}
                                     categoria_id={item.categoria_id}
                                 />

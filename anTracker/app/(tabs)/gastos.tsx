@@ -1,9 +1,10 @@
 import { BarChartComponent } from '@/components/BarChart';
 import { DatePickers } from '@/components/DatePickers';
 import { DrawerLayout } from '@/components/DrawerLayout';
+import { TransaccionItemComponent } from '@/components/transaccionItem';
 import { useCategorias } from '@/hooks/useCategorias';
 import { useTransacciones } from '@/hooks/useTransacciones';
-import { datosBarChart, formatDate } from '@/utils/dateutils';
+import { datosBarChart } from '@/utils/dateutils';
 import React, { useEffect, useState } from 'react';
 import { FlatList, KeyboardAvoidingView, Platform, StyleSheet, Text, View } from 'react-native';
 import { Categoria } from './categoria';
@@ -61,11 +62,6 @@ const Gastos = () => {
         setGastos(nuevoGastos);
     };
 
-
-    function buscarCategoriaPorId(id: number): string {
-        const categoria = categorias.find(cat => cat.categoria_id === id);
-        return categoria?.categoria_nombre ?? 'Sin categoría';
-    }
     const initializeCategorias = async () => {
         try {
             const data = await getCategorias();
@@ -76,25 +72,6 @@ const Gastos = () => {
         }
     };
 
-    const Item: React.FC<Transaccion> = ({ transaccion_descripcion, transaccion_nombre, transaccion_monto, transaccion_fecha, categoria_id, transaccion_tipo }) => (
-        <View style={styles.item}>
-            <View style={styles.itemContent}>
-                <View style={styles.containerLeft}>
-                    <Text style={styles.title}>{transaccion_nombre}</Text>
-                    <Text style={styles.description}>{transaccion_descripcion}</Text>
-                    <Text style={styles.description}>{formatDate(transaccion_fecha)} </Text>
-                </View>
-                <View style={styles.containerRight}>
-                    <Text >{buscarCategoriaPorId(categoria_id)}</Text>
-                    {transaccion_monto ? (
-                        <Text style={transaccion_tipo === 'Ingreso' ? styles.montoIngreso : transaccion_tipo === 'Gasto' ? styles.montoGasto : styles.montoDefault}>
-                            {transaccion_tipo === 'Ingreso' ? `+$${transaccion_monto.toFixed(2)}` : transaccion_tipo === 'Gasto' ? `-$${transaccion_monto.toFixed(2)}` : `$${transaccion_monto.toFixed(2)}`}
-                        </Text>
-                    ) : null}
-                </View>
-            </View>
-        </View>
-    );
 
     return (
         <KeyboardAvoidingView
@@ -105,7 +82,7 @@ const Gastos = () => {
             <DrawerLayout screenName='Gastos' >
                 <View style={styles.container}>
                     <View style={{ justifyContent: 'center', marginLeft: 10 }}>
-                        <View style={{ flexDirection: 'row', justifyContent: 'flex-start',marginBottom:5 }}>
+                        <View style={{ flexDirection: 'row', justifyContent: 'flex-start', marginBottom: 5 }}>
 
                             <DatePickers onSeleccionar={handleSeleccionFechas} />
 
@@ -121,8 +98,12 @@ const Gastos = () => {
                     <View style={styles.content}>
                         <FlatList
                             data={transaccionesFiltradas}
+                            initialNumToRender={10}
+                            maxToRenderPerBatch={10}
+                            windowSize={5}
+                            removeClippedSubviews={false}
                             renderItem={({ item }) => (
-                                <Item
+                                <TransaccionItemComponent
                                     transaccion_nombre={item.transaccion_nombre}
                                     transaccion_descripcion={item.transaccion_descripcion}
                                     transaccion_monto={item.transaccion_monto}

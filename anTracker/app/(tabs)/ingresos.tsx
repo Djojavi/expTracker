@@ -1,9 +1,10 @@
 import { BarChartComponent } from '@/components/BarChart';
 import { DatePickers } from '@/components/DatePickers';
 import { DrawerLayout } from '@/components/DrawerLayout';
+import { TransaccionItemComponent } from '@/components/transaccionItem';
 import { useCategorias } from '@/hooks/useCategorias';
 import { useTransacciones } from '@/hooks/useTransacciones';
-import { datosBarChart, formatDate } from '@/utils/dateutils';
+import { datosBarChart } from '@/utils/dateutils';
 import React, { useEffect, useState } from 'react';
 import { FlatList, KeyboardAvoidingView, Platform, StyleSheet, Text, View } from 'react-native';
 import { Categoria } from './categoria';
@@ -76,25 +77,6 @@ const Ingreso = () => {
     };
 
 
-    const Item: React.FC<Transaccion> = ({ transaccion_descripcion, transaccion_nombre, transaccion_monto, transaccion_fecha, categoria_id, transaccion_tipo }) => (
-        <View style={styles.item}>
-            <View style={styles.itemContent}>
-                <View style={styles.containerLeft}>
-                    <Text style={styles.title}>{transaccion_nombre}</Text>
-                    <Text style={styles.description}>{transaccion_descripcion}</Text>
-                    <Text style={styles.description}>{formatDate(transaccion_fecha)} </Text>
-                </View>
-                <View style={styles.containerRight}>
-                    <Text >{buscarCategoriaPorId(categoria_id)}</Text>
-                    {transaccion_monto ? (
-                        <Text style={transaccion_tipo === 'Ingreso' ? styles.montoIngreso : transaccion_tipo === 'Gasto' ? styles.montoGasto : styles.montoDefault}>
-                            {transaccion_tipo === 'Ingreso' ? `+$${transaccion_monto.toFixed(2)}` : transaccion_tipo === 'Gasto' ? `-$${transaccion_monto.toFixed(2)}` : `$${transaccion_monto.toFixed(2)}`}
-                        </Text>
-                    ) : null}
-                </View>
-            </View>
-        </View>
-    );
 
     return (
         <KeyboardAvoidingView
@@ -107,7 +89,7 @@ const Ingreso = () => {
 
                     <View style={{ justifyContent: 'center', marginLeft: 10 }}>
 
-                        <View style={{ flexDirection: 'row', justifyContent: 'flex-start',marginBottom:5 }}>
+                        <View style={{ flexDirection: 'row', justifyContent: 'flex-start', marginBottom: 5 }}>
 
                             <DatePickers onSeleccionar={handleSeleccionFechas} />
 
@@ -123,8 +105,12 @@ const Ingreso = () => {
                     <View style={styles.content}>
                         <FlatList
                             data={transaccionesFiltradas}
+                            initialNumToRender={10}
+                            maxToRenderPerBatch={10}
+                            windowSize={5}
+                            removeClippedSubviews={false}
                             renderItem={({ item }) => (
-                                <Item
+                                <TransaccionItemComponent
                                     transaccion_nombre={item.transaccion_nombre}
                                     transaccion_descripcion={item.transaccion_descripcion}
                                     transaccion_monto={item.transaccion_monto}
@@ -134,7 +120,7 @@ const Ingreso = () => {
                                     categoria_id={item.categoria_id}
                                 />
                             )}
-                            keyExtractor={(item, index) => item.transaccion_id?.toString() ?? index.toString()}
+                            keyExtractor={(item) => item.transaccion_id!.toString()}
                             style={styles.flatList}
                         />
                     </View>
@@ -144,7 +130,7 @@ const Ingreso = () => {
     );
 };
 const styles = StyleSheet.create({
-    
+
     dias: {
         backgroundColor: '#fff',
         borderRadius: 8,
@@ -201,25 +187,7 @@ const styles = StyleSheet.create({
         color: '#1F7900',
         fontSize: 24,
     },
-    containerLeft: {
-        justifyContent: 'flex-start',
-    },
-    containerRight: {
-        justifyContent: 'flex-end',
-        alignItems: 'flex-end',
-    },
-    montoIngreso: {
-        fontSize: 18,
-        color: '#1F7900',
-    },
-    montoGasto: {
-        fontSize: 18,
-        color: '#BF0000',
-    },
-    montoDefault: {
-        color: '#fefefe',
-        backgroundColor: '#BF0000',
-    },
+
     catText: {
         fontSize: 18,
         fontWeight: 'bold',
@@ -277,23 +245,7 @@ const styles = StyleSheet.create({
         width: '100%',
         marginBottom: 8,
     },
-    item: {
-        backgroundColor: '#fff',
-        padding: 8,
-        marginVertical: 1,
-        marginBottom: 8,
-        paddingHorizontal: 8,
-        marginHorizontal: 3,
-        borderRadius: 8,
-        shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 2,
-        },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
-        elevation: 5,
-    },
+
     selectedItem: {
         backgroundColor: '#D3AEA2',
     },
@@ -302,16 +254,6 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         width: '100%',
-    },
-    itemContent: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-    },
-    title: {
-        fontSize: 17,
-        fontWeight: 'bold',
-        color: '#000',
     },
     description: {
         fontSize: 14,
