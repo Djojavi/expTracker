@@ -1,3 +1,4 @@
+import { BarChartComponent } from '@/components/BarChart';
 import { DatePickers } from '@/components/DatePickers';
 import { DrawerLayout } from '@/components/DrawerLayout';
 import { useCategorias } from '@/hooks/useCategorias';
@@ -5,7 +6,6 @@ import { useTransacciones } from '@/hooks/useTransacciones';
 import { datosBarChart, formatDate } from '@/utils/dateutils';
 import React, { useEffect, useState } from 'react';
 import { FlatList, KeyboardAvoidingView, Platform, StyleSheet, Text, View } from 'react-native';
-import { BarChart } from 'react-native-gifted-charts';
 import { Categoria } from './categoria';
 import { Transaccion } from './transacciones';
 
@@ -117,40 +117,7 @@ const Ingreso = () => {
                             <Text style={{ fontSize: 30, alignSelf: 'center', color: '#1F7900' }}> + ${ingresos.toFixed(2)}</Text>
                         </View>
 
-                        <View style={styles.chartContainer}>
-                            {chartData.length > 0 && (
-                                <BarChart
-                                    overflowTop={25}
-                                    height={175}
-                                    width={225}
-                                    yAxisThickness={1}
-                                    xAxisThickness={1}
-                                    data={chartData}
-                                    barWidth={30}
-                                    barBorderRadius={5}
-                                    frontColor="#A37366"
-                                    isAnimated
-                                    spacing={35}
-                                    noOfSections={4}
-                                    renderTooltip={(item: any, index: any) => {
-                                        return (
-                                            <View
-                                                style={{
-                                                    marginBottom: 5,
-                                                    marginTop: 50,
-                                                    marginLeft: -6,
-                                                    backgroundColor: '#D3AEA2 ',
-                                                    paddingHorizontal: 6,
-                                                    paddingVertical: 4,
-                                                    borderRadius: 4,
-                                                }}>
-                                                <Text>${item.value}</Text>
-                                            </View>
-                                        );
-                                    }}
-                                />
-                            )}
-                        </View>
+                        <BarChartComponent chartData={chartData}></BarChartComponent>
                     </View>
 
                     <View style={styles.content}>
@@ -177,25 +144,7 @@ const Ingreso = () => {
     );
 };
 const styles = StyleSheet.create({
-    chartContainer: {
-        justifyContent: 'center',
-        alignItems: 'center',
-        borderRadius: 20,
-        marginHorizontal: '5%',
-        paddingTop: 25,
-        padding: 10,
-        backgroundColor: '#fff',
-        marginBottom: 5,
-        shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 2,
-        },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
-        elevation: 5,
-        paddingBottom: 15
-    },
+    
     dias: {
         backgroundColor: '#fff',
         borderRadius: 8,
