@@ -1,3 +1,4 @@
+import { CategoriasModal } from '@/components/categoriesModal';
 import { DatePickers } from '@/components/DatePickers';
 import { DrawerLayout } from '@/components/DrawerLayout';
 import { SearchExpandable } from '@/components/searchBar';
@@ -63,7 +64,7 @@ const Transacciones = () => {
     const [categorias, setCategorias] = useState<Categoria[]>([]);
 
     let isMounted = true;
-    const { addTransaccion, getTransacciones, getTransaccion, updateTransaccion, deleteTransaccion, getTransaccionesPorFecha, getTransaccionesByName } = useTransacciones();
+    const { addTransaccion, getTransacciones, getTransaccion, updateTransaccion, deleteTransaccion, getTransaccionesPorFecha, getTransaccionesByName, getTransaccionesByCategoria } = useTransacciones();
     const [transacciones, setTransacciones] = useState<Transaccion[]>([]);
     const [nombre, setNombre] = useState('');
     const [descripcion, setDescripcion] = useState('');
@@ -198,7 +199,6 @@ const Transacciones = () => {
 
     const calcularBalance = (arrayTransacciones: Transaccion[]) => {
         let nuevoBalance = 0, nuevoIngresos = 0, nuevoGastos = 0;
-
         arrayTransacciones.forEach(item => {
             const monto = item.transaccion_monto;
             if (!isNaN(monto)) {
@@ -263,6 +263,10 @@ const Transacciones = () => {
         setTipo('');
         setCategoria('');
         setMetodo('');
+    }
+
+    const buscarPorCategorias = async(id:number[]) =>{
+        console.log("ID", id)
     }
 
 
@@ -454,6 +458,7 @@ const Transacciones = () => {
                     <View style={{ flexDirection: 'row', justifyContent: 'flex-start', marginBottom: 5 }}>
                         <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
                             <SearchExpandable onSubmitSearch={handleSubmitNombre} />
+                            <CategoriasModal onSubmit={buscarPorCategorias} />
                             <DatePickers onSeleccionar={handleSeleccionFechas} />
                         </ScrollView>
                     </View>

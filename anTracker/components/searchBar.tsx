@@ -57,6 +57,7 @@ const styles = StyleSheet.create({
     btn: {
         backgroundColor: '#ffffffff',
         padding: 5,
+        flexDirection:'row',
         borderRadius: 8,
     },
     inputContainer: {
@@ -75,6 +76,7 @@ const styles = StyleSheet.create({
         height: 23,
         resizeMode: 'contain',
         backgroundColor: '#fff',
+        marginRight:2
     },
 });
 

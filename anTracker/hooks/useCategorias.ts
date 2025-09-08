@@ -33,6 +33,10 @@ export function useCategorias() {
         return await db.getFirstAsync('SELECT categoria_nombre FROM Categorias WHERE categoria_id = ?',[categoria_id]) ?? ''
     }
 
-    return { addCategoria, getCategorias, updateCategoria, deleteCategoria, getCategoriaById }
+    const getCategoriasModal = async(): Promise<any> =>{
+        return await db.getAllAsync('SELECT categoria_nombre AS label, categoria_id AS value FROM Categorias ORDER BY categoria_nombre ASC')
+    }
+
+    return { addCategoria, getCategorias, updateCategoria, deleteCategoria, getCategoriaById, getCategoriasModal }
 
 }

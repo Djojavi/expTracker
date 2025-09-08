@@ -71,10 +71,15 @@ export function useTransacciones() {
         'SELECT * FROM Transacciones WHERE transaccion_nombre LIKE ? OR transaccion_descripcion LIKE ? ORDER BY transaccion_fecha DESC',
         [searchTerm, searchTerm]
     );
+
+    
 };
+const getTransaccionesByCategoria = async (categoria_id: number): Promise <Transaccion[]> =>{
+        return await db.getAllAsync('SELECT * FROM Transacciones where categoria_id = ?',[categoria_id])
+    }
 
 
 
 
-    return { addTransaccion, getTransacciones, getTransaccion, updateTransaccion, deleteTransaccion, getIngresos, getGastos, deleteTransacciones, getTransaccionExistente, getMontosPorCategoria, getTransaccionesPorFecha, getTransaccionMinimaFecha,getIngresosPorFecha, getGastosPorFecha, getTransaccionesByName }
+    return { addTransaccion, getTransacciones, getTransaccion, updateTransaccion, deleteTransaccion, getIngresos, getGastos, deleteTransacciones, getTransaccionExistente, getMontosPorCategoria, getTransaccionesPorFecha, getTransaccionMinimaFecha,getIngresosPorFecha, getGastosPorFecha, getTransaccionesByName, getTransaccionesByCategoria }
 }
