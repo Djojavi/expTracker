@@ -16,17 +16,18 @@ export const CategoriasModal: React.FC<CategoriasModalProps> = ({ onSubmit }) =>
     const opacityAnim = useRef(new Animated.Value(0)).current;
     const [categorias, setCategorias] = useState([]);
 
-    const initializeCategorias = async() =>{
+    const initializeCategorias = async () => {
         let data = await getCategoriasModal();
+        data.unshift({ "label": "Todas", "value": 0 })
         setCategorias(data)
     }
-    useEffect(()=>{
-        try{
+    useEffect(() => {
+        try {
             initializeCategorias()
-        }catch(error){
+        } catch (error) {
             console.error(error)
         }
-    })
+    }, [])
 
     const toggleSearch = () => {
         if (expanded) {

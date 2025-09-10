@@ -89,7 +89,6 @@ export const PieChartComponent: React.FC<DrawerProps> = ({ pieData, montosPorCat
                     centerLabelComponent={centerLabel}
                     onPress={(item: any, index: any) => setFocusedIndex(index)}
                 />)}
-            {renderLegendComponent()}
         </View>
     )
 }

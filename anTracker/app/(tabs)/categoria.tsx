@@ -68,9 +68,7 @@ const Categoria = () => {
   };
 
   const handleUpdateCategoria = (id: number) => {
-    console.log(id);
     const categoriaActualizar: Categoria = { categoria_id: id, categoria_nombre: nombre, categoria_descripcion: descripcion, categoria_color: selectedColor }
-    console.log(categoriaActualizar)
     if (nombre && descripcion && selectedColor) {
       updateCategoria(categoriaActualizar);
       setNombre('');

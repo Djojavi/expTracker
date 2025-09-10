@@ -66,20 +66,17 @@ export function useTransacciones() {
 
 
     const getTransaccionesByName = async (nombre: string): Promise<Transaccion[]> => {
-    const searchTerm = `%${nombre}%`;
-    return await db.getAllAsync(
-        'SELECT * FROM Transacciones WHERE transaccion_nombre LIKE ? OR transaccion_descripcion LIKE ? ORDER BY transaccion_fecha DESC',
-        [searchTerm, searchTerm]
-    );
+        const searchTerm = `%${nombre}%`;
+        return await db.getAllAsync(
+            'SELECT * FROM Transacciones WHERE transaccion_nombre LIKE ? OR transaccion_descripcion LIKE ? ORDER BY transaccion_fecha DESC',
+            [searchTerm, searchTerm]
+        );
 
-    
-};
-const getTransaccionesByCategoria = async (categoria_id: number): Promise <Transaccion[]> =>{
-        return await db.getAllAsync('SELECT * FROM Transacciones where categoria_id = ?',[categoria_id])
+
+    };
+    const getTransaccionesByCategoria = async (categoria_id: number): Promise<Transaccion[]> => {
+        return await db.getAllAsync('SELECT * FROM Transacciones where categoria_id = ? ORDER BY transaccion_fecha DESC', [categoria_id])
     }
 
-
-
-
-    return { addTransaccion, getTransacciones, getTransaccion, updateTransaccion, deleteTransaccion, getIngresos, getGastos, deleteTransacciones, getTransaccionExistente, getMontosPorCategoria, getTransaccionesPorFecha, getTransaccionMinimaFecha,getIngresosPorFecha, getGastosPorFecha, getTransaccionesByName, getTransaccionesByCategoria }
+    return { addTransaccion, getTransacciones, getTransaccion, updateTransaccion, deleteTransaccion, getIngresos, getGastos, deleteTransacciones, getTransaccionExistente, getMontosPorCategoria, getTransaccionesPorFecha, getTransaccionMinimaFecha, getIngresosPorFecha, getGastosPorFecha, getTransaccionesByName, getTransaccionesByCategoria }
 }

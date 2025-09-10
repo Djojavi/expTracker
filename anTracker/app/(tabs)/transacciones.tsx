@@ -95,6 +95,22 @@ const Transacciones = () => {
         }
     };
 
+const buscarPorCategorias = async (ids: number[]) => {
+    try {
+        const resultados = await Promise.all(ids.map(id => getTransaccionesByCategoria(id)))
+        const todasTransacciones = resultados.flat()
+        setTransacciones(todasTransacciones)
+        setTransaccionesFiltradas(todasTransacciones)
+        calcularBalance(todasTransacciones)
+        if(ids.includes(0) || ids.length === 0){
+            initializeTransacciones();
+        }
+    } catch (error) {
+        console.error(error)
+    }
+}
+
+
     const handleSubmitNombre = async (nombre: string) => {
         try {
             const data = await getTransaccionesByName(nombre);
@@ -265,9 +281,6 @@ const Transacciones = () => {
         setMetodo('');
     }
 
-    const buscarPorCategorias = async(id:number[]) =>{
-        console.log("ID", id)
-    }
 
 
     return (
