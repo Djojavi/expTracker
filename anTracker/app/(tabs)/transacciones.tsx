@@ -8,6 +8,7 @@ import { useTransacciones } from '@/hooks/useTransacciones';
 import { Link } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import { Alert, FlatList, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
+import { Dropdown } from 'react-native-element-dropdown';
 import RBSheet from 'react-native-raw-bottom-sheet';
 import { Categoria } from './categoria';
 
@@ -95,20 +96,20 @@ const Transacciones = () => {
         }
     };
 
-const buscarPorCategorias = async (ids: number[]) => {
-    try {
-        const resultados = await Promise.all(ids.map(id => getTransaccionesByCategoria(id)))
-        const todasTransacciones = resultados.flat()
-        setTransacciones(todasTransacciones)
-        setTransaccionesFiltradas(todasTransacciones)
-        calcularBalance(todasTransacciones)
-        if(ids.includes(0) || ids.length === 0){
-            initializeTransacciones();
+    const buscarPorCategorias = async (ids: number[]) => {
+        try {
+            const resultados = await Promise.all(ids.map(id => getTransaccionesByCategoria(id)))
+            const todasTransacciones = resultados.flat()
+            setTransacciones(todasTransacciones)
+            setTransaccionesFiltradas(todasTransacciones)
+            calcularBalance(todasTransacciones)
+            if (ids.includes(0) || ids.length === 0) {
+                initializeTransacciones();
+            }
+        } catch (error) {
+            console.error(error)
         }
-    } catch (error) {
-        console.error(error)
     }
-}
 
 
     const handleSubmitNombre = async (nombre: string) => {
@@ -202,6 +203,7 @@ const buscarPorCategorias = async (ids: number[]) => {
                 setCategoria('');
                 setTipo('');
                 updateRefRBSheet.current?.close();
+                initializeTransacciones();
             } catch (e: any) {
                 console.log(e)
             }
@@ -281,6 +283,7 @@ const buscarPorCategorias = async (ids: number[]) => {
         setMetodo('');
     }
 
+    const [isFocus, setIsFocus] = useState(true);
 
 
     return (
@@ -389,83 +392,91 @@ const buscarPorCategorias = async (ids: number[]) => {
                         }
                     }}
                 >
-                    <Text style={styles.addTransaccion}>Actualizar Transacción</Text>
-                    <View style={styles.radioButtonContainer}>
-                        <View style={styles.radioButtonRow}>
-                            <RadioButton
-                                selected={tipo === 'Ingreso'}
-                                onPress={() => setTipo('Ingreso')}
-                                style={styles.radioButton}
-                            />
-                            <Text style={styles.radioText}>Ingreso</Text>
+                    <ScrollView showsVerticalScrollIndicator={false}>
+                        <Text style={styles.addTransaccion}>Actualizar Transacción</Text>
+                        <View style={styles.radioButtonContainer}>
+                            <View style={styles.radioButtonRow}>
+                                <RadioButton
+                                    selected={tipo === 'Ingreso'}
+                                    onPress={() => setTipo('Ingreso')}
+                                    style={styles.radioButton}
+                                />
+                                <Text style={styles.radioText}>Ingreso</Text>
+                            </View>
+                            <View style={styles.radioButtonRow}>
+                                <RadioButton
+                                    selected={tipo === 'Gasto'}
+                                    onPress={() => setTipo('Gasto')}
+                                    style={styles.radioButton}
+                                />
+                                <Text style={styles.radioText}>Gasto</Text>
+                            </View>
                         </View>
-                        <View style={styles.radioButtonRow}>
-                            <RadioButton
-                                selected={tipo === 'Gasto'}
-                                onPress={() => setTipo('Gasto')}
-                                style={styles.radioButton}
+                        <View style={styles.nombreContainer}>
+                            <TextInput
+                                style={styles.inputNombre}
+                                placeholder="Nombre"
+                                value={nombre}
+                                onChangeText={setNombre}
                             />
-                            <Text style={styles.radioText}>Gasto</Text>
+                            <Text style={styles.signoDolar}>$</Text>
+                            <TextInput
+                                style={styles.inputMonto}
+                                placeholder='Monto'
+                                keyboardType='numeric'
+                                value={monto}
+                                onChangeText={setMonto}
+                            />
                         </View>
-                    </View>
-                    <View style={styles.nombreContainer}>
                         <TextInput
-                            style={styles.inputNombre}
-                            placeholder="Nombre"
-                            value={nombre}
-                            onChangeText={setNombre}
+                            style={styles.input}
+                            placeholder="Descripción"
+                            value={descripcion}
+                            onChangeText={setDescripcion}
                         />
-                        <Text style={styles.signoDolar}>$</Text>
                         <TextInput
-                            style={styles.inputMonto}
-                            placeholder='Monto'
-                            keyboardType='numeric'
-                            value={monto}
-                            onChangeText={setMonto}
+                            style={styles.input}
+                            placeholder="Método"
+                            value={metodo}
+                            onChangeText={setMetodo}
                         />
-                    </View>
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Descripción"
-                        value={descripcion}
-                        onChangeText={setDescripcion}
-                    />
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Método"
-                        value={metodo}
-                        onChangeText={setMetodo}
-                    />
-                    <Text style={styles.catText}>Selecciona una categoría!</Text>
-                    <FlatList
-                        data={categorias}
-                        removeClippedSubviews={true}
-                        renderItem={({ item }) => (
-                            <TouchableWithoutFeedback onPress={() => setCategoria(item.categoria_id?.toString() ?? '')}>
-                                <View style={[styles.item, Number(categoria) === item.categoria_id && styles.selectedItem]}>
-                                    <View style={{ flexDirection: 'row' }}>
-                                        <View style={[styles.circularTextView, { backgroundColor: item.categoria_color }]} />
-                                        <Text style={styles.itemText}>{item.categoria_nombre}</Text>
+                        <View >
+                                
+                            <Dropdown
+                                style={[styles.dropdown, isFocus && { borderColor: 'black' }]}
+                                data={categorias}
+                                labelField="categoria_nombre"
+                                valueField="categoria_id"
+                                value={Number(categoria)}
+                                onChange={item => setCategoria(item.categoria_id)}
+                                renderItem={(item) => (
+                                    <View style={{ flexDirection: 'row', alignItems: 'center', padding: 8 }}>
+                                        <View style={[styles.circle, { backgroundColor: item.categoria_color }]} />
+                                        <Text style={{ marginLeft: 8 }}>{item.categoria_nombre}</Text>
                                     </View>
-                                </View>
-                            </TouchableWithoutFeedback>
-                        )}
-                        keyExtractor={(item, index) => index.toString()}
-                    />
-                    <TouchableOpacity style={styles.addNombreButton} onPress={() => handleUpdateTransaccion(idActualizar)}>
-                        <Text style={{ color: "#fff", textAlign: "center", fontWeight: "bold" }}>
-                            Listo!
-                        </Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={[styles.deleteButton, { marginTop: 5 }]} onPress={() => handleDeleteTransaccion(idBorrar)}
-                    >
-                        <Text style={{ color: "#fff", textAlign: "center", fontWeight: "bold" }}>
-                            Eliminar Transacción
-                        </Text>
+                                )}
+                            />
+                            <View
+                                    style={[
+                                        styles.circleDown,
+                                        { backgroundColor: categorias.find(c => c.categoria_id === Number(categoria))?.categoria_color }
+                                    ]}
+                                />
+                        </View>
+                        <TouchableOpacity style={styles.addNombreButton} onPress={() => handleUpdateTransaccion(idActualizar)}>
+                            <Text style={{ color: "#fff", textAlign: "center", fontWeight: "bold" }}>
+                                Listo!
+                            </Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={[styles.deleteButton, { marginTop: 5 }]} onPress={() => handleDeleteTransaccion(idBorrar)}
+                        >
+                            <Text style={{ color: "#fff", textAlign: "center", fontWeight: "bold" }}>
+                                Eliminar Transacción
+                            </Text>
 
-                    </TouchableOpacity>
+                        </TouchableOpacity>
 
-
+                    </ScrollView>
                 </RBSheet>
                 <View style={{ justifyContent: 'center', marginLeft: 10 }}>
                     <View style={{ flexDirection: 'row', justifyContent: 'flex-start', marginBottom: 5 }}>
@@ -533,6 +544,45 @@ const buscarPorCategorias = async (ids: number[]) => {
 };
 
 const styles = StyleSheet.create({
+    dropdown: {
+        height: 50,
+        borderColor: 'gray',
+        borderWidth: 0.5,
+        borderRadius: 8,
+        paddingHorizontal: 8,
+    },
+    label: {
+        position: 'absolute',
+        backgroundColor: 'white',
+        left: 22,
+        top: 8,
+        zIndex: 999,
+        paddingHorizontal: 8,
+        fontSize: 14,
+    },
+    circle: {
+        width: 10,
+        height: 20,
+        borderRadius: '25%',
+    },
+    circleDown: {
+        width: '100%',
+        height: 3,
+        marginTop:0,
+        marginBottom:15,
+    },
+    placeholderStyle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+    },
+    selectedTextStyle: {
+        fontSize: 16,
+    },
+
+    inputSearchStyle: {
+        height: 40,
+        fontSize: 16,
+    },
     ingresos: {
         backgroundColor: '#fff',
         flexDirection: 'column',
@@ -727,6 +777,7 @@ const styles = StyleSheet.create({
         width: 120,
         paddingHorizontal: 15,
         marginHorizontal: 10,
+        alignSelf: 'center'
     },
     addButton: {
         backgroundColor: '#A37366',

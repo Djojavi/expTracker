@@ -19,6 +19,8 @@ export const DrawerLayout: React.FC<DrawerProps> = ({ children, screenName }) =>
             <MenuItem source={require('../assets/icons/categoria.png')} href={'../(tabs)/categoria'} text='Categoría' screenName={screenName} ></MenuItem>
             <MenuItem source={require('../assets/icons/csv.png')} href={'../(tabs)/importExport'} text='CSV' screenName={screenName} ></MenuItem>
             <MenuItem source={require('../assets/icons/pie-chart.png')} href={'../(tabs)/graficos'} text='Graficos' screenName={screenName} ></MenuItem>
+            <MenuItem source={require('../assets/icons/target.png')} href={'../(tabs)/objetivos'} text='Objetivos' screenName={screenName} ></MenuItem>
+            <MenuItem source={require('../assets/icons/budget.png')} href={'../(tabs)/presupuestos'} text='Presupuestos' screenName={screenName} ></MenuItem>
         </View>
     );
 
