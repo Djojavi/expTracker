@@ -177,6 +177,7 @@ const Transacciones = () => {
                 setCategoria('');
                 setTipo('');
                 refRBSheet.current?.close();
+                initializeTransacciones();
             } catch (e: any) {
                 console.log(e)
             }
@@ -308,6 +309,8 @@ const Transacciones = () => {
                         }
                     }}
                 >
+                                        <ScrollView showsVerticalScrollIndicator={false}>
+
                     <Text style={styles.addTransaccion}>Añadir Transacción</Text>
                     <View style={styles.radioButtonContainer}>
                         <View style={styles.radioButtonRow}>
@@ -356,26 +359,35 @@ const Transacciones = () => {
                         onChangeText={setMetodo}
                     />
                     <Text style={styles.catText}>Selecciona una categoría!</Text>
-                    <FlatList
-                        data={categorias}
-                        removeClippedSubviews={true}
-                        renderItem={({ item }) => (
-                            <TouchableWithoutFeedback onPress={() => setCategoria(item.categoria_id?.toString() ?? ' ')}>
-                                <View style={[styles.item, Number(categoria) === item.categoria_id && styles.selectedItem]}>
-                                    <View style={{ flexDirection: 'row' }}>
-                                        <View style={[styles.circularTextView, { backgroundColor: item.categoria_color }]} />
-                                        <Text style={styles.itemText}>{item.categoria_nombre}</Text>
+                     <View >
+                            <Dropdown
+                                style={[styles.dropdown, isFocus && { borderColor: 'black', width:'100%' }]}
+                                data={categorias}
+                                labelField="categoria_nombre"
+                                valueField="categoria_id"
+                                placeholder='Encuentra tus categorías'
+                                value={categoria}
+                                onChange={item => setCategoria(item.categoria_id)}
+                                renderItem={(item) => (
+                                    <View style={{ flexDirection: 'row', alignItems: 'center', padding: 8 }}>
+                                        <View style={[styles.circle, { backgroundColor: item.categoria_color }]} />
+                                        <Text style={{ marginLeft: 8 }}>{item.categoria_nombre}</Text>
                                     </View>
-                                </View>
-                            </TouchableWithoutFeedback>
-                        )}
-                        keyExtractor={(item, index) => index.toString()}
-                    />
+                                )}
+                            />
+                            <View
+                                style={[
+                                    styles.circleDown,
+                                    { backgroundColor: categorias.find(c => c.categoria_id === Number(categoria))?.categoria_color }
+                                ]}
+                            />
+                        </View>
                     <TouchableOpacity style={styles.addNombreButton} onPress={() => handleAddTransaccion()}>
                         <Text style={{ color: "#fff", textAlign: "center", fontWeight: "bold" }}>
                             Listo!
                         </Text>
                     </TouchableOpacity>
+                    </ScrollView>
                 </RBSheet>
 
                 <RBSheet
@@ -441,7 +453,7 @@ const Transacciones = () => {
                             onChangeText={setMetodo}
                         />
                         <View >
-                                
+
                             <Dropdown
                                 style={[styles.dropdown, isFocus && { borderColor: 'black' }]}
                                 data={categorias}
@@ -457,11 +469,11 @@ const Transacciones = () => {
                                 )}
                             />
                             <View
-                                    style={[
-                                        styles.circleDown,
-                                        { backgroundColor: categorias.find(c => c.categoria_id === Number(categoria))?.categoria_color }
-                                    ]}
-                                />
+                                style={[
+                                    styles.circleDown,
+                                    { backgroundColor: categorias.find(c => c.categoria_id === Number(categoria))?.categoria_color }
+                                ]}
+                            />
                         </View>
                         <TouchableOpacity style={styles.addNombreButton} onPress={() => handleUpdateTransaccion(idActualizar)}>
                             <Text style={{ color: "#fff", textAlign: "center", fontWeight: "bold" }}>
@@ -568,8 +580,8 @@ const styles = StyleSheet.create({
     circleDown: {
         width: '100%',
         height: 3,
-        marginTop:0,
-        marginBottom:15,
+        marginTop: 0,
+        marginBottom: 15,
     },
     placeholderStyle: {
         fontSize: 18,

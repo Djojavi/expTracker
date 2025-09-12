@@ -1,0 +1,109 @@
+import { StyleSheet, Text, View } from "react-native"
+import ProgressBar from "./progressBar"
+
+type ObjPresupuestoProps = {
+  descripcion: string
+  nombre: string
+  total: number
+  actual: number
+  progreso: number
+  seRepite?: boolean
+  frecuencia?: number
+  tipo: string
+}
+
+export const ObjPresupuestoCard: React.FC<ObjPresupuestoProps> = ({
+  descripcion,
+  nombre,
+  total,
+  actual,
+  progreso,
+  seRepite,
+  frecuencia,
+  tipo,
+}) => {
+  return (
+    <View style={styles.card}>
+      <View style={styles.header}>
+        <View style={styles.left}>
+          <Text style={styles.title}>{nombre}</Text>
+          {descripcion ? (
+            <Text style={styles.description}>{descripcion}</Text>
+          ) : null}
+        </View>
+        <View style={styles.right}>
+          <Text style={styles.percentage}>{Math.round(progreso * 100)}%</Text>
+        </View>
+      </View>
+
+      <View style={styles.progressWrapper}>
+        <ProgressBar
+          progress={progreso}
+          color={tipo === "O" ? "#4caf50" : "#2196f3"} 
+          backgroundColor="#f0f0f0"
+          start={0}
+          end={total}
+          current={actual}
+          height={14}
+        />
+      </View>
+
+      {seRepite && frecuencia ? (
+        <Text style={styles.repeatText}>
+          🔁 Se repite cada {frecuencia} semana{frecuencia > 1 ? "s" : ""}
+        </Text>
+      ) : null}
+    </View>
+  )
+}
+
+const styles = StyleSheet.create({
+  card: {
+    backgroundColor: "#fff",
+    padding: 10,
+    marginVertical: 6,
+    marginHorizontal: 6,
+    borderRadius: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 10,
+  },
+  left: {
+    flex: 1,
+    paddingRight: 10,
+  },
+  right: {
+    alignItems: "flex-end",
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#222",
+  },
+  description: {
+    fontSize: 14,
+    color: "#666",
+    marginTop: 2,
+  },
+  percentage: {
+    fontSize: 25,
+    fontWeight: "700",
+    color: "#4caf50",
+  },
+  progressWrapper: {
+    marginTop: 6,
+    marginBottom: 4,
+  },
+  repeatText: {
+    fontSize: 12,
+    color: "#888",
+    marginTop: 4,
+  },
+})
