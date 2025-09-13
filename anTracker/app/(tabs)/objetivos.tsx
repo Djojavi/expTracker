@@ -12,6 +12,8 @@ export type Cuenta = {
     cuenta_actual: number;
     cuenta_progreso: number;
     cuenta_tipo: string;
+    se_repite: number;
+    cuenta_frecuencia: number;
 }
 
 //Pantalla con los objetivos del usuario
@@ -47,7 +49,7 @@ const ObjetivosScreen = () => {
                             data={objetivos}
                             renderItem={({ item }) => (
                                 <Pressable>
-                                    <ObjPresupuestoCard nombre={item.cuenta_nombre} descripcion={item.cuenta_descripcion ?? ''} actual={item.cuenta_actual} progreso={item.cuenta_progreso} tipo={item.cuenta_tipo} total={item.cuenta_total} />
+                                    <ObjPresupuestoCard nombre={item.cuenta_nombre} descripcion={item.cuenta_descripcion ?? ''} actual={item.cuenta_actual} progreso={item.cuenta_progreso} tipo={item.cuenta_tipo} total={item.cuenta_total} seRepite={item.se_repite} frecuencia={item.cuenta_frecuencia} />
                                 </Pressable>
                             )}
                         />

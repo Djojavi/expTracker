@@ -9,7 +9,11 @@ export function useObjetivos() {
         return await db.getAllAsync(`SELECT * FROM Cuenta WHERE cuenta_tipo = 'O' ORDER BY cuenta_nombre ASC`)
     }
 
-    return {getObjetivos}
+    const getPresupuestos = async(): Promise<Cuenta[]> => {
+        return await db.getAllAsync(`SELECT * FROM Cuenta WHERE cuenta_tipo = 'P' ORDER BY cuenta_nombre ASC`)
+    }
+
+    return {getObjetivos , getPresupuestos}
 
 }
 

@@ -7,7 +7,7 @@ type ObjPresupuestoProps = {
   total: number
   actual: number
   progreso: number
-  seRepite?: boolean
+  seRepite?: number
   frecuencia?: number
   tipo: string
 }
@@ -32,7 +32,7 @@ export const ObjPresupuestoCard: React.FC<ObjPresupuestoProps> = ({
           ) : null}
         </View>
         <View style={styles.right}>
-          <Text style={styles.percentage}>{Math.round(progreso * 100)}%</Text>
+          <Text style={[styles.percentage, {color: tipo === 'O'?"#4caf50" : "#2196f3" }]}>{Math.round(progreso * 100)}%</Text>
         </View>
       </View>
 
@@ -48,7 +48,7 @@ export const ObjPresupuestoCard: React.FC<ObjPresupuestoProps> = ({
         />
       </View>
 
-      {seRepite && frecuencia ? (
+      {seRepite!== 0 && frecuencia ? (
         <Text style={styles.repeatText}>
           🔁 Se repite cada {frecuencia} semana{frecuencia > 1 ? "s" : ""}
         </Text>
@@ -95,7 +95,6 @@ const styles = StyleSheet.create({
   percentage: {
     fontSize: 25,
     fontWeight: "700",
-    color: "#4caf50",
   },
   progressWrapper: {
     marginTop: 6,
