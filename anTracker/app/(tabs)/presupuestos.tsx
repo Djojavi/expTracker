@@ -1,6 +1,6 @@
 import { DrawerLayout } from '@/components/DrawerLayout';
 import { ObjPresupuestoCard } from '@/components/objPresupuestoCard';
-import { useObjetivos } from '@/hooks/useObjetivos';
+import { useObjetivos } from '@/hooks/useCuentas';
 import { useEffect, useState } from 'react';
 import { FlatList, KeyboardAvoidingView, Platform, Pressable, StyleSheet, View } from 'react-native';
 import { Cuenta } from './objetivos';
@@ -28,7 +28,7 @@ const Presupuestos = () => {
         <KeyboardAvoidingView
             style={styles.container}
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
+            keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : -500}
         >
             <DrawerLayout screenName='Presupuestos' >
                 <View style={styles.container}>
@@ -37,7 +37,7 @@ const Presupuestos = () => {
                             data={presupuestos}
                             renderItem={({ item }) => (
                                 <Pressable>
-                                    <ObjPresupuestoCard nombre={item.cuenta_nombre} descripcion={item.cuenta_descripcion ?? ''} actual={item.cuenta_actual} progreso={item.cuenta_progreso} tipo={item.cuenta_tipo} total={item.cuenta_total} seRepite={item.se_repite} frecuencia={item.cuenta_frecuencia} />
+                                    <ObjPresupuestoCard nombre={item.cuenta_nombre} descripcion={item.cuenta_descripcion ?? ''} actual={item.cuenta_actual} progreso={item.cuenta_progreso} tipo={item.cuenta_tipo} total={item.cuenta_total} seRepite={item.se_repite} frecuencia={item.cuenta_frecuencia} aMostrar='Gasto' id={item.cuenta_id} />
                                 </Pressable>
                             )}
                         />

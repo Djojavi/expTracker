@@ -297,7 +297,7 @@ const Transacciones = () => {
                 <RBSheet
                     ref={refRBSheet}
                     onOpen={() => setToNull()}
-                    height={600}
+                    height={500}
                     openDuration={300}
                     customStyles={{
                         container: {
@@ -309,59 +309,59 @@ const Transacciones = () => {
                         }
                     }}
                 >
-                                        <ScrollView showsVerticalScrollIndicator={false}>
+                    <ScrollView showsVerticalScrollIndicator={false}>
 
-                    <Text style={styles.addTransaccion}>Añadir Transacción</Text>
-                    <View style={styles.radioButtonContainer}>
-                        <View style={styles.radioButtonRow}>
-                            <RadioButton
-                                selected={tipo === 'Ingreso'}
-                                onPress={() => setTipo('Ingreso')}
-                                style={styles.radioButton}
-                            />
-                            <Text style={styles.radioText}>Ingreso</Text>
+                        <Text style={styles.addTransaccion}>Añadir Transacción</Text>
+                        <View style={styles.radioButtonContainer}>
+                            <View style={styles.radioButtonRow}>
+                                <RadioButton
+                                    selected={tipo === 'Ingreso'}
+                                    onPress={() => setTipo('Ingreso')}
+                                    style={styles.radioButton}
+                                />
+                                <Text style={styles.radioText}>Ingreso</Text>
+                            </View>
+                            <View style={styles.radioButtonRow}>
+                                <RadioButton
+                                    selected={tipo === 'Gasto'}
+                                    onPress={() => setTipo('Gasto')}
+                                    style={styles.radioButton}
+                                />
+                                <Text style={styles.radioText}>Gasto</Text>
+                            </View>
                         </View>
-                        <View style={styles.radioButtonRow}>
-                            <RadioButton
-                                selected={tipo === 'Gasto'}
-                                onPress={() => setTipo('Gasto')}
-                                style={styles.radioButton}
+                        <View style={styles.nombreContainer}>
+                            <TextInput
+                                style={styles.inputNombre}
+                                placeholder="Nombre"
+                                value={nombre}
+                                onChangeText={setNombre}
                             />
-                            <Text style={styles.radioText}>Gasto</Text>
+                            <Text style={styles.signoDolar}>$</Text>
+                            <TextInput
+                                style={styles.inputMonto}
+                                placeholder='Monto'
+                                keyboardType='numeric'
+                                value={monto}
+                                onChangeText={setMonto}
+                            />
                         </View>
-                    </View>
-                    <View style={styles.nombreContainer}>
                         <TextInput
-                            style={styles.inputNombre}
-                            placeholder="Nombre"
-                            value={nombre}
-                            onChangeText={setNombre}
+                            style={styles.input}
+                            placeholder="Descripción"
+                            value={descripcion}
+                            onChangeText={setDescripcion}
                         />
-                        <Text style={styles.signoDolar}>$</Text>
                         <TextInput
-                            style={styles.inputMonto}
-                            placeholder='Monto'
-                            keyboardType='numeric'
-                            value={monto}
-                            onChangeText={setMonto}
+                            style={styles.input}
+                            placeholder="Método eg. efectivo, transferencia"
+                            value={metodo}
+                            onChangeText={setMetodo}
                         />
-                    </View>
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Descripción"
-                        value={descripcion}
-                        onChangeText={setDescripcion}
-                    />
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Método eg. efectivo, transferencia"
-                        value={metodo}
-                        onChangeText={setMetodo}
-                    />
-                    <Text style={styles.catText}>Selecciona una categoría!</Text>
-                     <View >
+                        <Text style={styles.catText}>Selecciona una categoría!</Text>
+                        <View >
                             <Dropdown
-                                style={[styles.dropdown, isFocus && { borderColor: 'black', width:'100%' }]}
+                                style={[styles.dropdown, isFocus && { borderColor: 'black', width: '100%' }]}
                                 data={categorias}
                                 labelField="categoria_nombre"
                                 valueField="categoria_id"
@@ -382,17 +382,17 @@ const Transacciones = () => {
                                 ]}
                             />
                         </View>
-                    <TouchableOpacity style={styles.addNombreButton} onPress={() => handleAddTransaccion()}>
-                        <Text style={{ color: "#fff", textAlign: "center", fontWeight: "bold" }}>
-                            Listo!
-                        </Text>
-                    </TouchableOpacity>
+                        <TouchableOpacity style={styles.addNombreButton} onPress={() => handleAddTransaccion()}>
+                            <Text style={{ color: "#fff", textAlign: "center", fontWeight: "bold" }}>
+                                Listo!
+                            </Text>
+                        </TouchableOpacity>
                     </ScrollView>
                 </RBSheet>
 
                 <RBSheet
                     ref={updateRefRBSheet}
-                    height={600}
+                    height={500}        
                     openDuration={200}
                     customStyles={{
                         container: {

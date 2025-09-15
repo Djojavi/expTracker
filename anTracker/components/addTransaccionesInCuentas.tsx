@@ -1,0 +1,168 @@
+import { Transaccion } from "@/app/(tabs)/transacciones"
+import { useObjetivos } from "@/hooks/useCuentas"
+import { useTransacciones } from "@/hooks/useTransacciones"
+import { useEffect, useState } from "react"
+import { FlatList, Pressable, StyleSheet, Text, TextInput, View } from "react-native"
+import { TransaccionItemComponent } from "./transaccionItem"
+
+type addInCuentasProps = {
+    nombreAMostrar: string;
+    tipoAMostrar: string;
+    idCuenta: number
+}
+
+export const AddInCuentasScreen: React.FC<addInCuentasProps> = ({ tipoAMostrar, idCuenta, nombreAMostrar }) => {
+    const { getIngresos, getGastos } = useTransacciones()
+    const { updateSaldo } = useObjetivos()
+    const [transacciones, setTransacciones] = useState<Transaccion[]>([])
+    const [transaccionesSeleccionadas, setTransaccionesSeleccionadas] = useState<{ [transaccion_id: number]: { checked: boolean, monto: string } }>({});
+
+    const handleIniciar = async () => {
+        if (tipoAMostrar === "Ingreso") {
+            const data = await getIngresos()
+            setTransacciones(data)
+        } else if (tipoAMostrar === "Gasto") {
+            const data = await getGastos()
+            setTransacciones(data)
+        }
+    }
+
+    const toggleSeleccion = (id: number) => {
+        setTransaccionesSeleccionadas(prev => ({
+            ...prev,
+            [id]: { checked: !prev[id]?.checked, monto: prev[id]?.monto || "" }
+        }));
+    };
+
+
+    const handleMontoChange = (id: number, value: string) => {
+        setTransaccionesSeleccionadas(prev => ({
+            ...prev,
+            [id]: { ...prev[id], monto: value }
+        }));
+    };
+
+    const handleSubmit = async (id: number) => {
+        const monto = transaccionesSeleccionadas[id]?.monto;
+        console.log("Guardar:", { id, monto });
+        if (Number(monto) > 0) {
+            await updateSaldo(idCuenta, id, Number(monto), tipoAMostrar === 'Ingreso' ? true : false).then(res =>{
+                 handleIniciar()
+            })
+            setTransaccionesSeleccionadas(prev => {
+                const { [id]: _, ...rest } = prev;
+                return rest
+            })
+        }
+        await handleIniciar()
+    };
+
+    useEffect(() => {
+        handleIniciar();
+    }, [])
+
+    return (
+        <View style={styles.container}>
+            <Text style={styles.title}>Selecciona transacciones para añadir a {nombreAMostrar}</Text>
+            <FlatList
+                data={transacciones}
+                keyExtractor={(item) => item.transaccion_id?.toString() ?? Math.random().toString()}
+                renderItem={({ item }) => {
+                    const checked = transaccionesSeleccionadas[item.transaccion_id ?? 0]?.checked
+                    return (
+                        <Pressable
+                            onPress={() => toggleSeleccion(item.transaccion_id ?? 0)}
+                            style={[
+                                styles.card,
+                                checked ? styles.cardSelected : null
+                            ]}
+                        >
+                            <View style={styles.row}>
+                                <Text style={[styles.checkbox, checked ? styles.checkboxChecked : null]}>
+                                    {checked ? "✔" : ""}
+                                </Text>
+                                <View style={{ flex: 1 }}>
+                                    <TransaccionItemComponent
+                                        transaccion_nombre={item.transaccion_nombre}
+                                        transaccion_descripcion={item.transaccion_descripcion}
+                                        transaccion_fecha={item.transaccion_fecha}
+                                        transaccion_metodo={item.transaccion_metodo}
+                                        transaccion_monto={item.transaccion_monto}
+                                        transaccion_tipo={item.transaccion_tipo}
+                                        categoria_id={item.categoria_id}
+                                    />
+                                </View>
+                            </View>
+                            {transaccionesSeleccionadas[item.transaccion_id ?? 0]?.checked && (
+                                <TextInput
+                                    placeholder="Monto"
+                                    keyboardType="numeric"
+                                    value={transaccionesSeleccionadas[item.transaccion_id ?? 0]?.monto}
+                                    onChangeText={(value) =>
+                                        handleMontoChange(item.transaccion_id ?? 0, value)
+                                    }
+                                    onSubmitEditing={() =>
+                                        [handleSubmit(item.transaccion_id ?? 0),
+                                        console.log('fsdfsd')]
+                                    }
+                                    style={{ borderWidth: 1, padding: 6, marginTop: 4, borderRadius: 8 }}
+                                />
+                            )}
+
+                        </Pressable>
+                    )
+                }}
+                ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
+                showsVerticalScrollIndicator={false}
+            />
+        </View>
+    )
+}
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: "#f9f9f9",
+    },
+    title: {
+        fontSize: 20,
+        marginBottom: 15,
+        fontWeight: "700",
+        color: "#333",
+        textAlign: "center",
+    },
+    card: {
+        backgroundColor: "#fff",
+        borderRadius: 12,
+        padding: 12,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.08,
+        shadowRadius: 4,
+    },
+    cardSelected: {
+        backgroundColor: "#e6f7ff",
+        borderWidth: 1,
+        borderColor: "#1890ff",
+    },
+    row: {
+        flexDirection: "row",
+        alignItems: "center",
+    },
+    checkbox: {
+        width: 24,
+        height: 24,
+        borderRadius: 6,
+        borderWidth: 2,
+        borderColor: "#999",
+        textAlign: "center",
+        textAlignVertical: "center",
+        marginRight: 12,
+        fontWeight: "bold",
+        color: "#1890ff",
+    },
+    checkboxChecked: {
+        backgroundColor: "#1890ff",
+        color: "#fff",
+    },
+});

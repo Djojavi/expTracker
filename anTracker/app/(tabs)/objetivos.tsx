@@ -1,9 +1,8 @@
 import { DrawerLayout } from '@/components/DrawerLayout';
 import { ObjPresupuestoCard } from '@/components/objPresupuestoCard';
-import { useObjetivos } from '@/hooks/useObjetivos';
+import { useObjetivos } from '@/hooks/useCuentas';
 import { useEffect, useState } from 'react';
-import { FlatList, KeyboardAvoidingView, Platform, Pressable, StyleSheet, View } from 'react-native';
-
+import { FlatList, KeyboardAvoidingView, Platform, StyleSheet, View } from 'react-native';
 export type Cuenta = {
     cuenta_id: number;
     cuenta_nombre: string;
@@ -38,7 +37,7 @@ const ObjetivosScreen = () => {
         <KeyboardAvoidingView
             style={styles.container}
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
+            keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : -500}
         >
             <DrawerLayout screenName='Objetivos' >
                 <View style={styles.container}>
@@ -47,10 +46,11 @@ const ObjetivosScreen = () => {
 
                         <FlatList
                             data={objetivos}
+                            extraData={true}
                             renderItem={({ item }) => (
-                                <Pressable>
-                                    <ObjPresupuestoCard nombre={item.cuenta_nombre} descripcion={item.cuenta_descripcion ?? ''} actual={item.cuenta_actual} progreso={item.cuenta_progreso} tipo={item.cuenta_tipo} total={item.cuenta_total} seRepite={item.se_repite} frecuencia={item.cuenta_frecuencia} />
-                                </Pressable>
+                                <View>
+                                    <ObjPresupuestoCard nombre={item.cuenta_nombre} descripcion={item.cuenta_descripcion ?? ''} actual={item.cuenta_actual} progreso={item.cuenta_progreso} tipo={item.cuenta_tipo} total={item.cuenta_total} seRepite={item.se_repite} frecuencia={item.cuenta_frecuencia} aMostrar='Ingreso' id={item.cuenta_id} />
+                                </View>
                             )}
                         />
                     </View>
@@ -62,21 +62,9 @@ const ObjetivosScreen = () => {
 }
 
 const styles = StyleSheet.create({
-    dias: {
-        backgroundColor: '#fff',
-        borderRadius: 8,
-        padding: 7,
-    },
     container: {
         flex: 1,
         backgroundColor: '#E0F7FA',
-    },
-    circularTextView: {
-        width: 10,
-        height: 40,
-        borderRadius: 50,
-        marginLeft: 10,
-        marginRight: 15
     },
     flatList: {
         flex: 1,

@@ -1,16 +1,21 @@
-import { StyleSheet, Text, View } from "react-native"
-import ProgressBar from "./progressBar"
+import { useRef, useState } from "react";
+import { Pressable, StyleSheet, Text, View } from "react-native";
+import RBSheet from "react-native-raw-bottom-sheet";
+import { AddInCuentasScreen } from "./addTransaccionesInCuentas";
+import ProgressBar from "./progressBar";
 
 type ObjPresupuestoProps = {
-  descripcion: string
-  nombre: string
-  total: number
-  actual: number
-  progreso: number
-  seRepite?: number
-  frecuencia?: number
-  tipo: string
-}
+  descripcion: string;
+  nombre: string;
+  total: number;
+  actual: number;
+  progreso: number;
+  seRepite?: number;
+  frecuencia?: number;
+  tipo: string;
+  aMostrar: string;
+  id: number;
+};
 
 export const ObjPresupuestoCard: React.FC<ObjPresupuestoProps> = ({
   descripcion,
@@ -20,49 +25,92 @@ export const ObjPresupuestoCard: React.FC<ObjPresupuestoProps> = ({
   progreso,
   seRepite,
   frecuencia,
-  tipo,
+  tipo, aMostrar, id
 }) => {
+  interface RBSheetRef {
+    open: () => void;
+    close: () => void;
+  }
+  const [reloadKey, setReloadKey] = useState(0);
+
+  const refRBSheet = useRef<RBSheetRef>(null);
   return (
-    <View style={styles.card}>
-      <View style={styles.header}>
-        <View style={styles.left}>
-          <Text style={styles.title}>{nombre}</Text>
-          {descripcion ? (
-            <Text style={styles.description}>{descripcion}</Text>
-          ) : null}
+    <View >
+      <RBSheet
+        ref={refRBSheet}
+        onClose={() => console.log('dfsdf')}
+        height={500}
+        openDuration={300}
+        customStyles={{
+          container: {
+            padding: 15,
+            borderTopLeftRadius: 20,
+            borderTopRightRadius: 20,
+          }
+        }}
+      >
+        <AddInCuentasScreen key={reloadKey}
+          tipoAMostrar={aMostrar} idCuenta={id} nombreAMostrar={nombre} />
+      </RBSheet>
+      <View style={styles.card}>
+
+
+        <View style={styles.header}>
+          <View style={styles.left}>
+            <Text style={styles.title}>{nombre}</Text>
+            {descripcion ? (
+              <Text style={styles.description}>{descripcion}</Text>
+            ) : null}
+          </View>
+          <View style={styles.right}>
+            <Text
+              style={[
+                styles.percentage,
+                { color: tipo === "O" ? "#4caf50" : "#2196f3" },
+              ]}
+            >
+              {Math.round(progreso * 100)}%
+            </Text>
+          </View>
         </View>
-        <View style={styles.right}>
-          <Text style={[styles.percentage, {color: tipo === 'O'?"#4caf50" : "#2196f3" }]}>{Math.round(progreso * 100)}%</Text>
+
+        <View style={styles.progressWrapper}>
+          <ProgressBar
+            progress={progreso}
+            color={tipo === "O" ? "#4caf50" : "#2196f3"}
+            backgroundColor="#f0f0f0"
+            start={0}
+            end={total}
+            current={actual}
+            height={14}
+          />
+        </View>
+
+        {seRepite !== 0 && frecuencia ? (
+          <Text style={styles.repeatText}>
+            🔁 Se repite cada {frecuencia} semana{frecuencia > 1 ? "s" : ""}
+          </Text>
+        ) : null}
+
+        <View style={styles.buttonRow}>
+          <Pressable style={[styles.button, { backgroundColor: '#A37366' }]}>
+            <Text style={styles.buttonText}>Detalles</Text>
+          </Pressable>
+          <Pressable onPress={() => refRBSheet.current?.open()} style={[styles.button, { backgroundColor: tipo === 'O' ? "#4caf50" : "#2196f3" }]}>
+            <Text style={styles.buttonText}>Añadir</Text>
+          </Pressable>
         </View>
       </View>
-
-      <View style={styles.progressWrapper}>
-        <ProgressBar
-          progress={progreso}
-          color={tipo === "O" ? "#4caf50" : "#2196f3"} 
-          backgroundColor="#f0f0f0"
-          start={0}
-          end={total}
-          current={actual}
-          height={14}
-        />
-      </View>
-
-      {seRepite!== 0 && frecuencia ? (
-        <Text style={styles.repeatText}>
-          🔁 Se repite cada {frecuencia} semana{frecuencia > 1 ? "s" : ""}
-        </Text>
-      ) : null}
     </View>
-  )
-}
+  );
+};
 
 const styles = StyleSheet.create({
   card: {
     backgroundColor: "#fff",
     padding: 10,
-    marginVertical: 6,
-    marginHorizontal: 6,
+    marginVertical: 5,
+    marginHorizontal: 3,
     borderRadius: 12,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
@@ -105,4 +153,20 @@ const styles = StyleSheet.create({
     color: "#888",
     marginTop: 4,
   },
-})
+  buttonRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 10,
+  },
+  button: {
+    flex: 1,
+    paddingVertical: 8,
+    borderRadius: 8,
+    marginHorizontal: 4,
+    alignItems: "center",
+  },
+  buttonText: {
+    color: "#fff",
+    fontWeight: "600",
+  },
+});
