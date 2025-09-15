@@ -2,6 +2,7 @@ import { useRef } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import RBSheet from "react-native-raw-bottom-sheet";
 import { AddInCuentasScreen } from "./addTransaccionesInCuentas";
+import { DetailsObjPresupuestoComponent } from "./detailsObjPresupuesto";
 import ProgressBar from "./progressBar";
 
 type ObjPresupuestoProps = {
@@ -32,8 +33,8 @@ export const ObjPresupuestoCard: React.FC<ObjPresupuestoProps> = ({
     open: () => void;
     close: () => void;
   }
-
   const refRBSheet = useRef<RBSheetRef>(null);
+  const detailsRefRBSheet = useRef<RBSheetRef>(null);
   return (
     <View >
       <RBSheet
@@ -52,9 +53,26 @@ export const ObjPresupuestoCard: React.FC<ObjPresupuestoProps> = ({
         <AddInCuentasScreen 
           tipoAMostrar={aMostrar} idCuenta={id} nombreAMostrar={nombre} />
       </RBSheet>
+
+      <RBSheet
+        ref={detailsRefRBSheet}
+        height={650}
+        openDuration={300}
+        onClose={onCloseSheet}
+        customStyles={{
+          container: {
+            padding: 15,
+            borderTopLeftRadius: 20,
+            borderTopRightRadius: 20,
+          }
+        }}
+      >
+        <DetailsObjPresupuestoComponent 
+          tipoAMostrar={aMostrar} porcentaje={progreso} nombre={nombre} />
+      </RBSheet>
+
+
       <View style={styles.card}>
-
-
         <View style={styles.header}>
           <View style={styles.left}>
             <Text style={styles.title}>{nombre}</Text>
@@ -63,6 +81,7 @@ export const ObjPresupuestoCard: React.FC<ObjPresupuestoProps> = ({
             ) : null}
           </View>
           <View style={styles.right}>
+            <Text style={{fontSize:11, fontStyle:'italic', color:'#646464ff'}}>{tipo === "O" ? "Has ahorrado el" : "Te queda el"}</Text>
             <Text
               style={[
                 styles.percentage,
@@ -93,7 +112,7 @@ export const ObjPresupuestoCard: React.FC<ObjPresupuestoProps> = ({
         ) : null}
 
         <View style={styles.buttonRow}>
-          <Pressable style={[styles.button, { backgroundColor: '#A37366' }]}>
+          <Pressable onPress={() => detailsRefRBSheet.current?.open()} style={[styles.button, { backgroundColor: '#A37366' }]}>
             <Text style={styles.buttonText}>Detalles</Text>
           </Pressable>
           <Pressable onPress={() => refRBSheet.current?.open()} style={[styles.button, { backgroundColor: tipo === 'O' ? "#4caf50" : "#2196f3" }]}>

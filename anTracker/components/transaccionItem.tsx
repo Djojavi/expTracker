@@ -91,6 +91,7 @@ const styles = StyleSheet.create({
     },
     containerLeft: {
         justifyContent: 'flex-start',
+        width:'60%'
     },
     containerRight: {
         justifyContent: 'flex-end',

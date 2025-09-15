@@ -12,17 +12,17 @@ type addInCuentasProps = {
 }
 
 export const AddInCuentasScreen: React.FC<addInCuentasProps> = ({ tipoAMostrar, idCuenta, nombreAMostrar }) => {
-    const { getIngresos, getGastos } = useTransacciones()
+    const { getIngresos, getGastosNoPresupuestados } = useTransacciones()
     const { updateSaldo } = useObjetivos()
     const [transacciones, setTransacciones] = useState<Transaccion[]>([])
     const [transaccionesSeleccionadas, setTransaccionesSeleccionadas] = useState<{ [transaccion_id: number]: { checked: boolean, monto: string } }>({});
-
+    
     const handleIniciar = async () => {
         if (tipoAMostrar === "Ingreso") {
             const data = await getIngresos()
             setTransacciones(data)
         } else if (tipoAMostrar === "Gasto") {
-            const data = await getGastos()
+            const data = await getGastosNoPresupuestados()
             setTransacciones(data)
         }
     }
@@ -46,8 +46,8 @@ export const AddInCuentasScreen: React.FC<addInCuentasProps> = ({ tipoAMostrar, 
         const monto = transaccionesSeleccionadas[id]?.monto;
         console.log("Guardar:", { id, monto });
         if (Number(monto) > 0) {
-            await updateSaldo(idCuenta, id, Number(monto), tipoAMostrar === 'Ingreso' ? true : false).then(res =>{
-                 handleIniciar()
+            await updateSaldo(idCuenta, id, Number(monto), tipoAMostrar === 'Ingreso' ? true : false).then(res => {
+                handleIniciar()
             })
             setTransaccionesSeleccionadas(prev => {
                 const { [id]: _, ...rest } = prev;
@@ -56,6 +56,10 @@ export const AddInCuentasScreen: React.FC<addInCuentasProps> = ({ tipoAMostrar, 
         }
         await handleIniciar()
     };
+
+    const handleAddAPresupuesto = () => {
+
+    }
 
     useEffect(() => {
         handleIniciar();
@@ -93,7 +97,7 @@ export const AddInCuentasScreen: React.FC<addInCuentasProps> = ({ tipoAMostrar, 
                                     />
                                 </View>
                             </View>
-                            {transaccionesSeleccionadas[item.transaccion_id ?? 0]?.checked && (
+                            {transaccionesSeleccionadas[item.transaccion_id ?? 0]?.checked && tipoAMostrar === 'Ingreso' && (
                                 <TextInput
                                     placeholder="Monto"
                                     keyboardType="numeric"
@@ -108,8 +112,14 @@ export const AddInCuentasScreen: React.FC<addInCuentasProps> = ({ tipoAMostrar, 
                                     style={{ borderWidth: 1, padding: 6, marginTop: 4, borderRadius: 8 }}
                                 />
                             )}
+                            {transaccionesSeleccionadas[item.transaccion_id ?? 0]?.checked && tipoAMostrar === 'Gasto' && (
+                                <Pressable onPress={() => handleAddAPresupuesto()} style={{ flex: 1, paddingVertical: 8, borderRadius: 8, marginHorizontal: 4, alignItems: "center", backgroundColor: '#2195f3a9' }}>
+                                    <Text style={{ color: '#fff', fontWeight: 'bold' }}>Añadir</Text>
+                                </Pressable>
+                            )}
 
                         </Pressable>
+                        
                     )
                 }}
                 ItemSeparatorComponent={() => <View style={{ height: 8 }} />}

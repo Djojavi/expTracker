@@ -59,6 +59,10 @@ export function useTransacciones() {
         return await db.getAllAsync<Transaccion>(`SELECT * FROM Transacciones WHERE transaccion_tipo = 'Gasto' AND transaccion_fecha BETWEEN ? AND ? ORDER BY transaccion_fecha DESC`, [fechaInicio, fechaFin])
     }
 
+    const getGastosNoPresupuestados = async(): Promise<Transaccion[]> =>{
+        return await db.getAllAsync<Transaccion>(`SELECT * FROM Transacciones WHERE transaccion_tipo = 'Gasto' AND transaccion_id NOT IN (SELECT transaccion_id FROM Transaccion_cuenta)`)
+    }
+
 
     const getMontosPorCategoria = async (fechaInicio: number, fechaFin: number): Promise<MontoPorCategoria[]> => {
         return await db.getAllAsync('SELECT c.categoria_id, c.categoria_nombre, c.categoria_color,  SUM(t.transaccion_monto) AS total_monto FROM Transacciones t JOIN Categorias c ON t.categoria_id = c.categoria_id WHERE t.transaccion_fecha BETWEEN ? AND ? GROUP BY c.categoria_id, c.categoria_nombre, c.categoria_color ORDER BY total_monto DESC;', [fechaInicio, fechaFin])
@@ -78,5 +82,5 @@ export function useTransacciones() {
         return await db.getAllAsync('SELECT * FROM Transacciones where categoria_id = ? ORDER BY transaccion_fecha DESC', [categoria_id])
     }
 
-    return { addTransaccion, getTransacciones, getTransaccion, updateTransaccion, deleteTransaccion, getIngresos, getGastos, deleteTransacciones, getTransaccionExistente, getMontosPorCategoria, getTransaccionesPorFecha, getTransaccionMinimaFecha, getIngresosPorFecha, getGastosPorFecha, getTransaccionesByName, getTransaccionesByCategoria }
+    return { addTransaccion, getTransacciones, getTransaccion, updateTransaccion, deleteTransaccion, getIngresos, getGastos, deleteTransacciones, getTransaccionExistente, getMontosPorCategoria, getTransaccionesPorFecha, getTransaccionMinimaFecha, getIngresosPorFecha, getGastosPorFecha, getTransaccionesByName, getTransaccionesByCategoria, getGastosNoPresupuestados }
 }

@@ -2,9 +2,9 @@ import React, { useEffect, useRef } from 'react';
 import { Animated, StyleSheet, Text, View } from 'react-native';
 
 interface ProgressBarProps {
-  start: number;
-  end: number;  
-  current: number;
+  start?: number;
+  end?: number;  
+  current?: number;
   progress: number; 
   height?: number;
   color?: string;
