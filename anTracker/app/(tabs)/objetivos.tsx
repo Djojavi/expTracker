@@ -21,7 +21,6 @@ const ObjetivosScreen = () => {
     const [objetivos, setObjetivos] = useState<Cuenta[]>([])
 
     const initializeObjetivos = async () => {
-        console.log('llega a obj')
         try {
             const data = await getObjetivos();
             setObjetivos([...data])

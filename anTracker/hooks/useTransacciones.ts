@@ -44,6 +44,10 @@ export function useTransacciones() {
     }
 
     const getIngresos = async (): Promise<Transaccion[]> => {
+        return await db.getAllAsync<Transaccion>(`SELECT * FROM Transacciones WHERE transaccion_tipo = 'Ingreso' AND transaccion_monto != 0 ORDER BY transaccion_fecha DESC;`)
+    }
+
+    const getIngresosConMonto = async (): Promise<Transaccion[]> => {
         return await db.getAllAsync<Transaccion>(`SELECT * FROM Transacciones WHERE transaccion_tipo = 'Ingreso' ORDER BY transaccion_fecha DESC;`)
     }
 
@@ -82,5 +86,5 @@ export function useTransacciones() {
         return await db.getAllAsync('SELECT * FROM Transacciones where categoria_id = ? ORDER BY transaccion_fecha DESC', [categoria_id])
     }
 
-    return { addTransaccion, getTransacciones, getTransaccion, updateTransaccion, deleteTransaccion, getIngresos, getGastos, deleteTransacciones, getTransaccionExistente, getMontosPorCategoria, getTransaccionesPorFecha, getTransaccionMinimaFecha, getIngresosPorFecha, getGastosPorFecha, getTransaccionesByName, getTransaccionesByCategoria, getGastosNoPresupuestados }
+    return { addTransaccion, getTransacciones, getTransaccion, updateTransaccion, deleteTransaccion, getIngresos, getGastos, deleteTransacciones, getTransaccionExistente, getMontosPorCategoria, getTransaccionesPorFecha, getTransaccionMinimaFecha, getIngresosPorFecha, getIngresosConMonto, getGastosPorFecha, getTransaccionesByName, getTransaccionesByCategoria, getGastosNoPresupuestados }
 }

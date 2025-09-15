@@ -55,9 +55,12 @@ export function useObjetivos() {
         }
     };
 
+    const getDetallesCuentas = async(): Promise<any> =>{
+        return (await db.execAsync('SELECT t.transaccion_nombre, t.transaccion_fecha, tc.monto FROM Transacciones t JOIN Transaccion_cuenta tc ON t.transaccion_id= tc.transaccion_id'))
+    }
 
 
-    return { getObjetivos, getPresupuestos, updateSaldo }
+    return { getObjetivos, getPresupuestos, updateSaldo, getDetallesCuentas }
 
 }
 

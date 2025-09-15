@@ -62,7 +62,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
           },
         ]}
       >
-        <Text style={[styles.text]}>${current}</Text>
+        <Text style={[styles.text]}>{current !== 0 && current !== end ? `$${current}` : ''}</Text>
       </Animated.View>
     </View>
   );

@@ -5,93 +5,69 @@ type detailsProps = {
     tipoAMostrar: string
     porcentaje: number
     nombre: string
+    current: number
 }
-export const DetailsObjPresupuestoComponent: React.FC<detailsProps> = ({ tipoAMostrar, porcentaje, nombre }) => {
-    const renderContenido = () => {
-        const entero = porcentaje * 100
-        if (tipoAMostrar === "Ingreso") {
-            if (entero < 40) {
-                return (
-                    <View style={styles.feedbackContainer}>
-                        <Text style={styles.text}>🔮</Text>
-                        <Text style={styles.feedbackText}>
-                            Tu objetivo recién empieza
-                        </Text>
-                    </View>)
-            } else if (entero < 70) {
-                return (
-                    <View style={styles.feedbackContainer}>
-                        <Text style={styles.text}>🚀</Text>
-                        <Text style={styles.feedbackText}>
-                            ¡Vas por buen camino, sigue así!
-                        </Text>
-                    </View>)
-            } else if(entero < 100){
-                return (
-                    <View style={styles.feedbackContainer}>
-                        <Text style={styles.text}>🎇</Text>
-                        <Text style={styles.feedbackText}>
-                            ¡Recta final, ahí vamos!
-                        </Text>
-                    </View>)
-            }else {
-                return (
-                    <View style={styles.feedbackContainer}>
-                        <Text style={styles.text}>🎉</Text>
-                        <Text style={styles.feedbackText}>
-                            ¡Lo has logrado, felicidades!
-                        </Text>
-                    </View>)
-            }
-        }
+export const DetailsObjPresupuestoComponent: React.FC<detailsProps> = ({ tipoAMostrar, porcentaje, nombre, current }) => {
 
-        if (tipoAMostrar === "Gasto") {
-            if (entero > 70) {
-                return (
-                    <View style={styles.feedbackContainer}>
-                        <Text style={styles.text}>💵</Text>
-                        <Text style={styles.feedbackText}>
-                            Presupuesto casi lleno ¡Vas por buen camino!
-                        </Text>
-                    </View>)
-            } else if (entero > 40) {
-                return (
-                    <View style={styles.feedbackContainer}>
-                        <Text style={styles.text}>⚖️</Text>
-                        <Text style={styles.feedbackText}>
-                            Presupuesto controlado
-                        </Text>
-                    </View>)
-            } else if (entero > 0) {
-                return (
-                    <View style={styles.feedbackContainer}>
-                        <Text style={styles.text}>💨</Text>
-                        <Text style={styles.feedbackText}>
-                            ¡Casi agotado! Gasta con precaución
-                        </Text>
-                    </View>)
-            }
-            else {
-                return <Text style={styles.text}>🔒 Presupuesto superado</Text>;
-            }
-        }
+    
+    const entero = porcentaje * 100;
 
-        return <Text style={styles.text}>Sin datos</Text>;
-    };
+    let colorBarra = '#000';
+    let feedbackEmoji = '❔';
+    let feedbackMessage = 'Sin datos';
+
+    if (tipoAMostrar === "Ingreso") {
+        if (entero < 40) {
+            colorBarra = '#646464ff';
+            feedbackEmoji = '🔮';
+            feedbackMessage = 'Tu objetivo recién empieza';
+        } else if (entero < 70) {
+            colorBarra = '#e6cf07ff';
+            feedbackEmoji = '🚀';
+            feedbackMessage = '¡Vas por buen camino, sigue así!';
+        } else if (entero < 100) {
+            colorBarra = '#6a09b9ff';
+            feedbackEmoji = '🎇';
+            feedbackMessage = '¡Recta final, ahí vamos!';
+        } else {
+            colorBarra = '#4CAF50';
+            feedbackEmoji = '🎉';
+            feedbackMessage = '¡Lo has logrado, felicidades!';
+        }
+    } else if (tipoAMostrar === "Gasto") {
+        if (entero > 70) {
+            colorBarra = '#4CAF50';
+            feedbackEmoji = '💵';
+            feedbackMessage = 'Presupuesto casi lleno ¡Vas por buen camino!';
+        } else if (entero > 40) {
+            colorBarra = '#64B5F6';
+            feedbackEmoji = '⚖️';
+            feedbackMessage = 'Presupuesto controlado';
+        } else if (entero > 0) {
+            colorBarra = '#e6cf07ff';
+            feedbackEmoji = '💨';
+            feedbackMessage = '¡Casi agotado! Gasta con precaución';
+        } else {
+            colorBarra = '#c01414ff';
+            feedbackEmoji = '🔒';
+            feedbackMessage = 'Presupuesto superado';
+        }
+    }
 
     return (
         <View style={styles.card}>
             <View style={{ alignItems: 'center' }} >
-                <Text style={styles.title}>
-                    {nombre}
-                </Text>
-                {renderContenido()}
+                <Text style={styles.title}>{nombre}</Text>
+                <View style={styles.feedbackContainer}>
+                    <Text style={styles.text}>{feedbackEmoji}</Text>
+                    <Text style={styles.feedbackText}>{feedbackMessage}</Text>
+                </View>
             </View>
-            <ProgressBar progress={porcentaje} color={tipoAMostrar === "Ingreso" ? "#4CAF50" : "#FF5722"} />
+            <ProgressBar progress={tipoAMostrar === 'Ingreso'? porcentaje : 1-porcentaje} current={current} color={colorBarra} />
             <Text style={styles.percent}>{(porcentaje * 100).toFixed(2)}%</Text>
-
         </View>
     );
+
 }
 
 const styles = StyleSheet.create({

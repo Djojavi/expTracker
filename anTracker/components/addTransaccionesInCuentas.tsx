@@ -2,24 +2,29 @@ import { Transaccion } from "@/app/(tabs)/transacciones"
 import { useObjetivos } from "@/hooks/useCuentas"
 import { useTransacciones } from "@/hooks/useTransacciones"
 import { useEffect, useState } from "react"
-import { FlatList, Pressable, StyleSheet, Text, TextInput, View } from "react-native"
+import { Alert, FlatList, Pressable, StyleSheet, Text, TextInput, View } from "react-native"
 import { TransaccionItemComponent } from "./transaccionItem"
 
 type addInCuentasProps = {
     nombreAMostrar: string;
     tipoAMostrar: string;
     idCuenta: number
+    saldoPresupuesto: number
+    saldoObjetivo: number
 }
 
-export const AddInCuentasScreen: React.FC<addInCuentasProps> = ({ tipoAMostrar, idCuenta, nombreAMostrar }) => {
-    const { getIngresos, getGastosNoPresupuestados } = useTransacciones()
+export const AddInCuentasScreen: React.FC<addInCuentasProps> = ({ tipoAMostrar, idCuenta, nombreAMostrar, saldoPresupuesto, saldoObjetivo }) => {
+    const { getIngresosConMonto, getGastosNoPresupuestados } = useTransacciones()
     const { updateSaldo } = useObjetivos()
     const [transacciones, setTransacciones] = useState<Transaccion[]>([])
-    const [transaccionesSeleccionadas, setTransaccionesSeleccionadas] = useState<{ [transaccion_id: number]: { checked: boolean, monto: string } }>({});
-    
+    const [transaccionesSeleccionadas, setTransaccionesSeleccionadas] = useState<{
+        [transaccion_id: number]: { checked: boolean; monto: number }
+    }>({});
+
+
     const handleIniciar = async () => {
         if (tipoAMostrar === "Ingreso") {
-            const data = await getIngresos()
+            const data = await getIngresosConMonto()
             setTransacciones(data)
         } else if (tipoAMostrar === "Gasto") {
             const data = await getGastosNoPresupuestados()
@@ -30,25 +35,32 @@ export const AddInCuentasScreen: React.FC<addInCuentasProps> = ({ tipoAMostrar, 
     const toggleSeleccion = (id: number) => {
         setTransaccionesSeleccionadas(prev => ({
             ...prev,
-            [id]: { checked: !prev[id]?.checked, monto: prev[id]?.monto || "" }
+            [id]: { checked: !prev[id]?.checked, monto: prev[id]?.monto ?? 0 }
         }));
     };
 
 
     const handleMontoChange = (id: number, value: string) => {
+        const numero = Number(value);
         setTransaccionesSeleccionadas(prev => ({
             ...prev,
-            [id]: { ...prev[id], monto: value }
+            [id]: { ...prev[id], monto: isNaN(numero) ? 0 : numero }
         }));
     };
 
-    const handleSubmit = async (id: number) => {
-        const monto = transaccionesSeleccionadas[id]?.monto;
+
+    const handleSubmitPresupuestos = async (id: number, monto?: number) => {
         console.log("Guardar:", { id, monto });
         if (Number(monto) > 0) {
-            await updateSaldo(idCuenta, id, Number(monto), tipoAMostrar === 'Ingreso' ? true : false).then(res => {
-                handleIniciar()
-            })
+            if (monto !== undefined && saldoObjetivo < Number(monto)) {
+                await updateSaldo(idCuenta, id, Number(saldoObjetivo), tipoAMostrar === 'Ingreso' ? true : false).then(async res => {
+                    await handleIniciar()
+                })
+            } else {
+                await updateSaldo(idCuenta, id, Number(monto), tipoAMostrar === 'Ingreso' ? true : false).then(async res => {
+                    await handleIniciar()
+                })
+            }
             setTransaccionesSeleccionadas(prev => {
                 const { [id]: _, ...rest } = prev;
                 return rest
@@ -57,9 +69,23 @@ export const AddInCuentasScreen: React.FC<addInCuentasProps> = ({ tipoAMostrar, 
         await handleIniciar()
     };
 
-    const handleAddAPresupuesto = () => {
+    const handleSubmit = async (id: number) => {
+        const monto = transaccionesSeleccionadas[id]?.monto;
+        console.log("Guardar:", { id, monto });
+        if (Number(monto) > 0 && saldoObjetivo > Number(monto)) {
+            await updateSaldo(idCuenta, id, Number(monto), tipoAMostrar === 'Ingreso' ? true : false).then(res => {
+                handleIniciar()
+            })
+            setTransaccionesSeleccionadas(prev => {
+                const { [id]: _, ...rest } = prev;
+                return rest
+            })
+        }else{
+            Alert.alert('Error', 'Ingrese un número válido')
+        }
+        await handleIniciar()
+    };
 
-    }
 
     useEffect(() => {
         handleIniciar();
@@ -101,7 +127,7 @@ export const AddInCuentasScreen: React.FC<addInCuentasProps> = ({ tipoAMostrar, 
                                 <TextInput
                                     placeholder="Monto"
                                     keyboardType="numeric"
-                                    value={transaccionesSeleccionadas[item.transaccion_id ?? 0]?.monto}
+                                    value={transaccionesSeleccionadas[item.transaccion_id ?? 0]?.monto.toString()}
                                     onChangeText={(value) =>
                                         handleMontoChange(item.transaccion_id ?? 0, value)
                                     }
@@ -112,14 +138,27 @@ export const AddInCuentasScreen: React.FC<addInCuentasProps> = ({ tipoAMostrar, 
                                     style={{ borderWidth: 1, padding: 6, marginTop: 4, borderRadius: 8 }}
                                 />
                             )}
-                            {transaccionesSeleccionadas[item.transaccion_id ?? 0]?.checked && tipoAMostrar === 'Gasto' && (
-                                <Pressable onPress={() => handleAddAPresupuesto()} style={{ flex: 1, paddingVertical: 8, borderRadius: 8, marginHorizontal: 4, alignItems: "center", backgroundColor: '#2195f3a9' }}>
-                                    <Text style={{ color: '#fff', fontWeight: 'bold' }}>Añadir</Text>
-                                </Pressable>
-                            )}
+                            {transaccionesSeleccionadas[item.transaccion_id ?? 0]?.checked &&
+                                tipoAMostrar === 'Gasto' &&
+                                item.transaccion_monto <= saldoPresupuesto && (
+                                    <Pressable
+                                        onPress={() => handleSubmitPresupuestos(item.transaccion_id ?? 0, item.transaccion_monto)}
+                                        style={{
+                                            flex: 1,
+                                            paddingVertical: 8,
+                                            borderRadius: 8,
+                                            marginHorizontal: 4,
+                                            alignItems: "center",
+                                            backgroundColor: '#2195f3a9'
+                                        }}
+                                    >
+                                        <Text style={{ color: '#fff', fontWeight: 'bold' }}>Añadir</Text>
+                                    </Pressable>
+                                )}
+
 
                         </Pressable>
-                        
+
                     )
                 }}
                 ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
