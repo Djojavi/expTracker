@@ -13,7 +13,7 @@ const Presupuestos = () => {
     const initializePresupuestos = async () => {
         try {
             const data = await getPresupuestos();
-            setPresupuestos(data)
+            setPresupuestos([...data]);
         } catch (error) {
             console.error(error)
         }
@@ -37,7 +37,7 @@ const Presupuestos = () => {
                             data={presupuestos}
                             renderItem={({ item }) => (
                                 <Pressable>
-                                    <ObjPresupuestoCard nombre={item.cuenta_nombre} descripcion={item.cuenta_descripcion ?? ''} actual={item.cuenta_actual} progreso={item.cuenta_progreso} tipo={item.cuenta_tipo} total={item.cuenta_total} seRepite={item.se_repite} frecuencia={item.cuenta_frecuencia} aMostrar='Gasto' id={item.cuenta_id} />
+                                    <ObjPresupuestoCard nombre={item.cuenta_nombre} descripcion={item.cuenta_descripcion ?? ''} actual={item.cuenta_actual} progreso={item.cuenta_progreso} tipo={item.cuenta_tipo} total={item.cuenta_total} seRepite={item.se_repite} frecuencia={item.cuenta_frecuencia} aMostrar='Gasto' id={item.cuenta_id} onCloseSheet={initializePresupuestos}/>
                                 </Pressable>
                             )}
                         />

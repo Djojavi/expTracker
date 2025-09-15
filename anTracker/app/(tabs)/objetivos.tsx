@@ -21,9 +21,10 @@ const ObjetivosScreen = () => {
     const [objetivos, setObjetivos] = useState<Cuenta[]>([])
 
     const initializeObjetivos = async () => {
+        console.log('llega a obj')
         try {
             const data = await getObjetivos();
-            setObjetivos(data)
+            setObjetivos([...data])
         } catch (error) {
             console.error(error)
         }
@@ -49,7 +50,7 @@ const ObjetivosScreen = () => {
                             extraData={true}
                             renderItem={({ item }) => (
                                 <View>
-                                    <ObjPresupuestoCard nombre={item.cuenta_nombre} descripcion={item.cuenta_descripcion ?? ''} actual={item.cuenta_actual} progreso={item.cuenta_progreso} tipo={item.cuenta_tipo} total={item.cuenta_total} seRepite={item.se_repite} frecuencia={item.cuenta_frecuencia} aMostrar='Ingreso' id={item.cuenta_id} />
+                                    <ObjPresupuestoCard nombre={item.cuenta_nombre} descripcion={item.cuenta_descripcion ?? ''} actual={item.cuenta_actual} progreso={item.cuenta_progreso} tipo={item.cuenta_tipo} total={item.cuenta_total} seRepite={item.se_repite} frecuencia={item.cuenta_frecuencia} aMostrar='Ingreso' id={item.cuenta_id} onCloseSheet={initializeObjetivos}/>
                                 </View>
                             )}
                         />

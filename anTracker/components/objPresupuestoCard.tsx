@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import RBSheet from "react-native-raw-bottom-sheet";
 import { AddInCuentasScreen } from "./addTransaccionesInCuentas";
@@ -15,6 +15,7 @@ type ObjPresupuestoProps = {
   tipo: string;
   aMostrar: string;
   id: number;
+  onCloseSheet: () => void;
 };
 
 export const ObjPresupuestoCard: React.FC<ObjPresupuestoProps> = ({
@@ -25,22 +26,21 @@ export const ObjPresupuestoCard: React.FC<ObjPresupuestoProps> = ({
   progreso,
   seRepite,
   frecuencia,
-  tipo, aMostrar, id
+  tipo, aMostrar, id, onCloseSheet
 }) => {
   interface RBSheetRef {
     open: () => void;
     close: () => void;
   }
-  const [reloadKey, setReloadKey] = useState(0);
 
   const refRBSheet = useRef<RBSheetRef>(null);
   return (
     <View >
       <RBSheet
         ref={refRBSheet}
-        onClose={() => console.log('dfsdf')}
         height={500}
         openDuration={300}
+        onClose={onCloseSheet}
         customStyles={{
           container: {
             padding: 15,
@@ -49,7 +49,7 @@ export const ObjPresupuestoCard: React.FC<ObjPresupuestoProps> = ({
           }
         }}
       >
-        <AddInCuentasScreen key={reloadKey}
+        <AddInCuentasScreen 
           tipoAMostrar={aMostrar} idCuenta={id} nombreAMostrar={nombre} />
       </RBSheet>
       <View style={styles.card}>

@@ -38,7 +38,7 @@ export function useObjetivos() {
                         'UPDATE Cuenta SET cuenta_actual = cuenta_actual - ? WHERE cuenta_id = ?',
                         [monto, cuentaId]
                     );
-                    await db.runAsync('UPDATE Transacciones SET transaccion_monto = transaccion_monto + ? WHERE transaccion_id = ?', [monto, transaccionId])
+                    await db.runAsync('UPDATE Transacciones SET transaccion_monto = transaccion_monto - ? WHERE transaccion_id = ?', [monto, transaccionId])
                 }
 
                 await db.runAsync(
