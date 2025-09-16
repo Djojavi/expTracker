@@ -12,6 +12,10 @@ export function useObjetivos() {
 
     const db = useSQLiteContext();
 
+    const crearCuenta = async(cuenta_nombre: string, cuenta_descripcion: string, cuenta_tipo: string, cuenta_total: number) =>{
+        await db.runAsync('INSERT INTO Cuenta (cuenta_nombre, cuenta_descripcion, cuenta_tipo, cuenta_total, cuenta_actual, cuenta_progreso) VALUES (?,?,?,?,0,0)',[cuenta_nombre, cuenta_descripcion,cuenta_tipo,cuenta_total])
+    }
+
     const getObjetivos = async (): Promise<Cuenta[]> => {
         return await db.getAllAsync(`SELECT * FROM Cuenta WHERE cuenta_tipo = 'O' ORDER BY cuenta_nombre ASC`)
     }
@@ -61,7 +65,7 @@ export function useObjetivos() {
     }
 
 
-    return { getObjetivos, getPresupuestos, updateSaldo, getDetallesCuentas }
+    return { getObjetivos, getPresupuestos, updateSaldo, getDetallesCuentas, crearCuenta }
 
 }
 

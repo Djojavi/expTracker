@@ -337,14 +337,16 @@ const Transacciones = () => {
                                 value={nombre}
                                 onChangeText={setNombre}
                             />
-                            <Text style={styles.signoDolar}>$</Text>
-                            <TextInput
-                                style={styles.inputMonto}
-                                placeholder='Monto'
-                                keyboardType='numeric'
-                                value={monto}
-                                onChangeText={setMonto}
-                            />
+                            <View style={{flexDirection:'row'}}>
+                                <Text style={styles.signoDolar}>$</Text>
+                                <TextInput
+                                    style={styles.inputMonto}
+                                    placeholder='Monto'
+                                    keyboardType='numeric'
+                                    value={monto}
+                                    onChangeText={setMonto}
+                                />
+                            </View>
                         </View>
                         <TextInput
                             style={styles.input}
@@ -392,7 +394,7 @@ const Transacciones = () => {
 
                 <RBSheet
                     ref={updateRefRBSheet}
-                    height={500}        
+                    height={500}
                     openDuration={200}
                     customStyles={{
                         container: {
@@ -431,14 +433,16 @@ const Transacciones = () => {
                                 value={nombre}
                                 onChangeText={setNombre}
                             />
-                            <Text style={styles.signoDolar}>$</Text>
-                            <TextInput
-                                style={styles.inputMonto}
-                                placeholder='Monto'
-                                keyboardType='numeric'
-                                value={monto}
-                                onChangeText={setMonto}
-                            />
+                            <View style={{ flexDirection: 'row' }}>
+                                <Text style={styles.signoDolar}>$</Text>
+                                <TextInput
+                                    style={styles.inputMonto}
+                                    placeholder='Monto'
+                                    keyboardType='numeric'
+                                    value={monto}
+                                    onChangeText={setMonto}
+                                />
+                            </View>
                         </View>
                         <TextInput
                             style={styles.input}
@@ -679,14 +683,20 @@ const styles = StyleSheet.create({
         marginBottom: 10
     },
     inputMonto: {
-        fontSize: 18,
-        marginRight: 35,
-        marginTop: 1
+        color: '#000',
+        padding: 12,
+        marginVertical: 8,
+        borderRadius: 8,
+        backgroundColor: '#fff',
+        borderColor: '#ddd',
+        borderWidth: 1,
+        fontSize: 16,
     },
     signoDolar: {
         fontSize: 25,
         fontWeight: '400',
-        marginRight: 10
+        marginRight: 10,
+        top:12
     },
     circularTextView: {
         width: 10,
@@ -755,31 +765,31 @@ const styles = StyleSheet.create({
     },
     nombreContainer: {
         flexDirection: 'row',
+        justifyContent: 'space-between',
         alignItems: 'center',
         width: '100%',
         marginBottom: 8,
     },
     inputNombre: {
         color: '#000',
-        padding: 10,
-        borderRadius: 8,
-        backgroundColor: '#fff',
-        flex: 1,
-        borderColor: '#FFFFFF',
-        borderWidth: 1,
-        marginRight: 10,
-        fontSize: 18
-    },
-    input: {
-        color: '#000',
-        padding: 10,
+        padding: 12,
         marginVertical: 8,
         borderRadius: 8,
         backgroundColor: '#fff',
-        width: '100%',
-        borderColor: '#FFFFFF',
+        borderColor: '#ddd',
         borderWidth: 1,
-        fontSize: 18
+        fontSize: 16,
+        width:'60%'
+    },
+    input: {
+        color: '#000',
+        padding: 12,
+        marginVertical: 8,
+        borderRadius: 8,
+        backgroundColor: '#fff',
+        borderColor: '#ddd',
+        borderWidth: 1,
+        fontSize: 16,
     },
     addNombreButton: {
         backgroundColor: '#A37366',

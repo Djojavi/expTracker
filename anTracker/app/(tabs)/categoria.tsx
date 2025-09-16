@@ -147,14 +147,12 @@ const Categoria = () => {
           }}
         >
           <Text style={styles.addCategoria}>Actualizar Categoria</Text>
-          <View style={styles.nombreContainer}>
             <TextInput
               style={styles.inputNombre}
               placeholder="Nombre"
               value={nombre}
               onChangeText={setNombre}
             />
-          </View>
           <TextInput
             style={styles.input}
             placeholder="Descripcion"
@@ -241,14 +239,12 @@ const Categoria = () => {
           }}
         >
           <Text style={styles.addCategoria}>Añadir Categoria</Text>
-          <View style={styles.nombreContainer}>
             <TextInput
               style={styles.inputNombre}
               placeholder="Nombre"
               value={nombre}
               onChangeText={setNombre}
             />
-          </View>
           <TextInput
             style={styles.input}
             placeholder="Descripcion"
@@ -389,33 +385,27 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 20,
     overflow: 'hidden',
   },
-  nombreContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    width: '100%',
-    marginBottom: 8,
-  },
   inputNombre: {
     color: '#000',
-    padding: 10,
-    borderRadius: 8,
-    backgroundColor: '#fff',
-    flex: 1,
-    borderColor: '#FFFFFF',
-    borderWidth: 1,
-    marginRight: 10,
-    fontSize: 18
-  },
-  input: {
-    color: '#000',
-    padding: 10,
+    padding: 12,
     marginVertical: 8,
     borderRadius: 8,
     backgroundColor: '#fff',
-    width: '100%',
-    borderColor: '#FFFFFF',
+    borderColor: '#ddd',
     borderWidth: 1,
-    fontSize: 18
+    fontSize: 16,
+    width:'90%'
+  },
+  input: {
+    color: '#000',
+    padding: 12,
+    marginVertical: 8,
+    borderRadius: 8,
+    backgroundColor: '#fff',
+    borderColor: '#ddd',
+    borderWidth: 1,
+    fontSize: 16,
+    width:'90%'
   },
   addNombreButton: {
     justifyContent: 'center',

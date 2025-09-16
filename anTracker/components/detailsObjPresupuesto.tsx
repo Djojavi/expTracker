@@ -17,19 +17,19 @@ export type Detalles = {
 }
 
 export const DetailsObjPresupuestoComponent: React.FC<detailsProps> = ({ tipoAMostrar, porcentaje, nombre, current }) => {
-    const {getDetallesCuentas} = useObjetivos()
+    const { getDetallesCuentas } = useObjetivos()
     const [detalles, setDetalles] = useState<Detalles[]>()
 
-    const handleIniciarDetalles = async() =>{
+    const handleIniciarDetalles = async () => {
         const data = await getDetallesCuentas()
         setDetalles(data)
         console.log(data)
     }
 
-    useEffect(() =>{
+    useEffect(() => {
         handleIniciarDetalles()
-    },[])
-    
+    }, [])
+
     const entero = porcentaje * 100;
 
     let colorBarra = '#000';
@@ -51,7 +51,7 @@ export const DetailsObjPresupuestoComponent: React.FC<detailsProps> = ({ tipoAMo
             feedbackMessage = '¡Recta final, ahí vamos!';
         } else {
             colorBarra = '#4CAF50';
-            feedbackEmoji = '🎉';
+            feedbackEmoji = '🎯';
             feedbackMessage = '¡Lo has logrado, felicidades!';
         }
     } else if (tipoAMostrar === "Gasto") {
@@ -76,49 +76,52 @@ export const DetailsObjPresupuestoComponent: React.FC<detailsProps> = ({ tipoAMo
 
     return (
         <View >
-        <View style={styles.card}>
-            <View style={{ alignItems: 'center' }} >
-                <Text style={styles.title}>{nombre}</Text>
-                <View style={styles.feedbackContainer}>
-                    <Text style={styles.text}>{feedbackEmoji}</Text>
-                    <Text style={styles.feedbackText}>{feedbackMessage}</Text>
+            <View style={styles.card}>
+                <View style={{ alignItems: 'center' }} >
+                    <Text style={styles.title}>{nombre}</Text>
+                    <View style={styles.feedbackContainer}>
+                        <Text style={styles.text}>{feedbackEmoji}</Text>
+                        <Text style={styles.feedbackText}>{feedbackMessage}</Text>
+                    </View>
                 </View>
+                <ProgressBar progress={tipoAMostrar === 'Ingreso' ? porcentaje : 1 - porcentaje} current={current} color={colorBarra} />
+                <Text style={styles.percent}>{(porcentaje * 100).toFixed(2)}%</Text>
             </View>
-            <ProgressBar progress={tipoAMostrar === 'Ingreso'? porcentaje : 1-porcentaje} current={current} color={colorBarra} />
-            <Text style={styles.percent}>{(porcentaje * 100).toFixed(2)}%</Text>
-        </View>
-            <FlatList data={detalles} renderItem={({item}) => (
-                 <View style={styles.item}>
-                            <View style={styles.itemContent}>
-                                <View style={styles.containerLeft}>
-                                    <Text style={styles.title}>{item.transaccion_nombre}</Text>
-                                    <View>
-                                        <Text>{formatDate(item.transaccion_fecha)}</Text>
-                                    </View>
-                                </View>
-                                <View style={styles.containerRight}>
-                                    {tipoAMostrar ? (
-                                        <Text
-                                            style={
-                                                tipoAMostrar === 'Ingreso'
-                                                    ? styles.montoIngreso
-                                                    : tipoAMostrar === 'Gasto'
-                                                        ? styles.montoGasto
-                                                        : styles.montoDefault
-                                            }
-                                        >
-                                            {tipoAMostrar === 'Ingreso'
-                                                ? `+$${item.tc_monto.toFixed(2)}`
-                                                : tipoAMostrar === 'Gasto'
-                                                    ? `-$${item.tc_monto.toFixed(2)}`
-                                                    : `$${item.tc_monto.toFixed(2)}`}
-                                        </Text>
-                
-                                    ) : null}                
+            <FlatList data={detalles}
+                windowSize={5} onEndReached={handleIniciarDetalles}
+                onEndReachedThreshold={0.5}
+                initialNumToRender={5} maxToRenderPerBatch={5} renderItem={({ item }) => (
+                    <View style={styles.item}>
+                        <View style={styles.itemContent}>
+                            <View style={styles.containerLeft}>
+                                <Text style={styles.title}>{item.transaccion_nombre}</Text>
+                                <View>
+                                    <Text>{formatDate(item.transaccion_fecha)}</Text>
                                 </View>
                             </View>
+                            <View style={styles.containerRight}>
+                                {tipoAMostrar ? (
+                                    <Text
+                                        style={
+                                            tipoAMostrar === 'Ingreso'
+                                                ? styles.montoIngreso
+                                                : tipoAMostrar === 'Gasto'
+                                                    ? styles.montoGasto
+                                                    : styles.montoDefault
+                                        }
+                                    >
+                                        {tipoAMostrar === 'Ingreso'
+                                            ? `+$${item.tc_monto.toFixed(2)}`
+                                            : tipoAMostrar === 'Gasto'
+                                                ? `-$${item.tc_monto.toFixed(2)}`
+                                                : `$${item.tc_monto.toFixed(2)}`}
+                                    </Text>
+
+                                ) : null}
+                            </View>
                         </View>
-            )}></FlatList>
+                    </View>
+                )}></FlatList>
         </View>
     );
 
@@ -181,7 +184,7 @@ const styles = StyleSheet.create({
     },
     containerLeft: {
         justifyContent: 'flex-start',
-        width:'60%'
+        width: '60%'
     },
     containerRight: {
         justifyContent: 'flex-end',
