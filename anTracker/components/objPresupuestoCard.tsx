@@ -64,6 +64,7 @@ export const ObjPresupuestoCard: React.FC<ObjPresupuestoProps> = ({
             padding: 15,
             borderTopLeftRadius: 20,
             borderTopRightRadius: 20,
+            backgroundColor:'#E0F7FA'
           }
         }}
       >
@@ -105,11 +106,11 @@ export const ObjPresupuestoCard: React.FC<ObjPresupuestoProps> = ({
           />
         </View>
 
-        {seRepite !== 0 && frecuencia ? (
+        {/* {seRepite !== 0 && frecuencia ? (
           <Text style={styles.repeatText}>
             🔁 Se repite cada {frecuencia} semana{frecuencia > 1 ? "s" : ""}
           </Text>
-        ) : null}
+        ) : null} */}
 
         <View style={styles.buttonRow}>
           <Pressable onPress={() => detailsRefRBSheet.current?.open()} style={[styles.button, { backgroundColor: '#A37366' }]}>

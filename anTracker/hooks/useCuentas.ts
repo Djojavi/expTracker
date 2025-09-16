@@ -1,4 +1,5 @@
 import { Cuenta } from '@/app/(tabs)/objetivos';
+import { Detalles } from '@/components/detailsObjPresupuesto';
 import { useSQLiteContext } from 'expo-sqlite';
 import { Alert } from 'react-native';
 
@@ -55,8 +56,8 @@ export function useObjetivos() {
         }
     };
 
-    const getDetallesCuentas = async(): Promise<any> =>{
-        return (await db.execAsync('SELECT t.transaccion_nombre, t.transaccion_fecha, tc.monto FROM Transacciones t JOIN Transaccion_cuenta tc ON t.transaccion_id= tc.transaccion_id'))
+    const getDetallesCuentas = async(): Promise<Detalles[]> =>{
+        return await db.getAllAsync('SELECT t.transaccion_nombre, t.transaccion_fecha, tc.tc_monto FROM Transacciones t JOIN Transaccion_cuenta tc ON t.transaccion_id= tc.transaccion_id ORDER BY t.transaccion_fecha DESC')
     }
 
 
