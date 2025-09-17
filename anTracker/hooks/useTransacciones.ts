@@ -5,6 +5,14 @@ import { useSQLiteContext } from 'expo-sqlite';
 export function useTransacciones() {
     const db = useSQLiteContext();
 
+    const getBalance = async (): Promise<number> => {
+        const result = await db.getAllAsync<{balance: number}>(
+            `SELECT COALESCE(SUM(CASE WHEN transaccion_tipo = 'Ingreso' THEN transaccion_monto END), 0) - COALESCE(SUM(CASE WHEN transaccion_tipo = 'Gasto' THEN transaccion_monto END), 0) AS balance FROM Transacciones`);
+
+        return result[0]?.balance ?? 0;
+    };
+
+
     const addTransaccion = async (transaccion: Transaccion) => {
         await db.runAsync(
             'INSERT INTO Transacciones (categoria_id, transaccion_monto, transaccion_nombre, transaccion_metodo, transaccion_fecha, transaccion_descripcion, transaccion_tipo) VALUES (?,?,?,?,?,?,?)', [transaccion.categoria_id, transaccion.transaccion_monto, transaccion.transaccion_nombre, transaccion.transaccion_metodo, transaccion.transaccion_fecha, transaccion.transaccion_descripcion, transaccion.transaccion_tipo]
@@ -63,7 +71,7 @@ export function useTransacciones() {
         return await db.getAllAsync<Transaccion>(`SELECT * FROM Transacciones WHERE transaccion_tipo = 'Gasto' AND transaccion_fecha BETWEEN ? AND ? ORDER BY transaccion_fecha DESC`, [fechaInicio, fechaFin])
     }
 
-    const getGastosNoPresupuestados = async(): Promise<Transaccion[]> =>{
+    const getGastosNoPresupuestados = async (): Promise<Transaccion[]> => {
         return await db.getAllAsync<Transaccion>(`SELECT * FROM Transacciones WHERE transaccion_tipo = 'Gasto' AND transaccion_id NOT IN (SELECT transaccion_id FROM Transaccion_cuenta)`)
     }
 
@@ -86,5 +94,5 @@ export function useTransacciones() {
         return await db.getAllAsync('SELECT * FROM Transacciones where categoria_id = ? ORDER BY transaccion_fecha DESC', [categoria_id])
     }
 
-    return { addTransaccion, getTransacciones, getTransaccion, updateTransaccion, deleteTransaccion, getIngresos, getGastos, deleteTransacciones, getTransaccionExistente, getMontosPorCategoria, getTransaccionesPorFecha, getTransaccionMinimaFecha, getIngresosPorFecha, getIngresosConMonto, getGastosPorFecha, getTransaccionesByName, getTransaccionesByCategoria, getGastosNoPresupuestados }
+    return { addTransaccion, getTransacciones, getTransaccion, updateTransaccion, deleteTransaccion, getIngresos, getGastos, deleteTransacciones, getTransaccionExistente, getMontosPorCategoria, getTransaccionesPorFecha, getTransaccionMinimaFecha, getIngresosPorFecha, getIngresosConMonto, getGastosPorFecha, getTransaccionesByName, getTransaccionesByCategoria, getGastosNoPresupuestados, getBalance }
 }

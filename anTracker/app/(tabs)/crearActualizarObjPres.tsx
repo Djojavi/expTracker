@@ -1,6 +1,7 @@
 import { useObjetivos } from "@/hooks/useCuentas"
-import { useState } from "react"
-import { Pressable, StyleSheet, Text, TextInput, View } from "react-native"
+import { useTransacciones } from "@/hooks/useTransacciones"
+import { useEffect, useState } from "react"
+import { Alert, Pressable, StyleSheet, Text, TextInput, View } from "react-native"
 
 type CrearActualizarObjPresProps = {
     esCrear: boolean
@@ -8,23 +9,40 @@ type CrearActualizarObjPresProps = {
 }
 
 export const CrearActualizarObjPres: React.FC<CrearActualizarObjPresProps> = ({ esCrear, esObjetivo }) => {
-    const {crearCuenta} = useObjetivos()
+    const { crearCuenta } = useObjetivos()
+    const { getBalance } = useTransacciones()
     const [cuenta_nombre, setCuenta_nombre] = useState('')
     const [cuenta_descripcion, setCuenta_descripcion] = useState('')
-    const [cuenta_monto, setCuenta_monto] = useState('') 
+    const [cuenta_monto, setCuenta_monto] = useState('')
+    const [balance, setBalance] = useState(0)
 
-    const handleAdd = () =>{
-        if(cuenta_nombre && cuenta_descripcion && cuenta_monto){
-            if(esObjetivo){
-                crearCuenta(cuenta_nombre,cuenta_descripcion,'O',Number(cuenta_monto))
-            }else{
-                crearCuenta(cuenta_nombre,cuenta_descripcion,'P',Number(cuenta_monto))
+    const initializeBalance = async () => {
+        const data = await getBalance()
+        setBalance(data)
+    }
+
+    useEffect(() => {
+        initializeBalance()
+    }, [])
+
+    const handleAdd = () => {
+        if (cuenta_nombre && cuenta_descripcion && cuenta_monto) {
+            if (esObjetivo) {
+                crearCuenta(cuenta_nombre, cuenta_descripcion, 'O', Number(cuenta_monto))
+                Alert.prompt('Objetivo creado exitosamente')
+            } else {
+                if (Number(cuenta_monto) > balance) {
+                    Alert.alert('Error', 'Este presupuesto excede tu balance actual!')
+                } else {
+                    crearCuenta(cuenta_nombre, cuenta_descripcion, 'P', Number(cuenta_monto))
+                    Alert.prompt('Presupuesto creado exitosamente')
+                }
             }
             setToNull()
         }
-
     }
-    const setToNull = () =>{
+
+    const setToNull = () => {
         setCuenta_descripcion('')
         setCuenta_monto('')
         setCuenta_nombre('')
@@ -35,6 +53,13 @@ export const CrearActualizarObjPres: React.FC<CrearActualizarObjPresProps> = ({ 
             <Text style={styles.title}>
                 {esCrear ? 'Nuevo' : 'Actualizar'}{esObjetivo ? ' Objetivo' : ' Presupuesto'}
             </Text>
+
+            {!esObjetivo &&
+                <View style={{ alignItems: 'center', marginBottom: 10 }}>
+                    <Text style={{ fontSize: 16, fontStyle: 'italic' }}>Tu saldo actual es:</Text>
+                    <Text style={{ fontSize: 24, fontWeight: '500' }}>{balance} </Text>
+                </View>
+            }
 
             <TextInput
                 style={styles.input}
@@ -89,7 +114,7 @@ const styles = StyleSheet.create({
     },
     textArea: {
         height: 80,
-        textAlignVertical: 'top', 
+        textAlignVertical: 'top',
     },
     addButton: {
         backgroundColor: '#A37366',

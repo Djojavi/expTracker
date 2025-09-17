@@ -60,8 +60,8 @@ export function useObjetivos() {
         }
     };
 
-    const getDetallesCuentas = async(): Promise<Detalles[]> =>{
-        return await db.getAllAsync('SELECT t.transaccion_nombre, t.transaccion_fecha, tc.tc_monto FROM Transacciones t JOIN Transaccion_cuenta tc ON t.transaccion_id= tc.transaccion_id ORDER BY t.transaccion_fecha DESC')
+    const getDetallesCuentas = async(id_cuenta: number): Promise<Detalles[]> =>{
+        return await db.getAllAsync('SELECT t.transaccion_nombre, t.transaccion_fecha, tc.tc_monto FROM Transacciones t JOIN Transaccion_cuenta tc ON t.transaccion_id = tc.transaccion_id WHERE tc.cuenta_id = ? ORDER BY t.transaccion_fecha DESC',[id_cuenta])
     }
 
 

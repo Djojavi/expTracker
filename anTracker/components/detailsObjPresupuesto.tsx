@@ -9,6 +9,7 @@ type detailsProps = {
     porcentaje: number
     nombre: string
     current: number
+    idCuenta: number
 }
 export type Detalles = {
     transaccion_nombre: string
@@ -16,12 +17,12 @@ export type Detalles = {
     tc_monto: number
 }
 
-export const DetailsObjPresupuestoComponent: React.FC<detailsProps> = ({ tipoAMostrar, porcentaje, nombre, current }) => {
+export const DetailsObjPresupuestoComponent: React.FC<detailsProps> = ({ tipoAMostrar, porcentaje, nombre, current,idCuenta }) => {
     const { getDetallesCuentas } = useObjetivos()
     const [detalles, setDetalles] = useState<Detalles[]>()
 
     const handleIniciarDetalles = async () => {
-        const data = await getDetallesCuentas()
+        const data = await getDetallesCuentas(idCuenta)
         setDetalles(data)
         console.log(data)
     }

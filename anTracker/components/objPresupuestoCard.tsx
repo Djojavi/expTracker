@@ -69,7 +69,7 @@ export const ObjPresupuestoCard: React.FC<ObjPresupuestoProps> = ({
         }}
       >
         <DetailsObjPresupuestoComponent 
-          tipoAMostrar={aMostrar} porcentaje={progreso} nombre={nombre} current={actual} />
+          tipoAMostrar={aMostrar} idCuenta={id} porcentaje={progreso} nombre={nombre} current={actual} />
       </RBSheet>
 
 

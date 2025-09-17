@@ -1,14 +1,21 @@
 import { DrawerLayout } from '@/components/DrawerLayout';
 import { ObjPresupuestoCard } from '@/components/objPresupuestoCard';
 import { useObjetivos } from '@/hooks/useCuentas';
-import { useEffect, useState } from 'react';
-import { FlatList, KeyboardAvoidingView, Platform, Pressable, StyleSheet, View } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { FlatList, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import RBSheet from 'react-native-raw-bottom-sheet';
+import { CrearActualizarObjPres } from './crearActualizarObjPres';
 import { Cuenta } from './objetivos';
 
 //Pantalla con los presupuestos del usuario
 const Presupuestos = () => {
     const { getPresupuestos } = useObjetivos();
     const [presupuestos, setPresupuestos] = useState<Cuenta[]>([])
+    interface RBSheetRef {
+        open: () => void;
+        close: () => void;
+    }
+    const refRBSheet = useRef<RBSheetRef>(null);
 
     const initializePresupuestos = async () => {
         try {
@@ -31,18 +38,36 @@ const Presupuestos = () => {
             keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : -500}
         >
             <DrawerLayout screenName='Presupuestos' >
+                <RBSheet ref={refRBSheet}
+                    height={450}
+                    openDuration={300}
+                    customStyles={{
+                        container: {
+                            padding: 15,
+                            borderTopLeftRadius: 20,
+                            borderTopRightRadius: 20,
+                        }
+                    }} >
+                    <CrearActualizarObjPres esObjetivo={false} esCrear={true}></CrearActualizarObjPres>
+                </RBSheet>
+
                 <View style={styles.container}>
                     <View style={styles.content}>
                         <FlatList
                             data={presupuestos}
                             renderItem={({ item }) => (
                                 <Pressable>
-                                    <ObjPresupuestoCard nombre={item.cuenta_nombre} descripcion={item.cuenta_descripcion ?? ''} actual={item.cuenta_actual} progreso={item.cuenta_progreso} tipo={item.cuenta_tipo} total={item.cuenta_total} seRepite={item.se_repite} frecuencia={item.cuenta_frecuencia} aMostrar='Gasto' id={item.cuenta_id} onCloseSheet={initializePresupuestos}/>
+                                    <ObjPresupuestoCard nombre={item.cuenta_nombre} descripcion={item.cuenta_descripcion ?? ''} actual={item.cuenta_actual} progreso={item.cuenta_progreso} tipo={item.cuenta_tipo} total={item.cuenta_total} seRepite={item.se_repite} frecuencia={item.cuenta_frecuencia} aMostrar='Gasto' id={item.cuenta_id} onCloseSheet={initializePresupuestos} />
                                 </Pressable>
                             )}
                         />
                     </View>
 
+                </View>
+                <View style={styles.btnContainer}>
+                    <Pressable style={styles.button} onPress={() => refRBSheet.current?.open()} >
+                        <Text style={styles.icon}>+</Text>
+                    </Pressable>
                 </View>
             </DrawerLayout>
         </KeyboardAvoidingView>
@@ -108,6 +133,30 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: '#757575',
         marginTop: 5,
+    },
+    btnContainer: {
+        position: "absolute",
+        bottom: 60,
+        right: 20,
+        zIndex: 999,
+    },
+    button: {
+        backgroundColor: "#A37366",
+        width: 60,
+        height: 60,
+        borderRadius: 30,
+        justifyContent: "center",
+        alignItems: "center",
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.3,
+        shadowRadius: 3,
+        elevation: 5,
+    },
+    icon: {
+        color: "#fff",
+        fontSize: 30,
+        fontWeight: "bold",
     },
 })
 
