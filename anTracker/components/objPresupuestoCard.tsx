@@ -51,7 +51,7 @@ export const ObjPresupuestoCard: React.FC<ObjPresupuestoProps> = ({
         }}
       >
         <AddInCuentasScreen 
-          tipoAMostrar={aMostrar} idCuenta={id} nombreAMostrar={nombre} saldoPresupuesto={actual} saldoObjetivo={total-actual}  />
+          tipoAMostrar={aMostrar} idCuenta={id} nombreAMostrar={nombre} saldoPresupuesto={total+actual} saldoObjetivo={total-actual}  />
       </RBSheet>
 
       <RBSheet
@@ -89,19 +89,19 @@ export const ObjPresupuestoCard: React.FC<ObjPresupuestoProps> = ({
                 { color: tipo === "O" ? "#4caf50" : "#2196f3" },
               ]}
             >
-              {Math.round(progreso * 100)}%
+              {tipo =="O" ? Math.round(progreso * 100): Math.round(100+progreso * 100) }%
             </Text>
           </View>
         </View>
 
         <View style={styles.progressWrapper}>
           <ProgressBar
-            progress={tipo=="O" ? progreso: 1-progreso}
+            progress={tipo=="O" ? progreso: 1+progreso}
             color={tipo === "O" ? "#4caf50" : "#2196f3"}
             backgroundColor="#f0f0f0"
             start={0}
             end={total}
-            current={actual}
+            current={tipo=="O" ? actual: -total -actual}
             height={14}
           />
         </View>

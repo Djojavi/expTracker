@@ -3,9 +3,9 @@ import { Animated, StyleSheet, Text, View } from 'react-native';
 
 interface ProgressBarProps {
   start?: number;
-  end?: number;  
-  current?: number;
-  progress: number; 
+  end?: number;
+  current?: number | 0;
+  progress: number;
   height?: number;
   color?: string;
   backgroundColor?: string;
@@ -49,6 +49,9 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
       <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
         <Text style={styles.text}>${start}</Text>
         <Text style={styles.text}>${end}</Text>
+        {/* <Text>total: {end} </Text>
+        <Text>progress: {progress} </Text>
+        <Text>actual: {current} </Text>  */}
       </View>
 
       <Animated.View
@@ -62,7 +65,12 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
           },
         ]}
       >
-        <Text style={[styles.text]}>{current !== 0 && current !== end ? `$${current}` : ''}</Text>
+        {color === '#4caf50' &&
+          <Text style={[styles.text]}>{current !== 0 && current !== end ? `$${current}` : ''}</Text>}
+        {color === '#2196f3' &&
+          <Text style={styles.text}>
+            {(current ?? 0) !== 0 && (current ?? 0) !== -(end ??0) ? `$${-(current ?? 0)}` : ''}
+          </Text>}
       </Animated.View>
     </View>
   );
@@ -70,7 +78,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    marginTop:10,
+    marginTop: 10,
     width: '100%',
     borderRadius: 12,
     overflow: 'hidden',
@@ -86,11 +94,11 @@ const styles = StyleSheet.create({
   currentWrapper: {
     position: 'absolute',
     top: 25,
-    transform: [{ translateX: -15 }], 
+    transform: [{ translateX: -15 }],
   },
   text: {
     color: '#7c7c7cff',
-    fontSize:12
+    fontSize: 12
   },
 });
 

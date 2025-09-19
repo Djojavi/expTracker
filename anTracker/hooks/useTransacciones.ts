@@ -6,12 +6,57 @@ export function useTransacciones() {
     const db = useSQLiteContext();
 
     const getBalance = async (): Promise<number> => {
-        const result = await db.getAllAsync<{balance: number}>(
-            `SELECT COALESCE(SUM(CASE WHEN transaccion_tipo = 'Ingreso' THEN transaccion_monto END), 0) - COALESCE(SUM(CASE WHEN transaccion_tipo = 'Gasto' THEN transaccion_monto END), 0) AS balance FROM Transacciones`);
+        const result = await db.getAllAsync<{ balance: number }>(
+            `SELECT COALESCE(
+            (SELECT SUM(transaccion_monto) FROM Transacciones WHERE transaccion_tipo = 'Ingreso'), 0)
+        - COALESCE(
+            (SELECT SUM(transaccion_monto) FROM Transacciones WHERE transaccion_tipo = 'Gasto'),0)
+        - COALESCE(
+            (SELECT SUM(cuenta_total)FROM Cuenta WHERE cuenta_progreso < 1 AND cuenta_tipo = 'P'),0) AS balance;
+        `);
 
         return result[0]?.balance ?? 0;
     };
 
+    const getIngresoBalance = async (): Promise<number> => {
+        const result = await db.getAllAsync<{ balance: number }>(
+            `SELECT COALESCE(SUM(transaccion_monto), 0) AS balance 
+         FROM Transacciones 
+         WHERE transaccion_tipo = 'Ingreso'`
+        )
+        return result[0].balance ?? 0
+    }
+
+    const getGastoBalance = async (): Promise<number> => {
+        const result = await db.getAllAsync<{ balance: number }>(
+            `SELECT COALESCE(SUM(transaccion_monto), 0) AS balance 
+         FROM Transacciones 
+         WHERE transaccion_tipo = 'Gasto'`
+        )
+        return result[0].balance ?? 0
+    }
+
+    const getIngresosGastosPorFecha = async (
+        fechaInicio: number,
+        fechaFin: number
+    ): Promise<{ ingresos: number; gastos: number }> => {
+        const result = await db.getAllAsync<{
+            ingresos: number;
+            gastos: number;
+        }>(
+            `SELECT 
+        COALESCE(SUM(CASE WHEN transaccion_tipo = 'Ingreso' THEN transaccion_monto END), 0) AS ingresos,
+        COALESCE(SUM(CASE WHEN transaccion_tipo = 'Gasto' THEN transaccion_monto END), 0) AS gastos
+     FROM Transacciones
+     WHERE transaccion_fecha BETWEEN ? AND ?`,
+            [fechaInicio, fechaFin]
+        );
+
+        return {
+            ingresos: result[0].ingresos ?? 0,
+            gastos: result[0].gastos ?? 0,
+        };
+    };
 
     const addTransaccion = async (transaccion: Transaccion) => {
         await db.runAsync(
@@ -87,12 +132,51 @@ export function useTransacciones() {
             'SELECT * FROM Transacciones WHERE transaccion_nombre LIKE ? OR transaccion_descripcion LIKE ? ORDER BY transaccion_fecha DESC',
             [searchTerm, searchTerm]
         );
-
-
     };
+
+    const getIngresosYGastosByName = async (texto: string): Promise<{ ingBalance: number; gastoBalance: number }> => {
+        const searchTerm = `%${texto}%`;
+        const result = await db.getAllAsync<{ ingBalance: number; gastoBalance: number; }>(
+            `SELECT 
+                COALESCE(SUM(CASE WHEN transaccion_tipo = 'Ingreso' THEN transaccion_monto END), 0) AS ingBalance,
+                COALESCE(SUM(CASE WHEN transaccion_tipo = 'Gasto' THEN transaccion_monto END), 0) AS gastoBalance
+            FROM Transacciones
+            WHERE transaccion_nombre LIKE ? OR transaccion_descripcion LIKE ?`,
+            [searchTerm, searchTerm]
+        );
+
+        return {
+            ingBalance: result[0].ingBalance ?? 0,
+            gastoBalance: result[0].gastoBalance ?? 0,
+        };
+    };
+
     const getTransaccionesByCategoria = async (categoria_id: number): Promise<Transaccion[]> => {
         return await db.getAllAsync('SELECT * FROM Transacciones where categoria_id = ? ORDER BY transaccion_fecha DESC', [categoria_id])
     }
 
-    return { addTransaccion, getTransacciones, getTransaccion, updateTransaccion, deleteTransaccion, getIngresos, getGastos, deleteTransacciones, getTransaccionExistente, getMontosPorCategoria, getTransaccionesPorFecha, getTransaccionMinimaFecha, getIngresosPorFecha, getIngresosConMonto, getGastosPorFecha, getTransaccionesByName, getTransaccionesByCategoria, getGastosNoPresupuestados, getBalance }
+    const getIngresosYGastosByCategoria = async (
+        categoria_id: number
+    ): Promise<{ ingBalance: number; gastoBalance: number }> => {
+        const result = await db.getAllAsync<{
+            ingBalance: number;
+            gastoBalance: number;
+        }>(
+            `SELECT 
+                COALESCE(SUM(CASE WHEN transaccion_tipo = 'Ingreso' THEN transaccion_monto END), 0) AS ingBalance,
+                COALESCE(SUM(CASE WHEN transaccion_tipo = 'Gasto' THEN transaccion_monto END), 0) AS gastoBalance
+            FROM Transacciones
+            WHERE categoria_id = ?`,
+            [categoria_id]
+        );
+
+        return {
+            ingBalance: result[0].ingBalance ?? 0,
+            gastoBalance: result[0].gastoBalance ?? 0,
+        };
+    };
+
+
+
+    return { addTransaccion, getTransacciones, getTransaccion, updateTransaccion, deleteTransaccion, getIngresos, getGastos, deleteTransacciones, getTransaccionExistente, getMontosPorCategoria, getTransaccionesPorFecha, getTransaccionMinimaFecha, getIngresosPorFecha, getIngresosConMonto, getGastosPorFecha, getTransaccionesByName, getTransaccionesByCategoria, getGastosNoPresupuestados, getBalance, getIngresoBalance, getGastoBalance, getIngresosGastosPorFecha, getIngresosYGastosByCategoria,getIngresosYGastosByName }
 }

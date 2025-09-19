@@ -58,7 +58,7 @@ const ObjetivosScreen = () => {
                             borderTopRightRadius: 20,
                         }
                     }} >
-                    <CrearActualizarObjPres esObjetivo={true} esCrear={true}></CrearActualizarObjPres>
+                    <CrearActualizarObjPres onCloseSheet={initializeObjetivos} esObjetivo={true} esCrear={true}></CrearActualizarObjPres>
                 </RBSheet>
                 
                 <View style={styles.container}>

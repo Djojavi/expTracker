@@ -4,6 +4,7 @@ import { DrawerLayout } from '@/components/DrawerLayout';
 import { SearchExpandable } from '@/components/searchBar';
 import { TransaccionItemComponent } from '@/components/transaccionItem';
 import { useCategorias } from '@/hooks/useCategorias';
+import { useObjetivos } from '@/hooks/useCuentas';
 import { useTransacciones } from '@/hooks/useTransacciones';
 import { Link } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
@@ -65,7 +66,8 @@ const Transacciones = () => {
     const [categorias, setCategorias] = useState<Categoria[]>([]);
 
     let isMounted = true;
-    const { addTransaccion, getTransacciones, getTransaccion, updateTransaccion, deleteTransaccion, getTransaccionesPorFecha, getTransaccionesByName, getTransaccionesByCategoria } = useTransacciones();
+    const { addTransaccion, getTransacciones, getTransaccion, updateTransaccion, deleteTransaccion, getTransaccionesPorFecha, getTransaccionesByName, getTransaccionesByCategoria, getIngresoBalance, getGastoBalance, getBalance, getIngresosGastosPorFecha, getIngresosYGastosByCategoria, getIngresosYGastosByName } = useTransacciones();
+    const { getPresupuestadoBalance } = useObjetivos();
     const [transacciones, setTransacciones] = useState<Transaccion[]>([]);
     const [nombre, setNombre] = useState('');
     const [descripcion, setDescripcion] = useState('');
@@ -76,6 +78,7 @@ const Transacciones = () => {
     const [categoria, setCategoria] = useState('');
     const [balance, setBalance] = useState(0);
     const [ingresos, setIngresos] = useState(0);
+    const [presupuestado, setPresupuestado] = useState(0);
     const [gastos, setGastos] = useState(0);
     const [transaccionesFiltradas, setTransaccionesFiltradas] = useState<Transaccion[]>([]);
     const [idActualizar, setIdActualizar] = useState(0);
@@ -86,11 +89,15 @@ const Transacciones = () => {
         setRango({ inicio, fin });
         try {
             const data = await getTransaccionesPorFecha(inicio, fin);
+            const { ingresos, gastos } = await getIngresosGastosPorFecha(inicio, fin)
+            setIngresos(ingresos)
+            setGastos(gastos)
+            setBalance(ingresos - gastos)
+            setPresupuestado(0)
             if (isMounted) {
                 setTransacciones(data);
                 setTransaccionesFiltradas(data);
             }
-            calcularBalance(data);
         } catch (error) {
             console.error("Error:", error);
         }
@@ -99,10 +106,24 @@ const Transacciones = () => {
     const buscarPorCategorias = async (ids: number[]) => {
         try {
             const resultados = await Promise.all(ids.map(id => getTransaccionesByCategoria(id)))
+            const results = await Promise.all(ids.map(id => getIngresosYGastosByCategoria(id)));
+            const total = results.reduce(
+                (acc, curr) => {
+                    acc.ingresos += curr.ingBalance;
+                    acc.gastos += curr.gastoBalance;
+                    return acc;
+                },
+                { ingresos: 0, gastos: 0 }
+            );
+            setIngresos(total.ingresos)
+            setGastos(total.gastos)
+            setBalance(total.ingresos - total.gastos)
+            setPresupuestado(0)
+
             const todasTransacciones = resultados.flat()
             setTransacciones(todasTransacciones)
             setTransaccionesFiltradas(todasTransacciones)
-            calcularBalance(todasTransacciones)
+            //calcularBalance()
             if (ids.includes(0) || ids.length === 0) {
                 initializeTransacciones();
             }
@@ -115,9 +136,14 @@ const Transacciones = () => {
     const handleSubmitNombre = async (nombre: string) => {
         try {
             const data = await getTransaccionesByName(nombre);
+            const results = await getIngresosYGastosByName(nombre);
+            setIngresos(results.ingBalance)
+            setGastos(results.gastoBalance)
+            setBalance(results.ingBalance - results.gastoBalance)
+            setPresupuestado(0)
             setTransacciones(data)
             setTransaccionesFiltradas(data)
-            calcularBalance(data)
+            //calcularBalance()
         } catch (error) {
             console.error(error)
         }
@@ -141,6 +167,7 @@ const Transacciones = () => {
                 setTransacciones(data);
                 setTransaccionesFiltradas(data);
             }
+            calcularBalance()
         } catch (error) {
             console.error("Error:", error);
         }
@@ -149,15 +176,13 @@ const Transacciones = () => {
     useEffect(() => {
         initializeCategorias();
         initializeTransacciones();
-        calcularBalance(transacciones);
+        calcularBalance();
         return () => { isMounted = false };
     }, []);
 
     useEffect(() => {
-        if (transacciones) {
-            calcularBalance(transacciones);
-        }
-    }, [transacciones]);
+        calcularBalance();
+    }, [])
 
 
     const refRBSheet = useRef<RBSheetRef>(null);
@@ -216,28 +241,17 @@ const Transacciones = () => {
         }
     }
 
-    const calcularBalance = (arrayTransacciones: Transaccion[]) => {
-        let nuevoBalance = 0, nuevoIngresos = 0, nuevoGastos = 0;
-        arrayTransacciones.forEach(item => {
-            const monto = item.transaccion_monto;
-            if (!isNaN(monto)) {
-                if (item.transaccion_tipo === 'Ingreso') {
-                    nuevoBalance += monto;
-                    nuevoIngresos += monto;
-                } else if (item.transaccion_tipo === 'Gasto') {
-                    nuevoBalance -= monto;
-                    nuevoGastos -= monto;
-                }
-            }
-        });
+    const calcularBalance = async () => {
+        const ingresoData = await getIngresoBalance()
+        let gastoData = await getGastoBalance()
+        const presupuestadoData = await getPresupuestadoBalance()
+        const balanceData = await getBalance()
 
-        if (nuevoGastos !== 0) {
-            nuevoGastos = nuevoGastos * -1;
-        }
 
-        setBalance(nuevoBalance);
-        setIngresos(nuevoIngresos);
-        setGastos(nuevoGastos);
+        setBalance(balanceData);
+        setIngresos(ingresoData);
+        setGastos(gastoData);
+        setPresupuestado(presupuestadoData);
     };
 
     const handleLongPress = (id: number) => {
@@ -337,7 +351,7 @@ const Transacciones = () => {
                                 value={nombre}
                                 onChangeText={setNombre}
                             />
-                            <View style={{flexDirection:'row'}}>
+                            <View style={{ flexDirection: 'row' }}>
                                 <Text style={styles.signoDolar}>$</Text>
                                 <TextInput
                                     style={styles.inputMonto}
@@ -494,8 +508,8 @@ const Transacciones = () => {
 
                     </ScrollView>
                 </RBSheet>
-                <View style={{ justifyContent: 'center', marginLeft: 10 }}>
-                    <View style={{ flexDirection: 'row', justifyContent: 'flex-start', marginBottom: 5 }}>
+                <View style={{ justifyContent: 'center' }}>
+                    <View style={{ flexDirection: 'row', justifyContent: 'flex-end', marginLeft: 13 }}>
                         <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
                             <SearchExpandable onSubmitSearch={handleSubmitNombre} />
                             <CategoriasModal onSubmit={buscarPorCategorias} />
@@ -503,24 +517,74 @@ const Transacciones = () => {
                         </ScrollView>
                     </View>
 
-                    <View style={styles.conatinerEstadisticas}>
-                        <Text style={{ fontSize: 30, alignSelf: 'center' }}>$ {balance.toFixed(2)}</Text>
-                    </View>
-
-                    <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
-                        <Link href={'/(tabs)/ingresos'}>
-                            <View style={styles.ingresos}>
-                                <Text style={styles.balanceIngreso}>+ ${ingresos.toFixed(2)} </Text>
+                    <View style={{ alignItems: 'center', padding: 5 }}>
+                        <View
+                            style={{
+                                backgroundColor: '#fff',
+                                width: '95%',
+                                paddingVertical: 15,
+                                borderRadius: 16,
+                                elevation: 4,
+                                shadowColor: '#000',
+                                shadowOpacity: 0.1,
+                                shadowRadius: 6,
+                                marginBottom: 5,
+                                alignItems: 'center',
+                            }}
+                        >
+                            <Text style={{ fontSize: 14, color: '#666' }}>Balance</Text>
+                            <Text
+                                style={{ fontSize: 32, fontWeight: 'bold', color: '#333' }}
+                                adjustsFontSizeToFit
+                                numberOfLines={1}
+                            >
+                                $ {balance.toFixed(2)}
+                            </Text>
+                        </View>
+                        <View
+                            style={{
+                                flexDirection: 'row',
+                                justifyContent: 'space-around',
+                                gap: 5,
+                                width: '85%',
+                            }}
+                        >
+                            <Link href={'/(tabs)/ingresos'} style={{ flex: 1 }}>
+                                <View style={styles.card}>
+                                    <Text style={styles.label1}>Ingresos</Text>
+                                    <Text
+                                        style={[styles.amount, { color: '#1F7900' }]}
+                                        adjustsFontSizeToFit
+                                        numberOfLines={1}
+                                    >
+                                        + ${ingresos.toFixed(2)}
+                                    </Text>
+                                </View>
+                            </Link>
+                            <View style={styles.card}>
+                                <Text style={styles.label1}>Presupuesto</Text>
+                                <Text
+                                    style={[styles.amount, { color: '#120079' }]}
+                                    adjustsFontSizeToFit
+                                    numberOfLines={1}
+                                >
+                                    ${presupuestado === 0 ? '--' : presupuestado.toFixed(2)}
+                                </Text>
                             </View>
-                        </Link>
-
-                        <Link href={'/(tabs)/gastos'}>
-                            <View style={styles.gastos}>
-                                <Text style={styles.balanceGastos}>- ${gastos.toFixed(2)}</Text>
-                            </View>
-                        </Link>
+                            <Link href={'/(tabs)/gastos'} style={{ flex: 1 }}>
+                                <View style={styles.card}>
+                                    <Text style={styles.label1}>Gastos</Text>
+                                    <Text
+                                        style={[styles.amount, { color: '#BF0000' }]}
+                                        adjustsFontSizeToFit
+                                        numberOfLines={1}
+                                    >
+                                        - ${gastos.toFixed(2)}
+                                    </Text>
+                                </View>
+                            </Link>
+                        </View>
                     </View>
-
 
 
                     <TouchableOpacity style={[styles.changeColor, { alignItems: 'center', justifyContent: 'center' }]} onPress={() => refRBSheet.current?.open()}>
@@ -560,6 +624,27 @@ const Transacciones = () => {
 };
 
 const styles = StyleSheet.create({
+    card: {
+        backgroundColor: '#fff',
+        borderRadius: 12,
+        paddingVertical: 10,
+        paddingHorizontal: 6,
+        elevation: 3,
+        shadowColor: '#000',
+        shadowOpacity: 0.05,
+        shadowRadius: 4,
+        alignItems: 'center',
+    },
+    label1: {
+        fontSize: 13,
+        color: '#666',
+        marginBottom: 4,
+    },
+    amount: {
+        fontSize: 18,
+        fontWeight: '600',
+    },
+
     dropdown: {
         height: 50,
         borderColor: 'gray',
@@ -636,14 +721,15 @@ const styles = StyleSheet.create({
         marginHorizontal: 19,
         marginRight: 25,
         padding: 12,
-        paddingHorizontal: 55,
+        paddingHorizontal: 5,
+        paddingBottom: 20,
         borderRadius: 8,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.25,
         shadowRadius: 3.84,
         elevation: 5,
-        marginBottom: 5
+        marginBottom: 5,
     },
     balanceGastos: {
         color: '#BF0000',
@@ -696,7 +782,7 @@ const styles = StyleSheet.create({
         fontSize: 25,
         fontWeight: '400',
         marginRight: 10,
-        top:12
+        top: 12
     },
     circularTextView: {
         width: 10,
@@ -712,7 +798,7 @@ const styles = StyleSheet.create({
     },
     changeColor: {
         alignSelf: 'center',
-        marginVertical: 10,
+        marginVertical: 5,
         width: 250,
         height: 50,
         marginHorizontal: 10,
@@ -779,7 +865,7 @@ const styles = StyleSheet.create({
         borderColor: '#ddd',
         borderWidth: 1,
         fontSize: 16,
-        width:'60%'
+        width: '60%'
     },
     input: {
         color: '#000',

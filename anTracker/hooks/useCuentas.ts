@@ -12,8 +12,8 @@ export function useObjetivos() {
 
     const db = useSQLiteContext();
 
-    const crearCuenta = async(cuenta_nombre: string, cuenta_descripcion: string, cuenta_tipo: string, cuenta_total: number) =>{
-        await db.runAsync('INSERT INTO Cuenta (cuenta_nombre, cuenta_descripcion, cuenta_tipo, cuenta_total, cuenta_actual, cuenta_progreso) VALUES (?,?,?,?,0,0)',[cuenta_nombre, cuenta_descripcion,cuenta_tipo,cuenta_total])
+    const crearCuenta = async (cuenta_nombre: string, cuenta_descripcion: string, cuenta_tipo: string, cuenta_total: number) => {
+        await db.runAsync('INSERT INTO Cuenta (cuenta_nombre, cuenta_descripcion, cuenta_tipo, cuenta_total, cuenta_actual, cuenta_progreso) VALUES (?,?,?,?,0,0)', [cuenta_nombre, cuenta_descripcion, cuenta_tipo, cuenta_total])
     }
 
     const getObjetivos = async (): Promise<Cuenta[]> => {
@@ -23,6 +23,15 @@ export function useObjetivos() {
     const getPresupuestos = async (): Promise<Cuenta[]> => {
         return await db.getAllAsync(`SELECT * FROM Cuenta WHERE cuenta_tipo = 'P' ORDER BY cuenta_nombre ASC`)
     }
+    const getPresupuestadoBalance = async (): Promise<number> => {
+        const result = await db.getAllAsync<{ balance: number }>(
+            `SELECT COALESCE(SUM(cuenta_total), 0) AS balance 
+         FROM Cuenta 
+         WHERE cuenta_tipo = 'P'`
+        )
+        return result[0].balance ?? 0
+    }
+
 
     const updateSaldo = async (cuentaId: number, transaccionId: number, monto: number, esAObjetivo: boolean) => {
         await db.execAsync('BEGIN TRANSACTION');
@@ -30,7 +39,7 @@ export function useObjetivos() {
             const montoTransaccion = await db.getFirstAsync(
                 'SELECT transaccion_monto FROM Transacciones WHERE transaccion_id = ?',
                 [transaccionId]
-            ) as TransaccionRow;  
+            ) as TransaccionRow;
             if (monto <= montoTransaccion.transaccion_monto) {
                 if (esAObjetivo) {
                     await db.runAsync('UPDATE Transacciones SET transaccion_monto = transaccion_monto - ? WHERE transaccion_id = ?', [monto, transaccionId])
@@ -60,12 +69,11 @@ export function useObjetivos() {
         }
     };
 
-    const getDetallesCuentas = async(id_cuenta: number): Promise<Detalles[]> =>{
-        return await db.getAllAsync('SELECT t.transaccion_nombre, t.transaccion_fecha, tc.tc_monto FROM Transacciones t JOIN Transaccion_cuenta tc ON t.transaccion_id = tc.transaccion_id WHERE tc.cuenta_id = ? ORDER BY t.transaccion_fecha DESC',[id_cuenta])
+    const getDetallesCuentas = async (id_cuenta: number): Promise<Detalles[]> => {
+        return await db.getAllAsync('SELECT t.transaccion_nombre, t.transaccion_fecha, tc.tc_monto FROM Transacciones t JOIN Transaccion_cuenta tc ON t.transaccion_id = tc.transaccion_id WHERE tc.cuenta_id = ? ORDER BY t.transaccion_fecha DESC', [id_cuenta])
     }
 
-
-    return { getObjetivos, getPresupuestos, updateSaldo, getDetallesCuentas, crearCuenta }
+    return { getObjetivos, getPresupuestos, updateSaldo, getDetallesCuentas, crearCuenta, getPresupuestadoBalance}
 
 }
 

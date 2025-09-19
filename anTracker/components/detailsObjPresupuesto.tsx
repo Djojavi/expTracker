@@ -56,15 +56,15 @@ export const DetailsObjPresupuestoComponent: React.FC<detailsProps> = ({ tipoAMo
             feedbackMessage = '¡Lo has logrado, felicidades!';
         }
     } else if (tipoAMostrar === "Gasto") {
-        if (entero > 70) {
+        if (-entero < 70) {
             colorBarra = '#4CAF50';
             feedbackEmoji = '💵';
             feedbackMessage = 'Presupuesto casi lleno ¡Vas por buen camino!';
-        } else if (entero > 40) {
+        } else if (-entero < 40) {
             colorBarra = '#64B5F6';
             feedbackEmoji = '⚖️';
             feedbackMessage = 'Presupuesto controlado';
-        } else if (entero > 0) {
+        } else if (-entero < 0) {
             colorBarra = '#e6cf07ff';
             feedbackEmoji = '💨';
             feedbackMessage = '¡Casi agotado! Gasta con precaución';
@@ -85,8 +85,11 @@ export const DetailsObjPresupuestoComponent: React.FC<detailsProps> = ({ tipoAMo
                         <Text style={styles.feedbackText}>{feedbackMessage}</Text>
                     </View>
                 </View>
-                <ProgressBar progress={tipoAMostrar === 'Ingreso' ? porcentaje : 1 - porcentaje} current={current} color={colorBarra} />
-                <Text style={styles.percent}>{(porcentaje * 100).toFixed(2)}%</Text>
+                <ProgressBar progress={tipoAMostrar === 'Ingreso' ? porcentaje : 1 + porcentaje} current={tipoAMostrar === 'Ingreso' ? current : 1 + current} color={colorBarra} />
+                {tipoAMostrar === 'Ingreso' &&
+                <Text style={styles.percent}>{(porcentaje * 100).toFixed(2)}%</Text>}
+                {tipoAMostrar === 'Gasto' &&
+                <Text style={styles.percent}>{((1+porcentaje) * 100).toFixed(2)}%</Text>}
             </View>
             <FlatList data={detalles}
                 windowSize={5} onEndReached={handleIniciarDetalles}

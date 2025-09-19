@@ -48,7 +48,7 @@ const Presupuestos = () => {
                             borderTopRightRadius: 20,
                         }
                     }} >
-                    <CrearActualizarObjPres esObjetivo={false} esCrear={true}></CrearActualizarObjPres>
+                    <CrearActualizarObjPres esObjetivo={false} esCrear={true} onCloseSheet={initializePresupuestos}></CrearActualizarObjPres>
                 </RBSheet>
 
                 <View style={styles.container}>

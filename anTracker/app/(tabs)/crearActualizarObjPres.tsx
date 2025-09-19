@@ -6,9 +6,10 @@ import { Alert, Pressable, StyleSheet, Text, TextInput, View } from "react-nativ
 type CrearActualizarObjPresProps = {
     esCrear: boolean
     esObjetivo: boolean
+    onCloseSheet: () => void;
 }
 
-export const CrearActualizarObjPres: React.FC<CrearActualizarObjPresProps> = ({ esCrear, esObjetivo }) => {
+export const CrearActualizarObjPres: React.FC<CrearActualizarObjPresProps> = ({ esCrear, esObjetivo, onCloseSheet }) => {
     const { crearCuenta } = useObjetivos()
     const { getBalance } = useTransacciones()
     const [cuenta_nombre, setCuenta_nombre] = useState('')
@@ -26,19 +27,32 @@ export const CrearActualizarObjPres: React.FC<CrearActualizarObjPresProps> = ({ 
     }, [])
 
     const handleAdd = () => {
+        if (!cuenta_nombre || !cuenta_descripcion || !cuenta_monto) {
+            Alert.alert("Error", "Por favor completa todos los campos.");
+            return;
+        }
+
+        const montoNum = Number(cuenta_monto);
+
+        if (isNaN(montoNum) || montoNum <= 0) {
+            Alert.alert("Error", "El monto debe ser un número válido mayor a 0.");
+            return;
+        }
+
         if (cuenta_nombre && cuenta_descripcion && cuenta_monto) {
             if (esObjetivo) {
                 crearCuenta(cuenta_nombre, cuenta_descripcion, 'O', Number(cuenta_monto))
-                Alert.prompt('Objetivo creado exitosamente')
+                Alert.alert('Objetivo creado exitosamente')
             } else {
                 if (Number(cuenta_monto) > balance) {
                     Alert.alert('Error', 'Este presupuesto excede tu balance actual!')
                 } else {
+                    Alert.alert('Presupuesto creado exitosamente')
                     crearCuenta(cuenta_nombre, cuenta_descripcion, 'P', Number(cuenta_monto))
-                    Alert.prompt('Presupuesto creado exitosamente')
                 }
             }
             setToNull()
+            onCloseSheet()
         }
     }
 
@@ -58,6 +72,7 @@ export const CrearActualizarObjPres: React.FC<CrearActualizarObjPresProps> = ({ 
                 <View style={{ alignItems: 'center', marginBottom: 10 }}>
                     <Text style={{ fontSize: 16, fontStyle: 'italic' }}>Tu saldo actual es:</Text>
                     <Text style={{ fontSize: 24, fontWeight: '500' }}>{balance} </Text>
+                    <View style={{height:2, backgroundColor:'#b8b8b8ff', width:'90%', borderRadius:5}}></View>
                 </View>
             }
 
