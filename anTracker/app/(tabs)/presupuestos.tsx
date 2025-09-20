@@ -1,5 +1,6 @@
 import { DrawerLayout } from '@/components/DrawerLayout';
 import { ObjPresupuestoCard } from '@/components/objPresupuestoCard';
+import { NoData } from '@/components/ui/NoData';
 import { useObjetivos } from '@/hooks/useCuentas';
 import { useEffect, useRef, useState } from 'react';
 import { FlatList, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
@@ -53,6 +54,14 @@ const Presupuestos = () => {
 
                 <View style={styles.container}>
                     <View style={styles.content}>
+                        {presupuestos.length === 0 &&
+                            <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                                <NoData message='presupuestos' />
+                                <Pressable style={styles.buttonDos} onPress={() => refRBSheet.current?.open()} >
+                                    <Text style={styles.iconDos}>Registra uno</Text>
+                                </Pressable>
+                            </View>
+                        }
                         <FlatList
                             data={presupuestos}
                             renderItem={({ item }) => (
@@ -156,6 +165,24 @@ const styles = StyleSheet.create({
     icon: {
         color: "#fff",
         fontSize: 30,
+        fontWeight: "bold",
+    },
+    buttonDos: {
+        backgroundColor: "#A37366",
+        width: 170,
+        height: 50,
+        borderRadius: 30,
+        justifyContent: "center",
+        alignItems: "center",
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.3,
+        shadowRadius: 3,
+        elevation: 5,
+    },
+    iconDos: {
+        color: "#fff",
+        fontSize: 19,
         fontWeight: "bold",
     },
 })

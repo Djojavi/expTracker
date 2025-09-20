@@ -3,6 +3,7 @@ import { DatePickers } from '@/components/DatePickers';
 import { DrawerLayout } from '@/components/DrawerLayout';
 import { SearchExpandable } from '@/components/searchBar';
 import { TransaccionItemComponent } from '@/components/transaccionItem';
+import { NoData } from '@/components/ui/NoData';
 import { useCategorias } from '@/hooks/useCategorias';
 import { useObjetivos } from '@/hooks/useCuentas';
 import { useTransacciones } from '@/hooks/useTransacciones';
@@ -586,12 +587,17 @@ const Transacciones = () => {
                         </View>
                     </View>
 
-
+                    {transaccionesFiltradas.length === 0 &&
+                        <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                            <NoData message='transacciones' />
+                        </View>
+                    }
                     <TouchableOpacity style={[styles.changeColor, { alignItems: 'center', justifyContent: 'center' }]} onPress={() => refRBSheet.current?.open()}>
                         <Text style={{ color: 'white' }}>Añadir transacción</Text>
                     </TouchableOpacity>
                 </View>
                 <View style={styles.content}>
+
                     <FlatList
                         data={transaccionesFiltradas}
                         renderItem={({ item }) => (

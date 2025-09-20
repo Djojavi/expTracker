@@ -28,10 +28,10 @@ const styles = StyleSheet.create({
     menuItem: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingVertical: 12,
-        paddingHorizontal: 16,
+        paddingVertical: 10,
+        paddingHorizontal: 6,
         borderRadius: 15,
-        width: '90%',
+        width: '100%',
     },
     menuItemActive: {
         backgroundColor: '#d6d6d6ff',

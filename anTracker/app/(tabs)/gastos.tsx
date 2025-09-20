@@ -2,6 +2,7 @@ import { BarChartComponent } from '@/components/BarChart';
 import { DatePickers } from '@/components/DatePickers';
 import { DrawerLayout } from '@/components/DrawerLayout';
 import { TransaccionItemComponent } from '@/components/transaccionItem';
+import { NoData } from '@/components/ui/NoData';
 import { useCategorias } from '@/hooks/useCategorias';
 import { useTransacciones } from '@/hooks/useTransacciones';
 import { datosBarChart } from '@/utils/dateutils';
@@ -96,6 +97,11 @@ const Gastos = () => {
                     </View>
 
                     <View style={styles.content}>
+                        {transaccionesFiltradas.length === 0 &&
+                            <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                                <NoData message='gastos' />
+                            </View>
+                        }
                         <FlatList
                             data={transaccionesFiltradas}
                             initialNumToRender={10}
@@ -215,6 +221,24 @@ const styles = StyleSheet.create({
     montoDefault: {
         color: '#BF0000',
         fontSize: 18,
+    },
+    buttonDos: {
+        backgroundColor: "#A37366",
+        width: 170,
+        height: 50,
+        borderRadius: 30,
+        justifyContent: "center",
+        alignItems: "center",
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.3,
+        shadowRadius: 3,
+        elevation: 5,
+    },
+    iconDos: {
+        color: "#fff",
+        fontSize: 19,
+        fontWeight: "bold",
     },
     catText: {
         fontSize: 18,

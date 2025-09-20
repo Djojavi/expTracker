@@ -2,6 +2,7 @@ import { DatePickers } from '@/components/DatePickers';
 import { DrawerLayout } from '@/components/DrawerLayout';
 import { PieChartComponent } from '@/components/PieChart';
 import { CustomCheckbox } from '@/components/ui/CheckBox';
+import { NoData } from '@/components/ui/NoData';
 import { useTransacciones } from '@/hooks/useTransacciones';
 import { darkenHexColor } from '@/utils/colorUtils';
 import React, { useEffect, useState } from 'react';
@@ -133,6 +134,11 @@ const Graficos = () => {
                     </View>
 
                     <View style={styles.content}>
+                        {montosPorCategoria.length === 0 &&
+                            <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                                <NoData message='transacciones' />
+                            </View>
+                        }
                         <FlatList data={montosPorCategoria} renderItem={({ item }) => (
                             <Item total_monto={item.total_monto} categoria_nombre={item.categoria_nombre} categoria_color={item.categoria_color} categoria_id={item.categoria_id}></Item>
                         )}

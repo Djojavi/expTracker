@@ -1,4 +1,5 @@
 import { DrawerLayout } from '@/components/DrawerLayout';
+import { NoData } from '@/components/ui/NoData';
 import { useCategorias } from '@/hooks/useCategorias';
 import React, { useEffect, useRef, useState } from 'react';
 import { Alert, FlatList, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
@@ -147,12 +148,12 @@ const Categoria = () => {
           }}
         >
           <Text style={styles.addCategoria}>Actualizar Categoria</Text>
-            <TextInput
-              style={styles.inputNombre}
-              placeholder="Nombre"
-              value={nombre}
-              onChangeText={setNombre}
-            />
+          <TextInput
+            style={styles.inputNombre}
+            placeholder="Nombre"
+            value={nombre}
+            onChangeText={setNombre}
+          />
           <TextInput
             style={styles.input}
             placeholder="Descripcion"
@@ -202,6 +203,14 @@ const Categoria = () => {
         </RBSheet>
 
         <View style={styles.content}>
+          {categorias.length === 0 &&
+            <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+              <NoData message='categorias' />
+              <Pressable style={styles.buttonDos} onPress={() => refRBSheet.current?.open()} >
+                <Text style={styles.iconDos}>Registra uno</Text>
+              </Pressable>
+            </View>
+          }
           <FlatList
             data={categorias}
             renderItem={({ item }) => (
@@ -239,12 +248,12 @@ const Categoria = () => {
           }}
         >
           <Text style={styles.addCategoria}>Añadir Categoria</Text>
-            <TextInput
-              style={styles.inputNombre}
-              placeholder="Nombre"
-              value={nombre}
-              onChangeText={setNombre}
-            />
+          <TextInput
+            style={styles.inputNombre}
+            placeholder="Nombre"
+            value={nombre}
+            onChangeText={setNombre}
+          />
           <TextInput
             style={styles.input}
             placeholder="Descripcion"
@@ -394,7 +403,7 @@ const styles = StyleSheet.create({
     borderColor: '#ddd',
     borderWidth: 1,
     fontSize: 16,
-    width:'90%'
+    width: '90%'
   },
   input: {
     color: '#000',
@@ -405,7 +414,7 @@ const styles = StyleSheet.create({
     borderColor: '#ddd',
     borderWidth: 1,
     fontSize: 16,
-    width:'90%'
+    width: '90%'
   },
   addNombreButton: {
     justifyContent: 'center',
@@ -483,6 +492,24 @@ const styles = StyleSheet.create({
     height: 30,
     borderRadius: 15,
   },
+  buttonDos: {
+        backgroundColor: "#A37366",
+        width: 170,
+        height: 50,
+        borderRadius: 30,
+        justifyContent: "center",
+        alignItems: "center",
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.3,
+        shadowRadius: 3,
+        elevation: 5,
+    },
+    iconDos: {
+        color: "#fff",
+        fontSize: 19,
+        fontWeight: "bold",
+    },
 });
 
 export default Categoria;

@@ -2,6 +2,7 @@ import { BarChartComponent } from '@/components/BarChart';
 import { DatePickers } from '@/components/DatePickers';
 import { DrawerLayout } from '@/components/DrawerLayout';
 import { TransaccionItemComponent } from '@/components/transaccionItem';
+import { NoData } from '@/components/ui/NoData';
 import { useCategorias } from '@/hooks/useCategorias';
 import { useTransacciones } from '@/hooks/useTransacciones';
 import { datosBarChart } from '@/utils/dateutils';
@@ -103,6 +104,12 @@ const Ingreso = () => {
                     </View>
 
                     <View style={styles.content}>
+                        {transaccionesFiltradas.length === 0 &&
+                            <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                                <NoData message='ingresos' />
+                            </View>
+                        }
+                        
                         <FlatList
                             data={transaccionesFiltradas}
                             initialNumToRender={10}
