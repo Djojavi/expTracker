@@ -125,6 +125,14 @@ export function useTransacciones() {
         return await db.getAllAsync('SELECT c.categoria_id, c.categoria_nombre, c.categoria_color,  SUM(t.transaccion_monto) AS total_monto FROM Transacciones t JOIN Categorias c ON t.categoria_id = c.categoria_id WHERE t.transaccion_fecha BETWEEN ? AND ? GROUP BY c.categoria_id, c.categoria_nombre, c.categoria_color ORDER BY total_monto DESC;', [fechaInicio, fechaFin])
     }
 
+    const getMontosIngresosPorCategoria = async (fechaInicio: number, fechaFin: number): Promise<MontoPorCategoria[]> => {
+        return await db.getAllAsync(`SELECT c.categoria_id, c.categoria_nombre, c.categoria_color,  SUM(t.transaccion_monto) AS total_monto FROM Transacciones t JOIN Categorias c ON t.categoria_id = c.categoria_id WHERE t.transaccion_tipo= 'Ingreso' AND t.transaccion_fecha BETWEEN ? AND ? GROUP BY c.categoria_id, c.categoria_nombre, c.categoria_color ORDER BY total_monto DESC;`, [fechaInicio, fechaFin])
+    }
+
+    const getMontosGastosPorCategoria = async (fechaInicio: number, fechaFin: number): Promise<MontoPorCategoria[]> => {
+        return await db.getAllAsync(`SELECT c.categoria_id, c.categoria_nombre, c.categoria_color,  SUM(t.transaccion_monto) AS total_monto FROM Transacciones t JOIN Categorias c ON t.categoria_id = c.categoria_id WHERE  t.transaccion_tipo= 'Gasto' AND t.transaccion_fecha BETWEEN ? AND ? GROUP BY c.categoria_id, c.categoria_nombre, c.categoria_color ORDER BY total_monto DESC;`, [fechaInicio, fechaFin])
+    }
+
 
     const getTransaccionesByName = async (nombre: string): Promise<Transaccion[]> => {
         const searchTerm = `%${nombre}%`;
@@ -178,5 +186,5 @@ export function useTransacciones() {
 
 
 
-    return { addTransaccion, getTransacciones, getTransaccion, updateTransaccion, deleteTransaccion, getIngresos, getGastos, deleteTransacciones, getTransaccionExistente, getMontosPorCategoria, getTransaccionesPorFecha, getTransaccionMinimaFecha, getIngresosPorFecha, getIngresosConMonto, getGastosPorFecha, getTransaccionesByName, getTransaccionesByCategoria, getGastosNoPresupuestados, getBalance, getIngresoBalance, getGastoBalance, getIngresosGastosPorFecha, getIngresosYGastosByCategoria,getIngresosYGastosByName }
+    return { addTransaccion, getTransacciones, getTransaccion, updateTransaccion, deleteTransaccion, getIngresos, getGastos, deleteTransacciones, getTransaccionExistente, getMontosPorCategoria, getTransaccionesPorFecha, getTransaccionMinimaFecha, getIngresosPorFecha, getIngresosConMonto, getGastosPorFecha, getTransaccionesByName, getTransaccionesByCategoria, getGastosNoPresupuestados, getBalance, getIngresoBalance, getGastoBalance, getIngresosGastosPorFecha, getIngresosYGastosByCategoria,getIngresosYGastosByName, getMontosGastosPorCategoria, getMontosIngresosPorCategoria }
 }

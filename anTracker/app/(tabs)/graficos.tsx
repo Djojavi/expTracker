@@ -1,6 +1,7 @@
 import { DatePickers } from '@/components/DatePickers';
 import { DrawerLayout } from '@/components/DrawerLayout';
 import { PieChartComponent } from '@/components/PieChart';
+import { CustomCheckbox } from '@/components/ui/CheckBox';
 import { useTransacciones } from '@/hooks/useTransacciones';
 import { darkenHexColor } from '@/utils/colorUtils';
 import React, { useEffect, useState } from 'react';
@@ -15,10 +16,12 @@ export type MontoPorCategoria = {
 }
 
 const Graficos = () => {
-    const { getMontosPorCategoria } = useTransacciones();
+    const { getMontosPorCategoria, getMontosGastosPorCategoria, getMontosIngresosPorCategoria } = useTransacciones();
     const [montosPorCategoria, setMontosPorCategoria] = useState<MontoPorCategoria[]>([]);
     const [pieData, setPieData] = useState<{ gradientCenterColor: string, color: string; value: number; }[]>([]);
-    const [rango, setRango] = useState<{ inicio: number; fin: number } | null>(null);
+    const [rango, setRango] = useState<{ inicio: number; fin: number } | null>({ inicio: 1704067200000, fin: Date.now() });
+    const [isFiltroIngresos, setIsFiltroIngresos] = useState(false);
+    const [isFiltroGastos, setIsFiltroGastos] = useState(false);
 
     const handleSeleccionFechas = async (inicio: number, fin: number) => {
         setRango({ inicio, fin });
@@ -28,6 +31,35 @@ const Graficos = () => {
             getPieData(data)
         } catch (error) {
             console.error("Error:", error);
+        }
+    };
+
+    const handleFiltroCategorias = async (tipo: string) => {
+        let newFiltroIngresos = isFiltroIngresos;
+        let newFiltroGastos = isFiltroGastos;
+
+        if (tipo === 'Ingresos') {
+            newFiltroIngresos = true;
+        } else if (tipo === 'Gastos') {
+            newFiltroGastos = true;
+        } else if (tipo === 'Ingresosno') {
+            newFiltroIngresos = false;
+        } else if (tipo === 'Gastosno') {
+            newFiltroGastos = false;
+        }
+        setIsFiltroIngresos(newFiltroIngresos);
+        setIsFiltroGastos(newFiltroGastos);
+
+        if (newFiltroGastos && !newFiltroIngresos) {
+            const data = await getMontosGastosPorCategoria(rango?.inicio ?? 0, rango?.fin ?? 0);
+            setMontosPorCategoria(data);
+            getPieData(data);
+        } else if (!newFiltroGastos && newFiltroIngresos) {
+            const data = await getMontosIngresosPorCategoria(rango?.inicio ?? 0, rango?.fin ?? 0);
+            setMontosPorCategoria(data);
+            getPieData(data);
+        } else {
+            initializeMontosPorCategoria(rango?.inicio ?? 0, rango?.fin ?? 0);
         }
     };
 
@@ -79,7 +111,7 @@ const Graficos = () => {
                 <View style={styles.container}>
                     <View style={{ justifyContent: 'center', marginLeft: 10 }}>
 
-                        <View style={{ flexDirection: 'row', justifyContent: 'flex-start',marginBottom:5}}>
+                        <View style={{ flexDirection: 'row', justifyContent: 'flex-start', marginBottom: 5 }}>
 
                             <DatePickers onSeleccionar={handleSeleccionFechas} />
 
@@ -94,6 +126,10 @@ const Graficos = () => {
                         }}>
 
                         <PieChartComponent pieData={pieData} montosPorCategoria={montosPorCategoria}></PieChartComponent>
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>
+                            <CustomCheckbox text='Ingresos' onSelected={handleFiltroCategorias} />
+                            <CustomCheckbox text='Gastos' onSelected={handleFiltroCategorias} />
+                        </View>
                     </View>
 
                     <View style={styles.content}>
