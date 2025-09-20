@@ -73,7 +73,12 @@ export function useObjetivos() {
         return await db.getAllAsync('SELECT t.transaccion_nombre, t.transaccion_fecha, tc.tc_monto FROM Transacciones t JOIN Transaccion_cuenta tc ON t.transaccion_id = tc.transaccion_id WHERE tc.cuenta_id = ? ORDER BY t.transaccion_fecha DESC', [id_cuenta])
     }
 
-    return { getObjetivos, getPresupuestos, updateSaldo, getDetallesCuentas, crearCuenta, getPresupuestadoBalance}
+    const deleteCuentas = async() =>{
+        await db.execAsync('DELETE  FROM Cuenta');
+        await db.execAsync('DELETE  FROM Transaccion_cuenta');
+    }
+
+    return { getObjetivos, getPresupuestos, updateSaldo, getDetallesCuentas, crearCuenta, getPresupuestadoBalance, deleteCuentas}
 
 }
 

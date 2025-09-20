@@ -1,5 +1,6 @@
 import { DrawerLayout } from '@/components/DrawerLayout';
 import { useCategorias } from '@/hooks/useCategorias';
+import { useObjetivos } from '@/hooks/useCuentas';
 import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
@@ -16,6 +17,7 @@ interface RBSheetRef {
 
 export default function ImportExportScreen() {
     const { getTransacciones, deleteTransacciones, addTransaccion, getTransaccionExistente, updateTransaccion } = useTransacciones();
+    const { deleteCuentas } = useObjetivos();
     const [transacciones, setTransacciones] = useState<Transaccion[]>([])
     const { getCategorias } = useCategorias();
     const [categorias, setCategorias] = useState<Categoria[]>([]);
@@ -56,10 +58,15 @@ export default function ImportExportScreen() {
         }
     };
 
-    const borrarTransacciones = async () => {
-        Alert.alert('Se eliminarán todas las transacciones', 'Esta acción no puede ser revertida',
-            [{ text: 'Cancelar', style: 'cancel' }, { text: 'OK', onPress: (() => deleteTransacciones()) }]
+    const borrarTransacciones =  () => {
+        Alert.alert('Se eliminarán todos los datos', 'Esta acción no puede ser revertida',
+            [{ text: 'Cancelar', style: 'cancel' }, { text: 'OK', onPress: (() => handleBorrarDatos()) }]
         )
+    }
+
+    const handleBorrarDatos = async () =>{
+        await deleteCuentas()
+        await deleteTransacciones()
     }
 
     const importFromCSV = async (opcion: string) => {
@@ -264,7 +271,7 @@ export default function ImportExportScreen() {
                 </View>
 
                 <View style={styles.card}>
-                    <Text style={styles.title}>Eliminar todas las Transacciones</Text>
+                    <Text style={styles.title}>Eliminar toda la información</Text>
                     <TouchableOpacity
                         onPress={() => borrarTransacciones()}
                         style={styles.btnEliminar}
