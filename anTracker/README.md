@@ -1,50 +1,57 @@
-# Welcome to your Expo app 👋
+# AnTracker
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+**AnTracker** es una aplicación móvil diseñada para ayudarte a llevar un control detallado de tus finanzas personales, enfocándose en el registro de los pequeños gastos diarios.
 
-## Get started
+## Funcionalidades
 
-1. Install dependencies
+- **Registro de transacciones:**  
+  Permite registrar ingresos y gastos de manera sencilla.
 
-   ```bash
-   npm install
-   ```
+- **Categorías:**  
+  Cada transacción puede asignarse a una categoría específica para facilitar el análisis.
 
-2. Start the app
+- **Búsqueda avanzada:**  
+  Busca transacciones por fechas, por categorías o por texto que incluya el nombre o la descripción.
 
-   ```bash
-   npx expo start
-   ```
+- **Gráficos de barras:**  
+  Visualiza la evolución de tus ingresos y gastos a lo largo del tiempo, con opción de filtrar por fechas.
 
-In the output, you'll find options to open the app in a
+- **Gráfico de pastel:**  
+  Analiza en qué categorías has gastado más, también filtrable por rangos de fechas.
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+- **Objetivos y presupuestos:**  
+  Establece metas financieras y presupuestos para mantener tus finanzas bajo control.  
+  La app brinda retroalimentación dinámica según qué tan cerca estés de alcanzar tus objetivos.
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+- **Importar y exportar CSV:**  
+  Gestiona tus datos con facilidad importando o exportando tus transacciones en formato CSV.
 
-## Get a fresh project
+- **Privacidad total:**  
+  Funciona 100% offline, usando SQLite como base de datos local. Ninguna información se almacena en la nube.
 
-When you're ready, run:
+## Tecnologías
+
+- **React Native** con **Expo SDK 53**  
+- **SQLite** para almacenamiento local  
+- Componentes modernos y responsive adaptados a dispositivos móviles
+
+## Uso
+
+1. **Registrar transacciones:** Ingresa tus ingresos y gastos con detalle (nombre, descripción, monto, categoría).  
+2. **Filtrar y buscar:** Encuentra cualquier transacción usando fecha, categoría o texto.  
+3. **Visualizar gráficos:** Consulta el uso de tu dinero a través de gráficos de barras y de pastel.  
+4. **Gestionar objetivos y presupuestos:** Define metas y revisa tu progreso en tiempo real.  
+5. **Importar/exportar datos:** Mantén tu historial seguro o compártelo fácilmente mediante CSV.
+
+## Instalación
 
 ```bash
-npm run reset-project
-```
+# Clonar el repositorio
+git clone 
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+# Instalar dependencias
+cd gastos-hormiga-app
+npm install
 
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+# Iniciar la aplicación
+npx expo start
