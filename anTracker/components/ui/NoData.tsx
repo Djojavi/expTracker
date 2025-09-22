@@ -1,4 +1,7 @@
-import React from "react";
+import { en, es } from "@/utils/translations";
+import * as Localization from 'expo-localization';
+import { I18n } from "i18n-js";
+import React, { useState } from "react";
 import { Animated, StyleSheet, Text, View } from "react-native";
 
 type NoDataProps = {
@@ -14,7 +17,11 @@ export const NoData: React.FC<NoDataProps> = ({
   colorScheme = "primary",
   showAnimation = true,
 }) => {
-
+let [locale, setLocale] = useState(Localization.getLocales())
+      const i18n = new I18n();
+      i18n.enableFallback = true;
+      i18n.translations = { en, es };
+      i18n.locale = locale[0].languageCode ?? 'en';
 
   const getColors = () => {
     switch (colorScheme) {
@@ -40,10 +47,10 @@ export const NoData: React.FC<NoDataProps> = ({
         {icon}
       </Animated.Text>
       <Text style={[styles.text, { color: colors.text }]}>
-        ¡No hay {message} registrados!
+        {i18n.t('NoData.NoDataTitle',{message: message})}
       </Text>
       <Text style={[styles.subtext, { color: colors.text }]}>
-        Cuando tengas nuevos {message}, aparecerán aquí
+        {i18n.t('NoData.NoDataDesc',{message: message})}
       </Text>
     </View>
   );

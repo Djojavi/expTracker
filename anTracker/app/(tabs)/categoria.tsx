@@ -213,7 +213,7 @@ const Categoria = () => {
         <View style={styles.content}>
           {categorias.length === 0 &&
             <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-              <NoData message='categorias' />
+              <NoData message={i18n.t('Home.Categories')} />
               <Pressable style={styles.buttonDos} onPress={() => refRBSheet.current?.open()} >
                 <Text style={styles.iconDos}>{i18n.t('NoData.AddOne')}</Text>
               </Pressable>

@@ -45,7 +45,7 @@ const en = {
         aCategory: 'Add Category',
         uCategory: 'Update Category',
         dCategory: 'Delete Category',
-        chooseColor:'Choose a color for your category'
+        chooseColor: 'Choose a color for your category'
     },
     CSV: {
         ToImport: 'Import transactions from CSV file',
@@ -53,13 +53,13 @@ const en = {
         Import: 'Import',
         HowToImportTitle: 'The CSV file must have the following columns (in the same order)',
         HowToImportInstructions: {
-            Step1: '1. date (format: YYYY-MM-DD)',
-            Step2: '2. amount (use dot “.” for decimals, no symbols)',
-            Step3: '3. name (e.g.: "Supermarket")',
-            Step4: '4. description (optional detail)',
-            Step5: '5. type (Income or Expense)',
-            Step6: '6. category (e.g.: "Food" – must already exist)',
-            Step7: '7. method (e.g.: "Cash", "Card")',
+            Step1: '1. date: (format: YYYY-MM-DD)',
+            Step2: '2. amount: (use dot “.” for decimals, no symbols)',
+            Step3: '3. name: (e.g.: "Supermarket")',
+            Step4: '4. description: (optional detail)',
+            Step5: '5. type: (Income or Expense)',
+            Step6: '6. category: (e.g.: "Food" – must already exist)',
+            Step7: '7. method: (e.g.: "Cash", "Card")',
             Example: `Valid example:\n2025-08-14,200,Used book sale,Extra income,Income,Others,Cash`
         },
         ImportQuestion: 'How would you like to import your data?',
@@ -67,6 +67,7 @@ const en = {
         Overwrite: 'Overwrite them',
         Duplicate: 'Duplicate them',
         ToExport: 'Export transactions to CSV file',
+        Export: 'Export',
         DeleteInfo: 'Erase all my info',
         Delete: 'Erase',
         DeleteWarningTitle: 'All data will be erased',
@@ -82,7 +83,15 @@ const en = {
         NewGoal: 'New Goal',
         NewBudget: 'New Budget',
         CurrentBalance: 'Your current balance is:'
-    }
+    },
+    Common: {
+        New: 'New',
+        Update: 'Update',
+        Goal: 'Objetivo',
+        Budget: 'Budget'
+    },
+    InvalidNumber: 'Please enter a valid number',
+    SelectTransactions: 'Select transactions to add to %{nameShow}'
 }
 
 const es = {
@@ -132,7 +141,7 @@ const es = {
         aCategory: 'Añadir Categoría',
         uCategory: 'Actualizar Categoría',
         dCategory: 'Eliminar Categoría',
-        chooseColor:'Escoge el color para tu categoría'
+        chooseColor: 'Escoge el color para tu categoría'
     },
     CSV: {
         ToImport: 'Importar transacciones desde archivo CSV',
@@ -154,6 +163,7 @@ const es = {
         Overwrite: 'Sobrescribirlas',
         Duplicate: 'Duplicarlas',
         ToExport: 'Exportar transacciones a archivo CSV',
+        Export: 'Exportar',
         DeleteInfo: 'Borrar toda mi información',
         Delete: 'Borrar',
         DeleteWarningTitle: 'Todos los datos serán eliminados',
@@ -166,10 +176,18 @@ const es = {
         AddOne: 'Agregar uno'
     },
     GoalsBudgets: {
-        NewGoal: 'Nueva Meta',
+        NewGoal: 'Nuevo Objetivo',
         NewBudget: 'Nuevo Presupuesto',
         CurrentBalance: 'Tu saldo actual es:'
-    }
+    },
+    Common: {
+        New: 'Nuevo',
+        Update: 'Actualizar',
+        Goal: 'Objetivo',
+        Budget: 'Presupuesto'
+    },
+    InvalidNumber: 'Ingrese un número válido',
+    SelectTransactions: 'Selecciona transacciones para añadir a  %{nameShow}'
 }
 
 export { en, es }

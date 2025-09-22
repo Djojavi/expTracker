@@ -65,7 +65,7 @@ const Presupuestos = () => {
                     <View style={styles.content}>
                         {presupuestos.length === 0 &&
                             <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                                <NoData message='presupuestos' />
+                                <NoData message={i18n.t('Menu.Budgets')} />
                                 <Pressable style={styles.buttonDos} onPress={() => refRBSheet.current?.open()} >
                                     <Text style={styles.iconDos}>{i18n.t('NoData.AddOne')}</Text>
                                 </Pressable>

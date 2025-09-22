@@ -5,6 +5,9 @@ import { CustomCheckbox } from '@/components/ui/CheckBox';
 import { NoData } from '@/components/ui/NoData';
 import { useTransacciones } from '@/hooks/useTransacciones';
 import { darkenHexColor } from '@/utils/colorUtils';
+import { en, es } from '@/utils/translations';
+import * as Localization from 'expo-localization';
+import { I18n } from 'i18n-js';
 import React, { useEffect, useState } from 'react';
 import { FlatList, KeyboardAvoidingView, Platform, StyleSheet, Text, View } from 'react-native';
 
@@ -17,6 +20,11 @@ export type MontoPorCategoria = {
 }
 
 const Graficos = () => {
+    let [locale, setLocale] = useState(Localization.getLocales())
+    const i18n = new I18n();
+    i18n.enableFallback = true;
+    i18n.translations = { en, es };
+    i18n.locale = locale[0].languageCode ?? 'en';
     const { getMontosPorCategoria, getMontosGastosPorCategoria, getMontosIngresosPorCategoria } = useTransacciones();
     const [montosPorCategoria, setMontosPorCategoria] = useState<MontoPorCategoria[]>([]);
     const [pieData, setPieData] = useState<{ gradientCenterColor: string, color: string; value: number; }[]>([]);
@@ -128,15 +136,15 @@ const Graficos = () => {
 
                         <PieChartComponent pieData={pieData} montosPorCategoria={montosPorCategoria}></PieChartComponent>
                         <View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>
-                            <CustomCheckbox text='Ingresos' onSelected={handleFiltroCategorias} />
-                            <CustomCheckbox text='Gastos' onSelected={handleFiltroCategorias} />
+                            <CustomCheckbox text={i18n.t('Menu.Income')} onSelected={handleFiltroCategorias} />
+                            <CustomCheckbox text={i18n.t('Menu.Expenses')} onSelected={handleFiltroCategorias} />
                         </View>
                     </View>
 
                     <View style={styles.content}>
                         {montosPorCategoria.length === 0 &&
                             <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                                <NoData message='transacciones' />
+                                <NoData message={i18n.t('Home.Transactions')} />
                             </View>
                         }
                         <FlatList data={montosPorCategoria} renderItem={({ item }) => (

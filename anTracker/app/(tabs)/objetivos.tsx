@@ -2,10 +2,14 @@ import { DrawerLayout } from '@/components/DrawerLayout';
 import { ObjPresupuestoCard } from '@/components/objPresupuestoCard';
 import { NoData } from '@/components/ui/NoData';
 import { useObjetivos } from '@/hooks/useCuentas';
+import { en, es } from '@/utils/translations';
+import * as Localization from 'expo-localization';
+import { I18n } from 'i18n-js';
 import { useEffect, useRef, useState } from 'react';
 import { FlatList, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import RBSheet from 'react-native-raw-bottom-sheet';
 import { CrearActualizarObjPres } from './crearActualizarObjPres';
+
 export type Cuenta = {
     cuenta_id: number;
     cuenta_nombre: string;
@@ -20,6 +24,11 @@ export type Cuenta = {
 
 //Pantalla con los objetivos del usuario
 const ObjetivosScreen = () => {
+    let [locale, setLocale] = useState(Localization.getLocales())
+    const i18n = new I18n();
+    i18n.enableFallback = true;
+    i18n.translations = { en, es };
+    i18n.locale = locale[0].languageCode ?? 'en';
     const { getObjetivos } = useObjetivos();
     const [objetivos, setObjetivos] = useState<Cuenta[]>([])
     interface RBSheetRef {
@@ -66,10 +75,10 @@ const ObjetivosScreen = () => {
 
                     <View style={styles.content}>
                         {objetivos.length === 0 &&
-                            <View style={{justifyContent:'center', alignItems:'center'}}>
-                                <NoData message='objetivos' />
+                            <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                                <NoData message={i18n.t('Menu.Goals')} />
                                 <Pressable style={styles.buttonDos} onPress={() => refRBSheet.current?.open()} >
-                                    <Text style={styles.iconDos}>Comienza uno</Text>
+                                    <Text style={styles.iconDos}> {i18n.t('NoData.AddOne')} </Text>
                                 </Pressable>
                             </View>
                         }

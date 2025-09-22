@@ -7,13 +7,15 @@ import { NoData } from '@/components/ui/NoData';
 import { useCategorias } from '@/hooks/useCategorias';
 import { useObjetivos } from '@/hooks/useCuentas';
 import { useTransacciones } from '@/hooks/useTransacciones';
+import { en, es } from '@/utils/translations';
+import * as Localization from 'expo-localization';
 import { Link } from 'expo-router';
+import { I18n } from 'i18n-js';
 import React, { useEffect, useRef, useState } from 'react';
 import { Alert, FlatList, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
 import RBSheet from 'react-native-raw-bottom-sheet';
 import { Categoria } from './categoria';
-
 
 //Pantalla con las transacciones
 
@@ -64,6 +66,11 @@ const RadioButton = (props: any) => {
 
 
 const Transacciones = () => {
+    let [locale, setLocale] = useState(Localization.getLocales())
+    const i18n = new I18n();
+    i18n.enableFallback = true;
+    i18n.translations = { en, es };
+    i18n.locale = locale[0].languageCode ?? 'en';
     const { getCategorias } = useCategorias();
     const [categorias, setCategorias] = useState<Categoria[]>([]);
 
@@ -210,7 +217,7 @@ const Transacciones = () => {
             }
 
         } else {
-            Alert.alert('Error', 'El monto debe ser mayor a 0!', [
+            Alert.alert('Error','', [
                 { text: 'Entendido', onPress: () => console.log('OK Pressed') },
             ]);
         }
@@ -237,7 +244,7 @@ const Transacciones = () => {
             }
 
         } else {
-            Alert.alert('Error', 'El monto debe ser mayor a 0!', [
+            Alert.alert('Error', '', [
                 { text: 'Entendido', onPress: () => console.log('OK Pressed') },
             ]);
         }

@@ -1,9 +1,12 @@
 import { DrawerLayout } from '@/components/DrawerLayout';
 import { useCategorias } from '@/hooks/useCategorias';
 import { useObjetivos } from '@/hooks/useCuentas';
+import { en, es } from '@/utils/translations';
 import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system';
+import * as Localization from 'expo-localization';
 import * as Sharing from 'expo-sharing';
+import { I18n } from 'i18n-js';
 import { useEffect, useRef, useState } from 'react';
 import { Alert, KeyboardAvoidingView, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import RBSheet from 'react-native-raw-bottom-sheet';
@@ -16,6 +19,11 @@ interface RBSheetRef {
 }
 
 export default function ImportExportScreen() {
+    let [locale, setLocale] = useState(Localization.getLocales())
+    const i18n = new I18n();
+    i18n.enableFallback = true;
+    i18n.translations = { en, es };
+    i18n.locale = locale[0].languageCode ?? 'en';
     const { getTransacciones, deleteTransacciones, addTransaccion, getTransaccionExistente, updateTransaccion } = useTransacciones();
     const { deleteCuentas } = useObjetivos();
     const [transacciones, setTransacciones] = useState<Transaccion[]>([])
@@ -58,13 +66,13 @@ export default function ImportExportScreen() {
         }
     };
 
-    const borrarTransacciones =  () => {
-        Alert.alert('Se eliminarán todos los datos', 'Esta acción no puede ser revertida',
-            [{ text: 'Cancelar', style: 'cancel' }, { text: 'OK', onPress: (() => handleBorrarDatos()) }]
+    const borrarTransacciones = () => {
+        Alert.alert(i18n.t('CSV.DeleteWarningTitle'), i18n.t('CSV.DeleteWarningTitle'),
+            [{ text: i18n.t('CSV.Cancel'), style: 'cancel' }, { text: 'OK', onPress: (() => handleBorrarDatos()) }]
         )
     }
 
-    const handleBorrarDatos = async () =>{
+    const handleBorrarDatos = async () => {
         await deleteCuentas()
         await deleteTransacciones()
     }
@@ -196,20 +204,19 @@ export default function ImportExportScreen() {
                     }}
                 >
                     <Text style={{ marginBottom: 8, color: '#db0202ff', fontWeight: 'bold' }}>
-                        📄 El archivo CSV debe contener las siguientes columnas (en este orden):
+                        {i18n.t('CSV.HowToImportTitle')}
                     </Text>
 
-                    <Text style={{ marginLeft: 10, marginBottom: 4 }}>1. <Text style={{ fontWeight: 'bold' }}>fecha</Text> (formato: YYYY-MM-DD)</Text>
-                    <Text style={{ marginLeft: 10, marginBottom: 4 }}>2. <Text style={{ fontWeight: 'bold' }}>monto</Text> (usar punto “.” para decimales, sin símbolos)</Text>
-                    <Text style={{ marginLeft: 10, marginBottom: 4 }}>3. <Text style={{ fontWeight: 'bold' }}>nombre</Text> (ej: "Supermercado")</Text>
-                    <Text style={{ marginLeft: 10, marginBottom: 4 }}>4. <Text style={{ fontWeight: 'bold' }}>descripcion</Text> (detalle opcional)</Text>
-                    <Text style={{ marginLeft: 10, marginBottom: 4 }}>5. <Text style={{ fontWeight: 'bold' }}>tipo</Text> (Ingreso o Gasto)</Text>
-                    <Text style={{ marginLeft: 10, marginBottom: 4 }}>6. <Text style={{ fontWeight: 'bold' }}>categoria</Text> (ej: "Alimentos" – debe existir previamente)</Text>
-                    <Text style={{ marginLeft: 10, marginBottom: 8 }}>7. <Text style={{ fontWeight: 'bold' }}>metodo</Text> (ej: "Efectivo", "Tarjeta")</Text>
+                    <Text style={{ marginLeft: 10, marginBottom: 4 }}> {i18n.t('CSV.HowToImportInstructions.Step1')}</Text>
+                    <Text style={{ marginLeft: 10, marginBottom: 4 }}>{i18n.t('CSV.HowToImportInstructions.Step2')}</Text>
+                    <Text style={{ marginLeft: 10, marginBottom: 4 }}>{i18n.t('CSV.HowToImportInstructions.Step3')}</Text>
+                    <Text style={{ marginLeft: 10, marginBottom: 4 }}>{i18n.t('CSV.HowToImportInstructions.Step4')}</Text>
+                    <Text style={{ marginLeft: 10, marginBottom: 4 }}>{i18n.t('CSV.HowToImportInstructions.Step5')}</Text>
+                    <Text style={{ marginLeft: 10, marginBottom: 4 }}>{i18n.t('CSV.HowToImportInstructions.Step6')}</Text>
+                    <Text style={{ marginLeft: 10, marginBottom: 8 }}>{i18n.t('CSV.HowToImportInstructions.Step7')}</Text>
 
                     <Text style={{ marginTop: 4, fontStyle: 'italic' }}>
-                        Ejemplo válido:
-                        {"\n"}2025-08-14,200,Venta libro usado,Ingreso extra,Ingreso,Otros,Efectivo
+                        {i18n.t('CSV.HowToImportInstructions.Example')}
                     </Text>
 
                 </RBSheet>
@@ -225,58 +232,58 @@ export default function ImportExportScreen() {
                             borderTopRightRadius: 20,
                         }
                     }}>
-                    <Text style={styles.title}>¿Cómo deseas importar tus datos?</Text>
-                    <Text style={styles.subtitle}>Si existen transacciones ya existentes, deseas...</Text>
+                    <Text style={styles.title}>{i18n.t('CSV.ImportQuestion')}</Text>
+                    <Text style={styles.subtitle}>{i18n.t('CSV.ImportDescription')}</Text>
 
                     <TouchableOpacity
                         onPress={() => importFromCSV('sobreescribir')}
                         style={styles.btnOpciones}
                     >
-                        <Text style={{ color: '#000000ff', fontWeight: 'bold' }}>Sobreescribirlas</Text>
+                        <Text style={{ color: '#000000ff', fontWeight: 'bold' }}>{i18n.t('CSV.Overwrite')}</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                         onPress={() => importFromCSV('duplicar')}
                         style={styles.btnOpciones}
                     >
-                        <Text style={{ color: '#000000ff', fontWeight: 'bold' }}>Duplicarlas</Text>
+                        <Text style={{ color: '#000000ff', fontWeight: 'bold' }}>{i18n.t('CSV.Duplicate')}</Text>
                     </TouchableOpacity>
 
                 </RBSheet>
 
                 <View style={styles.card}>
-                    <Text style={styles.title}>Importar transacciones desde CSV</Text>
+                    <Text style={styles.title}>{i18n.t('CSV.ToImport')}</Text>
                     <TouchableOpacity
                         onPress={() => refRBSheet.current?.open()}
                         style={styles.btnInstrucciones}
                     >
-                        <Text style={{ color: '#000000ff', fontWeight: 'bold' }}>¿Cómo se debe importar las transacciones?</Text>
+                        <Text style={{ color: '#000000ff', fontWeight: 'bold' }}>{i18n.t('CSV.HowToImport')}</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                         onPress={() => importRefRBSheet.current?.open()}
                         style={styles.btn}
                     >
-                        <Text style={{ color: '#fff', fontWeight: 'bold' }}>Importar</Text>
+                        <Text style={{ color: '#fff', fontWeight: 'bold' }}>{i18n.t('CSV.Import')}</Text>
                     </TouchableOpacity>
                 </View>
 
 
                 <View style={styles.card}>
-                    <Text style={styles.title}>Exportar transacciones a CSV</Text>
+                    <Text style={styles.title}>{i18n.t('CSV.ToExport')}</Text>
                     <TouchableOpacity
                         onPress={exportToCSV}
                         style={styles.btn}
                     >
-                        <Text style={{ color: '#fff', fontWeight: 'bold' }}>Exportar</Text>
+                        <Text style={{ color: '#fff', fontWeight: 'bold' }}> {i18n.t('CSV.Export')} </Text>
                     </TouchableOpacity>
                 </View>
 
                 <View style={styles.card}>
-                    <Text style={styles.title}>Eliminar toda la información</Text>
+                    <Text style={styles.title}>{i18n.t('CSV.DeleteInfo')}</Text>
                     <TouchableOpacity
                         onPress={() => borrarTransacciones()}
                         style={styles.btnEliminar}
                     >
-                        <Text style={{ color: '#fff', fontWeight: 'bold' }}>Eliminar</Text>
+                        <Text style={{ color: '#fff', fontWeight: 'bold' }}>{i18n.t('CSV.Delete')}</Text>
                     </TouchableOpacity>
                 </View>
 
@@ -297,7 +304,7 @@ const styles = StyleSheet.create({
         alignContent: 'center',
         padding: 15,
         margin: 5,
-        marginHorizontal:20
+        marginHorizontal: 20
     },
     btn: {
         alignSelf: 'center',

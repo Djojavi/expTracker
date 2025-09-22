@@ -1,6 +1,9 @@
 import { Transaccion } from "@/app/(tabs)/transacciones"
 import { useObjetivos } from "@/hooks/useCuentas"
 import { useTransacciones } from "@/hooks/useTransacciones"
+import { en, es } from '@/utils/translations'
+import * as Localization from 'expo-localization'
+import { I18n } from 'i18n-js'
 import { useEffect, useState } from "react"
 import { Alert, FlatList, Pressable, StyleSheet, Text, TextInput, View } from "react-native"
 import { TransaccionItemComponent } from "./transaccionItem"
@@ -14,6 +17,11 @@ type addInCuentasProps = {
 }
 
 export const AddInCuentasScreen: React.FC<addInCuentasProps> = ({ tipoAMostrar, idCuenta, nombreAMostrar, saldoPresupuesto, saldoObjetivo }) => {
+    let [locale, setLocale] = useState(Localization.getLocales())
+    const i18n = new I18n();
+    i18n.enableFallback = true;
+    i18n.translations = { en, es };
+    i18n.locale = locale[0].languageCode ?? 'en';
     const { getIngresosConMonto, getGastosNoPresupuestados } = useTransacciones()
     const { updateSaldo } = useObjetivos()
     const [transacciones, setTransacciones] = useState<Transaccion[]>([])
@@ -80,8 +88,8 @@ export const AddInCuentasScreen: React.FC<addInCuentasProps> = ({ tipoAMostrar, 
                 const { [id]: _, ...rest } = prev;
                 return rest
             })
-        }else{
-            Alert.alert('Error', 'Ingrese un número válido')
+        } else {
+            Alert.alert('Error', i18n.t('InvalidNumber'))
         }
         await handleIniciar()
     };
@@ -93,7 +101,7 @@ export const AddInCuentasScreen: React.FC<addInCuentasProps> = ({ tipoAMostrar, 
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>Selecciona transacciones para añadir a {nombreAMostrar}</Text>
+            <Text style={styles.title}> {i18n.t('SelectTransactions',{nameShow: nombreAMostrar})}</Text>
             <FlatList
                 data={transacciones}
                 keyExtractor={(item) => item.transaccion_id?.toString() ?? Math.random().toString()}
@@ -125,7 +133,7 @@ export const AddInCuentasScreen: React.FC<addInCuentasProps> = ({ tipoAMostrar, 
                             </View>
                             {transaccionesSeleccionadas[item.transaccion_id ?? 0]?.checked && tipoAMostrar === 'Ingreso' && (
                                 <TextInput
-                                    placeholder="Monto"
+                                    placeholder={i18n.t('Transactions.Amount')}
                                     keyboardType="numeric"
                                     value={transaccionesSeleccionadas[item.transaccion_id ?? 0]?.monto.toString()}
                                     onChangeText={(value) =>

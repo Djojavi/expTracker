@@ -6,6 +6,9 @@ import { NoData } from '@/components/ui/NoData';
 import { useCategorias } from '@/hooks/useCategorias';
 import { useTransacciones } from '@/hooks/useTransacciones';
 import { datosBarChart } from '@/utils/dateutils';
+import { en, es } from '@/utils/translations';
+import * as Localization from 'expo-localization';
+import { I18n } from 'i18n-js';
 import React, { useEffect, useState } from 'react';
 import { FlatList, KeyboardAvoidingView, Platform, StyleSheet, Text, View } from 'react-native';
 import { Categoria } from './categoria';
@@ -14,6 +17,11 @@ import { Transaccion } from './transacciones';
 // Pantalla con los gastos
 
 const Gastos = () => {
+    let [locale, setLocale] = useState(Localization.getLocales())
+      const i18n = new I18n();
+      i18n.enableFallback = true;
+      i18n.translations = { en, es };
+      i18n.locale = locale[0].languageCode ?? 'en';
     const { getGastos, getGastosPorFecha } = useTransacciones();
     const [transaccionesFiltradas, setTransaccionesFiltradas] = useState<Transaccion[]>([]);
     const [gastos, setGastos] = useState(0)
@@ -99,7 +107,7 @@ const Gastos = () => {
                     <View style={styles.content}>
                         {transaccionesFiltradas.length === 0 &&
                             <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                                <NoData message='gastos' />
+                                <NoData message={i18n.t('Home.Transactions')} />
                             </View>
                         }
                         <FlatList

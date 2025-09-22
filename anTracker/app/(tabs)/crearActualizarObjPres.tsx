@@ -1,7 +1,10 @@
-import { useObjetivos } from "@/hooks/useCuentas"
-import { useTransacciones } from "@/hooks/useTransacciones"
-import { useEffect, useState } from "react"
-import { Alert, Pressable, StyleSheet, Text, TextInput, View } from "react-native"
+import { useObjetivos } from "@/hooks/useCuentas";
+import { useTransacciones } from "@/hooks/useTransacciones";
+import * as Localization from 'expo-localization';
+import { I18n } from "i18n-js";
+import { useEffect, useState } from "react";
+import { Alert, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { en, es } from '../../utils/translations';
 
 type CrearActualizarObjPresProps = {
     esCrear: boolean
@@ -10,6 +13,12 @@ type CrearActualizarObjPresProps = {
 }
 
 export const CrearActualizarObjPres: React.FC<CrearActualizarObjPresProps> = ({ esCrear, esObjetivo, onCloseSheet }) => {
+    let [locale, setLocale] = useState(Localization.getLocales())
+    const i18n = new I18n();
+    i18n.enableFallback = true;
+    i18n.translations = { en, es };
+    i18n.locale = locale[0].languageCode ?? 'en';
+
     const { crearCuenta } = useObjetivos()
     const { getBalance } = useTransacciones()
     const [cuenta_nombre, setCuenta_nombre] = useState('')
@@ -65,14 +74,14 @@ export const CrearActualizarObjPres: React.FC<CrearActualizarObjPresProps> = ({ 
     return (
         <View style={styles.container}>
             <Text style={styles.title}>
-                {esCrear ? 'Nuevo' : 'Actualizar'}{esObjetivo ? ' Objetivo' : ' Presupuesto'}
+                {esCrear ? i18n.t('Common.New') : i18n.t('Common.Update')}{esObjetivo ? ' '+i18n.t('Common.Goal') : ' '+i18n.t('Common.Budget')}
             </Text>
 
             {!esObjetivo &&
                 <View style={{ alignItems: 'center', marginBottom: 10 }}>
-                    <Text style={{ fontSize: 16, fontStyle: 'italic' }}>Tu saldo actual es:</Text>
+                    <Text style={{ fontSize: 16, fontStyle: 'italic' }}>{i18n.t('GoalsBudgets.CurrentBalance')} </Text>
                     <Text style={{ fontSize: 24, fontWeight: '500' }}>{balance} </Text>
-                    <View style={{height:2, backgroundColor:'#b8b8b8ff', width:'90%', borderRadius:5}}></View>
+                    <View style={{ height: 2, backgroundColor: '#b8b8b8ff', width: '90%', borderRadius: 5 }}></View>
                 </View>
             }
 
@@ -80,27 +89,27 @@ export const CrearActualizarObjPres: React.FC<CrearActualizarObjPresProps> = ({ 
                 style={styles.input}
                 value={cuenta_nombre}
                 onChangeText={setCuenta_nombre}
-                placeholder="Nombre"
+                placeholder={i18n.t('Transactions.Name')}
             />
 
             <TextInput
                 style={[styles.input, styles.textArea]}
                 value={cuenta_descripcion}
                 onChangeText={setCuenta_descripcion}
-                placeholder="Descripción"
+                placeholder={i18n.t('Transactions.Description')}
                 multiline
             />
 
             <TextInput
                 style={styles.input}
-                placeholder="Monto"
+                placeholder={i18n.t('Transactions.Amount')}
                 keyboardType="numeric"
                 value={cuenta_monto}
                 onChangeText={setCuenta_monto}
             />
 
             <Pressable style={styles.addButton} onPress={() => handleAdd()}>
-                <Text style={{ color: "#fff", textAlign: "center", fontWeight: "bold" }}>Listo!</Text>
+                <Text style={{ color: "#fff", textAlign: "center", fontWeight: "bold" }}>{i18n.t('Transactions.Done')}</Text>
             </Pressable>
         </View>
     )

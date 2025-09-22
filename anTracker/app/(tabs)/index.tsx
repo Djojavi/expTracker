@@ -1,12 +1,18 @@
-import { useNavigation } from '@react-navigation/native';
+import { en, es } from '@/utils/translations';
+import * as Localization from 'expo-localization';
 import { Link } from 'expo-router';
-import React from 'react';
+import { I18n } from 'i18n-js';
+import React, { useState } from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
 
 //Pantalla de bienvenida
 
 const Welcome = () => {
-  const navigation = useNavigation();
+   let [locale, setLocale] = useState(Localization.getLocales())
+        const i18n = new I18n();
+        i18n.enableFallback = true;
+        i18n.translations = { en, es };
+        i18n.locale = locale[0].languageCode ?? 'en';
 
   return (
     <View style={styles.container}>
@@ -17,13 +23,13 @@ const Welcome = () => {
       <View style={styles.buttonContainer}>
         <Link href="/(tabs)/transacciones">
           <View style={styles.buttonTransacciones}>
-            <Text style={styles.buttonTitle}>Transacciones</Text>
+            <Text style={styles.buttonTitle}> {i18n.t('Home.Transactions')} </Text>
           </View>
         </Link>
 
         <Link href="/(tabs)/categoria">
           <View style={styles.button}>
-            <Text style={styles.buttonTitle}>Categorias</Text>
+            <Text style={styles.buttonTitle}>{i18n.t('Home.Categories')}</Text>
           </View>
         </Link>
         
