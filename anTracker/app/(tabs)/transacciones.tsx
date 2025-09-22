@@ -14,6 +14,7 @@ import { Dropdown } from 'react-native-element-dropdown';
 import RBSheet from 'react-native-raw-bottom-sheet';
 import { Categoria } from './categoria';
 
+
 //Pantalla con las transacciones
 
 export type Transaccion = {

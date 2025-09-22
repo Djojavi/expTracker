@@ -2,14 +2,22 @@ import { DrawerLayout } from '@/components/DrawerLayout';
 import { ObjPresupuestoCard } from '@/components/objPresupuestoCard';
 import { NoData } from '@/components/ui/NoData';
 import { useObjetivos } from '@/hooks/useCuentas';
+import * as Localization from 'expo-localization';
+import { I18n } from "i18n-js";
 import { useEffect, useRef, useState } from 'react';
 import { FlatList, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import RBSheet from 'react-native-raw-bottom-sheet';
+import { en, es } from '../../utils/translations';
 import { CrearActualizarObjPres } from './crearActualizarObjPres';
 import { Cuenta } from './objetivos';
-
 //Pantalla con los presupuestos del usuario
 const Presupuestos = () => {
+    let [locale, setLocale] = useState(Localization.getLocales())
+    const i18n = new I18n();
+    i18n.enableFallback= true;
+    i18n.translations = {en, es};
+    i18n.locale = locale[0].languageCode ?? 'en';
+
     const { getPresupuestos } = useObjetivos();
     const [presupuestos, setPresupuestos] = useState<Cuenta[]>([])
     interface RBSheetRef {
@@ -21,6 +29,7 @@ const Presupuestos = () => {
     const initializePresupuestos = async () => {
         try {
             const data = await getPresupuestos();
+            console.log(locale[0].languageCode)
             setPresupuestos([...data]);
         } catch (error) {
             console.error(error)
@@ -58,7 +67,7 @@ const Presupuestos = () => {
                             <View style={{ justifyContent: 'center', alignItems: 'center' }}>
                                 <NoData message='presupuestos' />
                                 <Pressable style={styles.buttonDos} onPress={() => refRBSheet.current?.open()} >
-                                    <Text style={styles.iconDos}>Registra uno</Text>
+                                    <Text style={styles.iconDos}>{i18n.t('NoData.AddOne')}</Text>
                                 </Pressable>
                             </View>
                         }

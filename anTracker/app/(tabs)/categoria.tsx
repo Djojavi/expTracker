@@ -1,10 +1,12 @@
 import { DrawerLayout } from '@/components/DrawerLayout';
 import { NoData } from '@/components/ui/NoData';
 import { useCategorias } from '@/hooks/useCategorias';
+import * as Localization from 'expo-localization';
+import { I18n } from "i18n-js";
 import React, { useEffect, useRef, useState } from 'react';
 import { Alert, FlatList, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 import RBSheet from 'react-native-raw-bottom-sheet';
-
+import { en, es } from '../../utils/translations';
 
 
 export type Categoria = {
@@ -19,6 +21,12 @@ interface RBSheetRef {
 }
 
 const Categoria = () => {
+  let [locale, setLocale] = useState(Localization.getLocales())
+  const i18n = new I18n();
+  i18n.enableFallback = true;
+  i18n.translations = { en, es };
+  i18n.locale = locale[0].languageCode ?? 'en';
+
   const { addCategoria, getCategorias, updateCategoria, deleteCategoria } = useCategorias();
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   let isMounted = true;
@@ -147,21 +155,21 @@ const Categoria = () => {
             }
           }}
         >
-          <Text style={styles.addCategoria}>Actualizar Categoria</Text>
+          <Text style={styles.addCategoria}>{i18n.t('Categories.uCategory')} </Text>
           <TextInput
             style={styles.inputNombre}
-            placeholder="Nombre"
+            placeholder={i18n.t('Transactions.Name')}
             value={nombre}
             onChangeText={setNombre}
           />
           <TextInput
             style={styles.input}
-            placeholder="Descripcion"
+            placeholder={i18n.t('Transactions.Description')}
             value={descripcion}
             onChangeText={setDescripcion}
           />
 
-          <Text style={styles.text}>Escoge el color para tu categoría!</Text>
+          <Text style={styles.text}>{i18n.t('Categories.chooseColor')}</Text>
           <View style={styles.colorContainer}>
             {colors.map((color, index) => {
               const isActive = selectedColor === color;
@@ -190,13 +198,13 @@ const Categoria = () => {
             onPress={() => handleUpdateCategoria(idActualizar)}
           >
             <Text style={{ color: "#fff", textAlign: "center", fontWeight: "bold" }}>
-              Listo!
+              {i18n.t('Transactions.Done')}
             </Text>
           </TouchableOpacity>
           <TouchableOpacity style={[styles.deleteButton, { marginTop: 5 }]} onPress={() => handleDeleteCategoria(nombreBorrar)}
           >
             <Text style={{ color: "#fff", textAlign: "center", fontWeight: "bold" }}>
-              Eliminar Categoría
+              {i18n.t('Categories.dCategory')}
             </Text>
 
           </TouchableOpacity>
@@ -207,7 +215,7 @@ const Categoria = () => {
             <View style={{ justifyContent: 'center', alignItems: 'center' }}>
               <NoData message='categorias' />
               <Pressable style={styles.buttonDos} onPress={() => refRBSheet.current?.open()} >
-                <Text style={styles.iconDos}>Registra uno</Text>
+                <Text style={styles.iconDos}>{i18n.t('NoData.AddOne')}</Text>
               </Pressable>
             </View>
           }
@@ -247,21 +255,21 @@ const Categoria = () => {
             }
           }}
         >
-          <Text style={styles.addCategoria}>Añadir Categoria</Text>
+          <Text style={styles.addCategoria}>{i18n.t('Categories.aCategory')}</Text>
           <TextInput
             style={styles.inputNombre}
-            placeholder="Nombre"
+            placeholder={i18n.t('Transactions.Name')}
             value={nombre}
             onChangeText={setNombre}
           />
           <TextInput
             style={styles.input}
-            placeholder="Descripcion"
+            placeholder={i18n.t('Transactions.Description')}
             value={descripcion}
             onChangeText={setDescripcion}
           />
 
-          <Text style={styles.text}>Escoge el color para tu categoría!</Text>
+          <Text style={styles.text}>{i18n.t('Categories.chooseColor')}</Text>
           <View style={styles.colorContainer}>
             {colors.map((color, index) => {
               const isActive = selectedColor === color;
@@ -291,7 +299,7 @@ const Categoria = () => {
             onPress={() => handleAddCategoria()}
           >
             <Text style={{ color: "#fff", textAlign: "center", fontWeight: "bold" }}>
-              Listo!
+              {i18n.t('Transactions.Done')}
             </Text>
           </TouchableOpacity>
         </RBSheet>
@@ -302,7 +310,7 @@ const Categoria = () => {
           onPress={() => { setToNull(), refRBSheet.current?.open() }}
         >
           <Text style={{ color: "#fff", textAlign: "center", fontWeight: "bold" }}>
-            Nueva categoría
+            {i18n.t('Categories.aCategory')}
           </Text>
         </TouchableOpacity>
       </DrawerLayout>
@@ -493,23 +501,23 @@ const styles = StyleSheet.create({
     borderRadius: 15,
   },
   buttonDos: {
-        backgroundColor: "#A37366",
-        width: 170,
-        height: 50,
-        borderRadius: 30,
-        justifyContent: "center",
-        alignItems: "center",
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.3,
-        shadowRadius: 3,
-        elevation: 5,
-    },
-    iconDos: {
-        color: "#fff",
-        fontSize: 19,
-        fontWeight: "bold",
-    },
+    backgroundColor: "#A37366",
+    width: 170,
+    height: 50,
+    borderRadius: 30,
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+    elevation: 5,
+  },
+  iconDos: {
+    color: "#fff",
+    fontSize: 19,
+    fontWeight: "bold",
+  },
 });
 
 export default Categoria;
