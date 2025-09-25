@@ -1,4 +1,7 @@
-import { useRef } from "react";
+import { en, es } from '@/utils/translations';
+import * as Localization from 'expo-localization';
+import { I18n } from 'i18n-js';
+import { useRef, useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import RBSheet from "react-native-raw-bottom-sheet";
 import { AddInCuentasScreen } from "./addTransaccionesInCuentas";
@@ -33,6 +36,11 @@ export const ObjPresupuestoCard: React.FC<ObjPresupuestoProps> = ({
     open: () => void;
     close: () => void;
   }
+  let [locale, setLocale] = useState(Localization.getLocales())
+  const i18n = new I18n();
+  i18n.enableFallback = true;
+  i18n.translations = { en, es };
+  i18n.locale = locale[0].languageCode ?? 'en';
   const refRBSheet = useRef<RBSheetRef>(null);
   const detailsRefRBSheet = useRef<RBSheetRef>(null);
   return (
@@ -50,8 +58,8 @@ export const ObjPresupuestoCard: React.FC<ObjPresupuestoProps> = ({
           }
         }}
       >
-        <AddInCuentasScreen 
-          tipoAMostrar={aMostrar} idCuenta={id} nombreAMostrar={nombre} saldoPresupuesto={total+actual} saldoObjetivo={total-actual}  />
+        <AddInCuentasScreen
+          tipoAMostrar={aMostrar} idCuenta={id} nombreAMostrar={nombre} saldoPresupuesto={total + actual} saldoObjetivo={total - actual} />
       </RBSheet>
 
       <RBSheet
@@ -64,11 +72,11 @@ export const ObjPresupuestoCard: React.FC<ObjPresupuestoProps> = ({
             padding: 15,
             borderTopLeftRadius: 20,
             borderTopRightRadius: 20,
-            backgroundColor:'#E0F7FA'
+            backgroundColor: '#E0F7FA'
           }
         }}
       >
-        <DetailsObjPresupuestoComponent 
+        <DetailsObjPresupuestoComponent
           tipoAMostrar={aMostrar} idCuenta={id} porcentaje={progreso} nombre={nombre} current={actual} />
       </RBSheet>
 
@@ -82,26 +90,26 @@ export const ObjPresupuestoCard: React.FC<ObjPresupuestoProps> = ({
             ) : null}
           </View>
           <View style={styles.right}>
-            <Text style={{fontSize:11, fontStyle:'italic', color:'#646464ff'}}>{tipo === "O" ? "Has ahorrado el" : "Te queda el"}</Text>
+            <Text style={{ fontSize: 11, fontStyle: 'italic', color: '#646464ff' }}>{tipo === "O" ? i18n.t('OPCard.Saved') : i18n.t('OPCard.Left')}</Text>
             <Text
               style={[
                 styles.percentage,
                 { color: tipo === "O" ? "#4caf50" : "#2196f3" },
               ]}
             >
-              {tipo =="O" ? Math.round(progreso * 100): Math.round(100+progreso * 100) }%
+              {tipo == "O" ? Math.round(progreso * 100) : Math.round(100 + progreso * 100)}%
             </Text>
           </View>
         </View>
 
         <View style={styles.progressWrapper}>
           <ProgressBar
-            progress={tipo=="O" ? progreso: 1+progreso}
+            progress={tipo == "O" ? progreso : 1 + progreso}
             color={tipo === "O" ? "#4caf50" : "#2196f3"}
             backgroundColor="#f0f0f0"
             start={0}
             end={total}
-            current={tipo=="O" ? actual: -total -actual}
+            current={tipo == "O" ? actual : -total - actual}
             height={14}
           />
         </View>
@@ -114,10 +122,10 @@ export const ObjPresupuestoCard: React.FC<ObjPresupuestoProps> = ({
 
         <View style={styles.buttonRow}>
           <Pressable onPress={() => detailsRefRBSheet.current?.open()} style={[styles.button, { backgroundColor: '#A37366' }]}>
-            <Text style={styles.buttonText}>Detalles</Text>
+            <Text style={styles.buttonText}>{i18n.t('OPCard.Details')}</Text>
           </Pressable>
           <Pressable onPress={() => refRBSheet.current?.open()} style={[styles.button, { backgroundColor: tipo === 'O' ? "#4caf50" : "#2196f3" }]}>
-            <Text style={styles.buttonText}>Añadir</Text>
+            <Text style={styles.buttonText}>{i18n.t('OPCard.Add')}</Text>
           </Pressable>
         </View>
       </View>

@@ -1,5 +1,6 @@
 import React, { ReactNode, useRef } from 'react';
 import { DrawerLayoutAndroid, Image, StyleSheet, TouchableOpacity, View } from 'react-native';
+import i18n from "../utils/i18n";
 import { MenuItem } from './MenuItem';
 
 type DrawerProps = {
@@ -12,15 +13,15 @@ export const DrawerLayout: React.FC<DrawerProps> = ({ children, screenName }) =>
 
     const navigationView = () => (
         <View style={[styles.container, styles.navigationContainer]}>
-            <MenuItem source={require('../assets/icons/casa.png')} href={'../(tabs)'} text='Inicio' screenName={screenName} ></MenuItem>
-            <MenuItem source={require('../assets/icons/dinero.png')} href={'../(tabs)/transacciones'} text='Transacciones' screenName={screenName}></MenuItem>
-            <MenuItem source={require('../assets/icons/income.png')} href={'../(tabs)/ingresos'} text='Ingresos' screenName={screenName} ></MenuItem>
-            <MenuItem source={require('../assets/icons/expenses.png')} href={'../(tabs)/gastos'} text='Gastos' screenName={screenName} ></MenuItem>
-            <MenuItem source={require('../assets/icons/categoria.png')} href={'../(tabs)/categoria'} text='Categoría' screenName={screenName} ></MenuItem>
+            <MenuItem source={require('../assets/icons/casa.png')} href={'../(tabs)'} text={i18n.t('Menu.Home')} screenName={screenName} ></MenuItem>
+            <MenuItem source={require('../assets/icons/dinero.png')} href={'../(tabs)/transacciones'} text={i18n.t('Home.Transactions')} screenName={screenName}></MenuItem>
+            <MenuItem source={require('../assets/icons/income.png')} href={'../(tabs)/ingresos'} text={i18n.t('Menu.Income')} screenName={screenName} ></MenuItem>
+            <MenuItem source={require('../assets/icons/expenses.png')} href={'../(tabs)/gastos'} text={i18n.t('Menu.Expenses')} screenName={screenName} ></MenuItem>
+            <MenuItem source={require('../assets/icons/categoria.png')} href={'../(tabs)/categoria'} text={i18n.t('Home.Categories')} screenName={screenName} ></MenuItem>
             <MenuItem source={require('../assets/icons/csv.png')} href={'../(tabs)/importExport'} text='CSV' screenName={screenName} ></MenuItem>
-            <MenuItem source={require('../assets/icons/pie-chart.png')} href={'../(tabs)/graficos'} text='Graficos' screenName={screenName} ></MenuItem>
-            <MenuItem source={require('../assets/icons/target.png')} href={'../(tabs)/objetivos'} text='Objetivos' screenName={screenName} ></MenuItem>
-            <MenuItem source={require('../assets/icons/budget.png')} href={'../(tabs)/presupuestos'} text='Presupuestos' screenName={screenName} ></MenuItem>
+            <MenuItem source={require('../assets/icons/pie-chart.png')} href={'../(tabs)/graficos'} text={i18n.t('Menu.Analytics')} screenName={screenName} ></MenuItem>
+            <MenuItem source={require('../assets/icons/target.png')} href={'../(tabs)/objetivos'} text={i18n.t('Menu.Goals')} screenName={screenName} ></MenuItem>
+            <MenuItem source={require('../assets/icons/budget.png')} href={'../(tabs)/presupuestos'} text={i18n.t('Menu.Budgets')} screenName={screenName} ></MenuItem>
         </View>
     );
 

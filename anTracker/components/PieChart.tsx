@@ -47,32 +47,6 @@ export const PieChartComponent: React.FC<DrawerProps> = ({ pieData, montosPorCat
         );
     };
 
-    const renderLegendComponent = () => {
-        return (
-            <>
-                <View
-                    style={{
-                        flexDirection: 'row',
-                        justifyContent: 'center',
-                        marginBottom: 10,
-                    }}>
-                    <View
-                        style={{
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                            flexWrap: 'wrap'
-                        }}>
-                        {montosPorCategoria.map((element, key) => (
-                            <View key={key} style={{ width: 120, flexDirection: "row", alignItems: "center", marginRight: 18 }}>
-                                {renderDot(element.categoria_color)}
-                                <Text style={{ color: "#000000ff" }}>{element.categoria_nombre}</Text>
-                            </View>
-                        ))}
-                    </View>
-                </View>
-            </>
-        );
-    };
 
     return (
         <View style={{ padding: 10, borderRadius:20, borderColor: '#fff', alignItems: 'center' }}>

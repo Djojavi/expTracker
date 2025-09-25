@@ -2,21 +2,14 @@ import { DrawerLayout } from '@/components/DrawerLayout';
 import { ObjPresupuestoCard } from '@/components/objPresupuestoCard';
 import { NoData } from '@/components/ui/NoData';
 import { useObjetivos } from '@/hooks/useCuentas';
-import * as Localization from 'expo-localization';
-import { I18n } from "i18n-js";
 import { useEffect, useRef, useState } from 'react';
 import { FlatList, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import RBSheet from 'react-native-raw-bottom-sheet';
-import { en, es } from '../../utils/translations';
+import i18n from '../../utils/i18n';
 import { CrearActualizarObjPres } from './crearActualizarObjPres';
 import { Cuenta } from './objetivos';
 //Pantalla con los presupuestos del usuario
 const Presupuestos = () => {
-    let [locale, setLocale] = useState(Localization.getLocales())
-    const i18n = new I18n();
-    i18n.enableFallback= true;
-    i18n.translations = {en, es};
-    i18n.locale = locale[0].languageCode ?? 'en';
 
     const { getPresupuestos } = useObjetivos();
     const [presupuestos, setPresupuestos] = useState<Cuenta[]>([])
@@ -29,7 +22,6 @@ const Presupuestos = () => {
     const initializePresupuestos = async () => {
         try {
             const data = await getPresupuestos();
-            console.log(locale[0].languageCode)
             setPresupuestos([...data]);
         } catch (error) {
             console.error(error)
@@ -47,7 +39,7 @@ const Presupuestos = () => {
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : -500}
         >
-            <DrawerLayout screenName='Presupuestos' >
+            <DrawerLayout screenName={i18n.t('Menu.Budgets')}>
                 <RBSheet ref={refRBSheet}
                     height={450}
                     openDuration={300}

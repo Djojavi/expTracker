@@ -5,11 +5,9 @@ import { CustomCheckbox } from '@/components/ui/CheckBox';
 import { NoData } from '@/components/ui/NoData';
 import { useTransacciones } from '@/hooks/useTransacciones';
 import { darkenHexColor } from '@/utils/colorUtils';
-import { en, es } from '@/utils/translations';
-import * as Localization from 'expo-localization';
-import { I18n } from 'i18n-js';
 import React, { useEffect, useState } from 'react';
 import { FlatList, KeyboardAvoidingView, Platform, StyleSheet, Text, View } from 'react-native';
+import i18n from '../../utils/i18n';
 
 // Pantalla con los graficos de las categorias
 export type MontoPorCategoria = {
@@ -20,11 +18,6 @@ export type MontoPorCategoria = {
 }
 
 const Graficos = () => {
-    let [locale, setLocale] = useState(Localization.getLocales())
-    const i18n = new I18n();
-    i18n.enableFallback = true;
-    i18n.translations = { en, es };
-    i18n.locale = locale[0].languageCode ?? 'en';
     const { getMontosPorCategoria, getMontosGastosPorCategoria, getMontosIngresosPorCategoria } = useTransacciones();
     const [montosPorCategoria, setMontosPorCategoria] = useState<MontoPorCategoria[]>([]);
     const [pieData, setPieData] = useState<{ gradientCenterColor: string, color: string; value: number; }[]>([]);
@@ -116,7 +109,7 @@ const Graficos = () => {
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
         >
-            <DrawerLayout screenName='Graficos' >
+            <DrawerLayout screenName={i18n.t('Menu.Analytics')} >
                 <View style={styles.container}>
                     <View style={{ justifyContent: 'center', marginLeft: 10 }}>
 

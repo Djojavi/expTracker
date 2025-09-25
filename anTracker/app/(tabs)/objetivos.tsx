@@ -2,12 +2,10 @@ import { DrawerLayout } from '@/components/DrawerLayout';
 import { ObjPresupuestoCard } from '@/components/objPresupuestoCard';
 import { NoData } from '@/components/ui/NoData';
 import { useObjetivos } from '@/hooks/useCuentas';
-import { en, es } from '@/utils/translations';
-import * as Localization from 'expo-localization';
-import { I18n } from 'i18n-js';
 import { useEffect, useRef, useState } from 'react';
 import { FlatList, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import RBSheet from 'react-native-raw-bottom-sheet';
+import i18n from '../../utils/i18n';
 import { CrearActualizarObjPres } from './crearActualizarObjPres';
 
 export type Cuenta = {
@@ -24,11 +22,6 @@ export type Cuenta = {
 
 //Pantalla con los objetivos del usuario
 const ObjetivosScreen = () => {
-    let [locale, setLocale] = useState(Localization.getLocales())
-    const i18n = new I18n();
-    i18n.enableFallback = true;
-    i18n.translations = { en, es };
-    i18n.locale = locale[0].languageCode ?? 'en';
     const { getObjetivos } = useObjetivos();
     const [objetivos, setObjetivos] = useState<Cuenta[]>([])
     interface RBSheetRef {
@@ -57,7 +50,7 @@ const ObjetivosScreen = () => {
             keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : -500}
         >
 
-            <DrawerLayout screenName='Objetivos' >
+            <DrawerLayout screenName={i18n.t('Menu.Goals')} >
                 <RBSheet ref={refRBSheet}
                     height={400}
                     openDuration={300}

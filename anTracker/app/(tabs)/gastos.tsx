@@ -6,22 +6,15 @@ import { NoData } from '@/components/ui/NoData';
 import { useCategorias } from '@/hooks/useCategorias';
 import { useTransacciones } from '@/hooks/useTransacciones';
 import { datosBarChart } from '@/utils/dateutils';
-import { en, es } from '@/utils/translations';
-import * as Localization from 'expo-localization';
-import { I18n } from 'i18n-js';
 import React, { useEffect, useState } from 'react';
 import { FlatList, KeyboardAvoidingView, Platform, StyleSheet, Text, View } from 'react-native';
+import i18n from '../../utils/i18n';
 import { Categoria } from './categoria';
 import { Transaccion } from './transacciones';
 
 // Pantalla con los gastos
 
 const Gastos = () => {
-    let [locale, setLocale] = useState(Localization.getLocales())
-      const i18n = new I18n();
-      i18n.enableFallback = true;
-      i18n.translations = { en, es };
-      i18n.locale = locale[0].languageCode ?? 'en';
     const { getGastos, getGastosPorFecha } = useTransacciones();
     const [transaccionesFiltradas, setTransaccionesFiltradas] = useState<Transaccion[]>([]);
     const [gastos, setGastos] = useState(0)
@@ -88,7 +81,7 @@ const Gastos = () => {
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
         >
-            <DrawerLayout screenName='Gastos' >
+            <DrawerLayout screenName={i18n.t('Menu.Expenses')} >
                 <View style={styles.container}>
                     <View style={{ justifyContent: 'center', marginLeft: 10 }}>
                         <View style={{ flexDirection: 'row', justifyContent: 'flex-start', marginBottom: 5 }}>

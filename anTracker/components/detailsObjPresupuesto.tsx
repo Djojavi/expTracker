@@ -1,5 +1,8 @@
 import { useObjetivos } from "@/hooks/useCuentas"
 import { formatDate } from "@/utils/dateutils"
+import { en, es } from '@/utils/translations'
+import * as Localization from 'expo-localization'
+import { I18n } from 'i18n-js'
 import { useEffect, useState } from "react"
 import { FlatList, StyleSheet, Text, View } from "react-native"
 import ProgressBar from "./progressBar"
@@ -17,7 +20,12 @@ export type Detalles = {
     tc_monto: number
 }
 
-export const DetailsObjPresupuestoComponent: React.FC<detailsProps> = ({ tipoAMostrar, porcentaje, nombre, current,idCuenta }) => {
+export const DetailsObjPresupuestoComponent: React.FC<detailsProps> = ({ tipoAMostrar, porcentaje, nombre, current, idCuenta }) => {
+    let [locale, setLocale] = useState(Localization.getLocales())
+    const i18n = new I18n();
+    i18n.enableFallback = true;
+    i18n.translations = { en, es };
+    i18n.locale = locale[0].languageCode ?? 'en';
     const { getDetallesCuentas } = useObjetivos()
     const [detalles, setDetalles] = useState<Detalles[]>()
 
@@ -41,37 +49,37 @@ export const DetailsObjPresupuestoComponent: React.FC<detailsProps> = ({ tipoAMo
         if (entero < 40) {
             colorBarra = '#646464ff';
             feedbackEmoji = '🔮';
-            feedbackMessage = 'Tu objetivo recién empieza';
+            feedbackMessage = i18n.t('Details.Income40');
         } else if (entero < 70) {
             colorBarra = '#e6cf07ff';
             feedbackEmoji = '🚀';
-            feedbackMessage = '¡Vas por buen camino, sigue así!';
+            feedbackMessage =  i18n.t('Details.Income70');
         } else if (entero < 100) {
             colorBarra = '#6a09b9ff';
             feedbackEmoji = '🎇';
-            feedbackMessage = '¡Recta final, ahí vamos!';
+            feedbackMessage =  i18n.t('Details.Income99');
         } else {
             colorBarra = '#4CAF50';
             feedbackEmoji = '🎯';
-            feedbackMessage = '¡Lo has logrado, felicidades!';
+            feedbackMessage =  i18n.t('Details.Income100');
         }
     } else if (tipoAMostrar === "Gasto") {
         if (-entero < 70) {
             colorBarra = '#4CAF50';
             feedbackEmoji = '💵';
-            feedbackMessage = 'Presupuesto casi lleno ¡Vas por buen camino!';
+            feedbackMessage =  i18n.t('Details.Expense40');
         } else if (-entero < 40) {
             colorBarra = '#64B5F6';
             feedbackEmoji = '⚖️';
-            feedbackMessage = 'Presupuesto controlado';
+            feedbackMessage = i18n.t('Details.Expense70');
         } else if (-entero < 0) {
             colorBarra = '#e6cf07ff';
             feedbackEmoji = '💨';
-            feedbackMessage = '¡Casi agotado! Gasta con precaución';
+            feedbackMessage = i18n.t('Details.Expense99');
         } else {
             colorBarra = '#c01414ff';
             feedbackEmoji = '🔒';
-            feedbackMessage = 'Presupuesto superado';
+            feedbackMessage = i18n.t('Details.Expense100');
         }
     }
 
@@ -87,9 +95,9 @@ export const DetailsObjPresupuestoComponent: React.FC<detailsProps> = ({ tipoAMo
                 </View>
                 <ProgressBar progress={tipoAMostrar === 'Ingreso' ? porcentaje : 1 + porcentaje} current={tipoAMostrar === 'Ingreso' ? current : 1 + current} color={colorBarra} />
                 {tipoAMostrar === 'Ingreso' &&
-                <Text style={styles.percent}>{(porcentaje * 100).toFixed(2)}%</Text>}
+                    <Text style={styles.percent}>{(porcentaje * 100).toFixed(2)}%</Text>}
                 {tipoAMostrar === 'Gasto' &&
-                <Text style={styles.percent}>{((1+porcentaje) * 100).toFixed(2)}%</Text>}
+                    <Text style={styles.percent}>{((1 + porcentaje) * 100).toFixed(2)}%</Text>}
             </View>
             <FlatList data={detalles}
                 windowSize={5} onEndReached={handleIniciarDetalles}

@@ -1,11 +1,18 @@
+import { en, es } from '@/utils/translations';
+import * as Localization from 'expo-localization';
+import { I18n } from 'i18n-js';
 import React, { useRef, useState } from 'react';
 import { Animated, Image, Pressable, StyleSheet, TextInput, View } from 'react-native';
-
 type SearchExpandableProps = {
     onSubmitSearch: (nombre: string) => void;
 }
 
 export const SearchExpandable: React.FC<SearchExpandableProps> = ({ onSubmitSearch }) => {
+    let [locale, setLocale] = useState(Localization.getLocales())
+    const i18n = new I18n();
+    i18n.enableFallback = true;
+    i18n.translations = { en, es };
+    i18n.locale = locale[0].languageCode ?? 'en';
     const [expanded, setExpanded] = useState(false);
     const widthAnim = useRef(new Animated.Value(0)).current;
     const [nombre, setNombre] = useState('');
@@ -32,14 +39,14 @@ export const SearchExpandable: React.FC<SearchExpandableProps> = ({ onSubmitSear
             <Animated.View style={[styles.inputContainer, { width: widthAnim }]}>
                 <TextInput
                     value={nombre}
-                    placeholder="Buscar..."
+                    placeholder={i18n.t('Transactions.Search')}
                     style={styles.input}
                     returnKeyType="search"
-                    onChangeText={setNombre}           
+                    onChangeText={setNombre}
                     onChange={() => {
                         if (nombre.trim() !== '') {
-                            onSubmitSearch(nombre);   
-                            setNombre('');             
+                            onSubmitSearch(nombre);
+                            setNombre('');
                         }
                     }}
                 />
@@ -57,7 +64,7 @@ const styles = StyleSheet.create({
     btn: {
         backgroundColor: '#ffffffff',
         padding: 5,
-        flexDirection:'row',
+        flexDirection: 'row',
         borderRadius: 8,
     },
     inputContainer: {
@@ -76,7 +83,7 @@ const styles = StyleSheet.create({
         height: 23,
         resizeMode: 'contain',
         backgroundColor: '#fff',
-        marginRight:2
+        marginRight: 2
     },
 });
 

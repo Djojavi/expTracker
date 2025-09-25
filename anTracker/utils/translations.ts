@@ -14,20 +14,10 @@ const en = {
     Transactions: {
         Search: 'Search',
         SearchCategory: 'Search by category',
-        Months: {
-            January: 'Jan',
-            February: 'Feb',
-            March: 'Mar',
-            April: 'Apr',
-            May: 'May',
-            June: 'June',
-            July: 'July',
-            August: 'Aug',
-            September: 'Sept',
-            October: 'Oct',
-            November: 'Nov',
-            December: 'Dec'
-        },
+        Months: [
+            "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+            "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+        ],
         Balance: 'Balance',
         Budgeted: 'Budgeted',
         aTransaction: 'Add Transaction',
@@ -39,7 +29,9 @@ const en = {
         FindCategory: 'Find your categories',
         Done: 'Done!',
         dTransaction: 'Delete Transaction',
-        uTransaction: 'Update Transaction'
+        uTransaction: 'Update Transaction',
+        errorDelete: `We couldn't delete the transaction succesfully, try again`,
+        successDelete: 'Transaction deleted succesfully'
     },
     Categories: {
         aCategory: 'Add Category',
@@ -87,11 +79,28 @@ const en = {
     Common: {
         New: 'New',
         Update: 'Update',
-        Goal: 'Objetivo',
+        Goal: 'Goal',
         Budget: 'Budget'
     },
     InvalidNumber: 'Please enter a valid number',
-    SelectTransactions: 'Select transactions to add to %{nameShow}'
+    SelectTransactions: 'Select transactions to add to %{nameShow}',
+    SearchByCategory: 'Search by category...',
+    Details: {
+        Income40: 'Your goal just started...',
+        Income70: `You're on track, keep going!`,
+        Income99: 'Final push, here we go!',
+        Income100: 'You did it, congratulations!',
+        Expense40: 'Budget almost full, good job',
+        Expense70: 'Buget controlled',
+        Expense99: 'Almost empty! Be careful',
+        Expense100: 'Budget exceeded',
+    },
+    OPCard: {
+        Saved: 'You have saved ',
+        Left: 'You have left in total ',
+        Details: 'Details',
+        Add: 'Add'
+    }
 }
 
 const es = {
@@ -110,20 +119,8 @@ const es = {
     Transactions: {
         Search: 'Buscar',
         SearchCategory: 'Buscar por categoría',
-        Months: {
-            January: 'Ene',
-            February: 'Feb',
-            March: 'Mar',
-            April: 'Abr',
-            May: 'May',
-            June: 'Jun',
-            July: 'Jul',
-            August: 'Ago',
-            September: 'Sept',
-            October: 'Oct',
-            November: 'Nov',
-            December: 'Dic'
-        },
+        Months: ["Ene", "Feb", "Mar", "Abr", "May", "Jun",
+            "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"],
         Balance: 'Balance',
         Budgeted: 'Presupuestado',
         aTransaction: 'Añadir Transacción',
@@ -135,7 +132,9 @@ const es = {
         FindCategory: 'Encuentra tus categorías',
         Done: 'Listo!',
         dTransaction: 'Eliminar Transacción',
-        uTransaction: 'Actualizar Transacción'
+        uTransaction: 'Actualizar Transacción',
+        errorDelete: `No se eliminó correctamente, intente de nuevo`,
+        successDelete: 'Se ha eliminado correctamente la transacción'
     },
     Categories: {
         aCategory: 'Añadir Categoría',
@@ -187,7 +186,24 @@ const es = {
         Budget: 'Presupuesto'
     },
     InvalidNumber: 'Ingrese un número válido',
-    SelectTransactions: 'Selecciona transacciones para añadir a  %{nameShow}'
+    SelectTransactions: 'Selecciona transacciones para añadir a  %{nameShow}',
+    SearchByCategory: 'Buscar por categoría...',
+    Details: {
+        Income40: 'Tu objetivo recién empieza',
+        Income70: `¡Vas por buen camino, sigue así!`,
+        Income99: '¡Recta final, ahí vamos!',
+        Income100: '¡Lo has logrado, felicidades!',
+        Expense40: 'Presupuesto casi lleno ¡Vas por buen camino!',
+        Expense70: 'Presupuesto controlado',
+        Expense99: '¡Casi agotado! Gasta con precaución',
+        Expense100: 'Presupuesto superado',
+    },
+    OPCard: {
+        Saved: 'Has ahorrado ',
+        Left: 'Te quedan ',
+        Details: 'Detalles',
+        Add: 'Añadir'
+    }
 }
 
 export { en, es }

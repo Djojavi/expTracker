@@ -1,4 +1,7 @@
 import { useCategorias } from '@/hooks/useCategorias';
+import { en, es } from '@/utils/translations';
+import * as Localization from 'expo-localization';
+import { I18n } from 'i18n-js';
 import React, { useEffect, useRef, useState } from 'react';
 import { Animated, Easing, Image, Pressable, StyleSheet, View } from 'react-native';
 import { MultiSelect } from 'react-native-element-dropdown';
@@ -8,7 +11,11 @@ type CategoriasModalProps = {
 }
 
 export const CategoriasModal: React.FC<CategoriasModalProps> = ({ onSubmit }) => {
-
+    let [locale, setLocale] = useState(Localization.getLocales())
+    const i18n = new I18n();
+    i18n.enableFallback = true;
+    i18n.translations = { en, es };
+    i18n.locale = locale[0].languageCode ?? 'en';
     const { getCategoriasModal } = useCategorias()
     const [selected, setSelected] = useState(['']);
     const [expanded, setExpanded] = useState(false);
@@ -115,7 +122,7 @@ export const CategoriasModal: React.FC<CategoriasModalProps> = ({ onSubmit }) =>
                         data={categorias}
                         labelField="label"
                         valueField="value"
-                        placeholder="Buscar por categoría"
+                        placeholder={i18n.t('SearchByCategory')}
                         searchPlaceholder="Search..."
                         value={selected}
                         itemContainerStyle={styles.itemContainer}

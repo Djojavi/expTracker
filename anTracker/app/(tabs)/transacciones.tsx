@@ -7,14 +7,12 @@ import { NoData } from '@/components/ui/NoData';
 import { useCategorias } from '@/hooks/useCategorias';
 import { useObjetivos } from '@/hooks/useCuentas';
 import { useTransacciones } from '@/hooks/useTransacciones';
-import { en, es } from '@/utils/translations';
-import * as Localization from 'expo-localization';
 import { Link } from 'expo-router';
-import { I18n } from 'i18n-js';
 import React, { useEffect, useRef, useState } from 'react';
 import { Alert, FlatList, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
 import RBSheet from 'react-native-raw-bottom-sheet';
+import i18n from '../../utils/i18n';
 import { Categoria } from './categoria';
 
 //Pantalla con las transacciones
@@ -66,11 +64,7 @@ const RadioButton = (props: any) => {
 
 
 const Transacciones = () => {
-    let [locale, setLocale] = useState(Localization.getLocales())
-    const i18n = new I18n();
-    i18n.enableFallback = true;
-    i18n.translations = { en, es };
-    i18n.locale = locale[0].languageCode ?? 'en';
+
     const { getCategorias } = useCategorias();
     const [categorias, setCategorias] = useState<Categoria[]>([]);
 
@@ -218,7 +212,7 @@ const Transacciones = () => {
 
         } else {
             Alert.alert('Error','', [
-                { text: 'Entendido', onPress: () => console.log('OK Pressed') },
+                { text: 'OK', onPress: () => console.log('OK Pressed') },
             ]);
         }
     }
@@ -245,7 +239,7 @@ const Transacciones = () => {
 
         } else {
             Alert.alert('Error', '', [
-                { text: 'Entendido', onPress: () => console.log('OK Pressed') },
+                { text: 'OK', onPress: () => console.log('OK Pressed') },
             ]);
         }
     }
@@ -287,13 +281,13 @@ const Transacciones = () => {
     const handleDeleteTransaccion = async (id: number) => {
         const resultado = await deleteTransaccion(id);
         if (!resultado) {
-            Alert.alert('Error', 'No se eliminó correctamente, intente de nuevo', [
-                { text: 'Entendido', onPress: () => console.log('OK Pressed') },
+            Alert.alert('Error', i18n.t('Transactions.errorDelete'), [
+                { text: 'OK', onPress: () => console.log('OK Pressed') },
             ]);
         } else {
             updateRefRBSheet.current?.close()
-            Alert.alert('Éxito', 'Se ha eliminado correctamente la transacción', [
-                { text: 'Entendido', onPress: () => console.log('OK Pressed') },
+            Alert.alert('Ok', i18n.t('Transactions.successDelete'), [
+                { text: 'OK', onPress: () => console.log('OK Pressed') },
             ]);
         }
         initializeTransacciones();
@@ -316,7 +310,7 @@ const Transacciones = () => {
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : -500}
         >
-            <DrawerLayout screenName='Transacciones' >
+            <DrawerLayout screenName={i18n.t('Home.Transactions')} >
                 <RBSheet
                     ref={refRBSheet}
                     onOpen={() => setToNull()}
@@ -334,7 +328,7 @@ const Transacciones = () => {
                 >
                     <ScrollView showsVerticalScrollIndicator={false}>
 
-                        <Text style={styles.addTransaccion}>Añadir Transacción</Text>
+                        <Text style={styles.addTransaccion}>{i18n.t('Transactions.aTransaction')} </Text>
                         <View style={styles.radioButtonContainer}>
                             <View style={styles.radioButtonRow}>
                                 <RadioButton
@@ -342,7 +336,7 @@ const Transacciones = () => {
                                     onPress={() => setTipo('Ingreso')}
                                     style={styles.radioButton}
                                 />
-                                <Text style={styles.radioText}>Ingreso</Text>
+                                <Text style={styles.radioText}> {i18n.t('Menu.Income')} </Text>
                             </View>
                             <View style={styles.radioButtonRow}>
                                 <RadioButton
@@ -350,13 +344,13 @@ const Transacciones = () => {
                                     onPress={() => setTipo('Gasto')}
                                     style={styles.radioButton}
                                 />
-                                <Text style={styles.radioText}>Gasto</Text>
+                                <Text style={styles.radioText}>{i18n.t('Menu.Expenses')}</Text>
                             </View>
                         </View>
                         <View style={styles.nombreContainer}>
                             <TextInput
                                 style={styles.inputNombre}
-                                placeholder="Nombre"
+                                placeholder={i18n.t('Transactions.Name')}
                                 value={nombre}
                                 onChangeText={setNombre}
                             />
@@ -364,7 +358,7 @@ const Transacciones = () => {
                                 <Text style={styles.signoDolar}>$</Text>
                                 <TextInput
                                     style={styles.inputMonto}
-                                    placeholder='Monto'
+                                    placeholder={i18n.t('Transactions.Amount')}
                                     keyboardType='numeric'
                                     value={monto}
                                     onChangeText={setMonto}
@@ -373,24 +367,24 @@ const Transacciones = () => {
                         </View>
                         <TextInput
                             style={styles.input}
-                            placeholder="Descripción"
+                            placeholder={i18n.t('Transactions.Description')}
                             value={descripcion}
                             onChangeText={setDescripcion}
                         />
                         <TextInput
                             style={styles.input}
-                            placeholder="Método eg. efectivo, transferencia"
+                            placeholder={i18n.t('Transactions.Method')}
                             value={metodo}
                             onChangeText={setMetodo}
                         />
-                        <Text style={styles.catText}>Selecciona una categoría!</Text>
+                        <Text style={styles.catText}>{i18n.t('Transactions.SelectCategory')}</Text>
                         <View >
                             <Dropdown
                                 style={[styles.dropdown, isFocus && { borderColor: 'black', width: '100%' }]}
                                 data={categorias}
                                 labelField="categoria_nombre"
                                 valueField="categoria_id"
-                                placeholder='Encuentra tus categorías'
+                                placeholder={i18n.t('Transactions.FindCategory')}
                                 value={categoria}
                                 onChange={item => setCategoria(item.categoria_id)}
                                 renderItem={(item) => (
@@ -409,7 +403,7 @@ const Transacciones = () => {
                         </View>
                         <TouchableOpacity style={styles.addNombreButton} onPress={() => handleAddTransaccion()}>
                             <Text style={{ color: "#fff", textAlign: "center", fontWeight: "bold" }}>
-                                Listo!
+                                {i18n.t('Transactions.Done')}
                             </Text>
                         </TouchableOpacity>
                     </ScrollView>
@@ -430,7 +424,7 @@ const Transacciones = () => {
                     }}
                 >
                     <ScrollView showsVerticalScrollIndicator={false}>
-                        <Text style={styles.addTransaccion}>Actualizar Transacción</Text>
+                        <Text style={styles.addTransaccion}>{i18n.t('Transactions.uTransaction')}</Text>
                         <View style={styles.radioButtonContainer}>
                             <View style={styles.radioButtonRow}>
                                 <RadioButton
@@ -438,7 +432,7 @@ const Transacciones = () => {
                                     onPress={() => setTipo('Ingreso')}
                                     style={styles.radioButton}
                                 />
-                                <Text style={styles.radioText}>Ingreso</Text>
+                                <Text style={styles.radioText}>{i18n.t('Menu.Income')}</Text>
                             </View>
                             <View style={styles.radioButtonRow}>
                                 <RadioButton
@@ -446,13 +440,13 @@ const Transacciones = () => {
                                     onPress={() => setTipo('Gasto')}
                                     style={styles.radioButton}
                                 />
-                                <Text style={styles.radioText}>Gasto</Text>
+                                <Text style={styles.radioText}>{i18n.t('Menu.Expenses')}</Text>
                             </View>
                         </View>
                         <View style={styles.nombreContainer}>
                             <TextInput
                                 style={styles.inputNombre}
-                                placeholder="Nombre"
+                                placeholder={i18n.t('Transactions.Name')}
                                 value={nombre}
                                 onChangeText={setNombre}
                             />
@@ -460,7 +454,7 @@ const Transacciones = () => {
                                 <Text style={styles.signoDolar}>$</Text>
                                 <TextInput
                                     style={styles.inputMonto}
-                                    placeholder='Monto'
+                                    placeholder={i18n.t('Transactions.Amount')}
                                     keyboardType='numeric'
                                     value={monto}
                                     onChangeText={setMonto}
@@ -469,13 +463,13 @@ const Transacciones = () => {
                         </View>
                         <TextInput
                             style={styles.input}
-                            placeholder="Descripción"
+                            placeholder={i18n.t('Transactions.Description')}
                             value={descripcion}
                             onChangeText={setDescripcion}
                         />
                         <TextInput
                             style={styles.input}
-                            placeholder="Método"
+                            placeholder={i18n.t('Transactions.Method')}
                             value={metodo}
                             onChangeText={setMetodo}
                         />
@@ -504,13 +498,13 @@ const Transacciones = () => {
                         </View>
                         <TouchableOpacity style={styles.addNombreButton} onPress={() => handleUpdateTransaccion(idActualizar)}>
                             <Text style={{ color: "#fff", textAlign: "center", fontWeight: "bold" }}>
-                                Listo!
+                                {i18n.t('Transactions.Done')}
                             </Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={[styles.deleteButton, { marginTop: 5 }]} onPress={() => handleDeleteTransaccion(idBorrar)}
                         >
                             <Text style={{ color: "#fff", textAlign: "center", fontWeight: "bold" }}>
-                                Eliminar Transacción
+                                {i18n.t('Transactions.dTransaction')}
                             </Text>
 
                         </TouchableOpacity>
@@ -541,7 +535,7 @@ const Transacciones = () => {
                                 alignItems: 'center',
                             }}
                         >
-                            <Text style={{ fontSize: 14, color: '#666' }}>Balance</Text>
+                            <Text style={{ fontSize: 14, color: '#666' }}>{i18n.t('Transactions.Balance')}</Text>
                             <Text
                                 style={{ fontSize: 32, fontWeight: 'bold', color: '#333' }}
                                 adjustsFontSizeToFit
@@ -560,7 +554,7 @@ const Transacciones = () => {
                         >
                             <Link href={'/(tabs)/ingresos'} style={{ flex: 1 }}>
                                 <View style={styles.card}>
-                                    <Text style={styles.label1}>Ingresos</Text>
+                                    <Text style={styles.label1}>{i18n.t('Menu.Income')}</Text>
                                     <Text
                                         style={[styles.amount, { color: '#1F7900' }]}
                                         adjustsFontSizeToFit
@@ -571,7 +565,7 @@ const Transacciones = () => {
                                 </View>
                             </Link>
                             <View style={styles.card}>
-                                <Text style={styles.label1}>Presupuesto</Text>
+                                <Text style={styles.label1}>{i18n.t('Transactions.Budgeted')}</Text>
                                 <Text
                                     style={[styles.amount, { color: '#120079' }]}
                                     adjustsFontSizeToFit
@@ -582,7 +576,7 @@ const Transacciones = () => {
                             </View>
                             <Link href={'/(tabs)/gastos'} style={{ flex: 1 }}>
                                 <View style={styles.card}>
-                                    <Text style={styles.label1}>Gastos</Text>
+                                    <Text style={styles.label1}>{i18n.t('Menu.Expenses')}</Text>
                                     <Text
                                         style={[styles.amount, { color: '#BF0000' }]}
                                         adjustsFontSizeToFit
@@ -601,7 +595,7 @@ const Transacciones = () => {
                         </View>
                     }
                     <TouchableOpacity style={[styles.changeColor, { alignItems: 'center', justifyContent: 'center' }]} onPress={() => refRBSheet.current?.open()}>
-                        <Text style={{ color: 'white' }}>Añadir transacción</Text>
+                        <Text style={{ color: 'white' }}>{i18n.t('Transactions.aTransaction')}</Text>
                     </TouchableOpacity>
                 </View>
                 <View style={styles.content}>

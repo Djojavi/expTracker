@@ -1,12 +1,10 @@
 import { DrawerLayout } from '@/components/DrawerLayout';
 import { NoData } from '@/components/ui/NoData';
 import { useCategorias } from '@/hooks/useCategorias';
-import * as Localization from 'expo-localization';
-import { I18n } from "i18n-js";
 import React, { useEffect, useRef, useState } from 'react';
 import { Alert, FlatList, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 import RBSheet from 'react-native-raw-bottom-sheet';
-import { en, es } from '../../utils/translations';
+import i18n from '../../utils/i18n';
 
 
 export type Categoria = {
@@ -21,11 +19,6 @@ interface RBSheetRef {
 }
 
 const Categoria = () => {
-  let [locale, setLocale] = useState(Localization.getLocales())
-  const i18n = new I18n();
-  i18n.enableFallback = true;
-  i18n.translations = { en, es };
-  i18n.locale = locale[0].languageCode ?? 'en';
 
   const { addCategoria, getCategorias, updateCategoria, deleteCategoria } = useCategorias();
   const [categorias, setCategorias] = useState<Categoria[]>([]);
@@ -140,7 +133,7 @@ const Categoria = () => {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : -500}
     >
-      <DrawerLayout screenName='Categoría' >
+      <DrawerLayout screenName={i18n.t('Home.Categories')} >
         <RBSheet
           ref={updateCategoriaRBSheet}
           height={480}
