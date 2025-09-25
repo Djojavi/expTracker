@@ -2,7 +2,7 @@ import { DrawerLayout } from '@/components/DrawerLayout';
 import { NoData } from '@/components/ui/NoData';
 import { useCategorias } from '@/hooks/useCategorias';
 import React, { useEffect, useRef, useState } from 'react';
-import { Alert, FlatList, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
+import { Alert, FlatList, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 import RBSheet from 'react-native-raw-bottom-sheet';
 import i18n from '../../utils/i18n';
 
@@ -49,7 +49,7 @@ const Categoria = () => {
     return () => { isMounted = false };
   }, []);
 
-  const colors = ['#F50C00', '#E70D68', '#FA75AF', '#E75A0D', '#FF961F', '#973E20', '#A18668', '#FFCE0A', '#4B6A10', '#5BDC00', '#25F8EA', '#5C92CC', '#000FB6', '#A168DE'];
+const colors = ['#FF6B6B','#F94144','#FFB5C2','#FF9E80','#FFBE0B','#FFF3B0','#FFD6A5','#A3F7BF','#55A630','#C1FBA4','#B9FBC0','#D0F4DE','#E2ECE9','#90E0EF','#0077B6','#A0C4FF','#BBD6FF','#D9F0FF','#C77DFF','#E0AAFF','#7209B7','#E4C1F9','#FAD2E1','#FDE2E4','#FFC8DD'];
 
   const handleAddCategoria = async () => {
     if (nombre && descripcion && selectedColor !== null) {
@@ -136,11 +136,11 @@ const Categoria = () => {
       <DrawerLayout screenName={i18n.t('Home.Categories')} >
         <RBSheet
           ref={updateCategoriaRBSheet}
-          height={480}
+          height={380}
           openDuration={300}
           customStyles={{
             container: {
-              padding: 2,
+              padding: 10,
               justifyContent: 'center',
               alignItems: 'center',
               borderTopLeftRadius: 20,
@@ -163,7 +163,7 @@ const Categoria = () => {
           />
 
           <Text style={styles.text}>{i18n.t('Categories.chooseColor')}</Text>
-          <View style={styles.colorContainer}>
+          <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
             {colors.map((color, index) => {
               const isActive = selectedColor === color;
               return (
@@ -184,8 +184,7 @@ const Categoria = () => {
                 </TouchableWithoutFeedback>
               );
             })}
-
-          </View>
+          </ScrollView>
           <TouchableOpacity
             style={styles.addNombreButton}
             onPress={() => handleUpdateCategoria(idActualizar)}
@@ -236,11 +235,11 @@ const Categoria = () => {
 
         <RBSheet
           ref={refRBSheet}
-          height={400}
+          height={340}
           openDuration={300}
           customStyles={{
             container: {
-              padding: 5,
+              padding: 10,
               justifyContent: 'center',
               alignItems: 'center',
               borderTopLeftRadius: 20,
@@ -263,7 +262,7 @@ const Categoria = () => {
           />
 
           <Text style={styles.text}>{i18n.t('Categories.chooseColor')}</Text>
-          <View style={styles.colorContainer}>
+          <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
             {colors.map((color, index) => {
               const isActive = selectedColor === color;
               return (
@@ -285,7 +284,7 @@ const Categoria = () => {
               );
             })}
 
-          </View>
+          </ScrollView>
 
           <TouchableOpacity
             style={styles.addNombreButton}
