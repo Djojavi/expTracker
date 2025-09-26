@@ -211,7 +211,7 @@ const Transacciones = () => {
             }
 
         } else {
-            Alert.alert('Error','', [
+            Alert.alert('Error', '', [
                 { text: 'OK', onPress: () => console.log('OK Pressed') },
             ]);
         }
@@ -314,7 +314,7 @@ const Transacciones = () => {
                 <RBSheet
                     ref={refRBSheet}
                     onOpen={() => setToNull()}
-                    height={500}
+                    height={590}
                     openDuration={300}
                     customStyles={{
                         container: {
@@ -347,10 +347,13 @@ const Transacciones = () => {
                                 <Text style={styles.radioText}>{i18n.t('Menu.Expenses')}</Text>
                             </View>
                         </View>
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                            <Text style={styles.labelTitle}>{i18n.t('Transactions.Name')}</Text>
+                            <Text style={styles.labelTitle}>{i18n.t('Transactions.Amount')}</Text>
+                        </View>
                         <View style={styles.nombreContainer}>
                             <TextInput
                                 style={styles.inputNombre}
-                                placeholder={i18n.t('Transactions.Name')}
                                 value={nombre}
                                 onChangeText={setNombre}
                             />
@@ -365,15 +368,15 @@ const Transacciones = () => {
                                 />
                             </View>
                         </View>
+                        <Text style={styles.labelTitle}>{i18n.t('Transactions.Description')}</Text>
                         <TextInput
                             style={styles.input}
-                            placeholder={i18n.t('Transactions.Description')}
                             value={descripcion}
                             onChangeText={setDescripcion}
                         />
+                        <Text style={styles.labelTitle}>{i18n.t('Transactions.Method')}</Text>
                         <TextInput
                             style={styles.input}
-                            placeholder={i18n.t('Transactions.Method')}
                             value={metodo}
                             onChangeText={setMetodo}
                         />
@@ -411,7 +414,7 @@ const Transacciones = () => {
 
                 <RBSheet
                     ref={updateRefRBSheet}
-                    height={500}
+                    height={600}
                     openDuration={200}
                     customStyles={{
                         container: {
@@ -443,10 +446,13 @@ const Transacciones = () => {
                                 <Text style={styles.radioText}>{i18n.t('Menu.Expenses')}</Text>
                             </View>
                         </View>
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                            <Text style={styles.labelTitle}>{i18n.t('Transactions.Name')}</Text>
+                            <Text style={styles.labelTitle}>{i18n.t('Transactions.Amount')}</Text>
+                        </View>
                         <View style={styles.nombreContainer}>
                             <TextInput
                                 style={styles.inputNombre}
-                                placeholder={i18n.t('Transactions.Name')}
                                 value={nombre}
                                 onChangeText={setNombre}
                             />
@@ -461,15 +467,15 @@ const Transacciones = () => {
                                 />
                             </View>
                         </View>
+                        <Text style={styles.labelTitle}>{i18n.t('Transactions.Description')}</Text>
                         <TextInput
                             style={styles.input}
-                            placeholder={i18n.t('Transactions.Description')}
                             value={descripcion}
                             onChangeText={setDescripcion}
                         />
+                        <Text style={styles.labelTitle}>{i18n.t('Transactions.Method')}</Text>
                         <TextInput
                             style={styles.input}
-                            placeholder={i18n.t('Transactions.Method')}
                             value={metodo}
                             onChangeText={setMetodo}
                         />
@@ -709,6 +715,11 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         borderRadius: 8,
         padding: 7,
+    },
+    labelTitle: {
+        alignSelf: 'flex-start',
+        marginLeft: 20,
+        marginTop: 8,
     },
     gastos: {
         backgroundColor: '#fff',

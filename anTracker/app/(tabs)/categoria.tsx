@@ -136,7 +136,7 @@ const colors = ['#FF6B6B','#F94144','#FFB5C2','#FF9E80','#FFBE0B','#FFF3B0','#FF
       <DrawerLayout screenName={i18n.t('Home.Categories')} >
         <RBSheet
           ref={updateCategoriaRBSheet}
-          height={380}
+          height={408}
           openDuration={300}
           customStyles={{
             container: {
@@ -149,19 +149,18 @@ const colors = ['#FF6B6B','#F94144','#FFB5C2','#FF9E80','#FFBE0B','#FFF3B0','#FF
           }}
         >
           <Text style={styles.addCategoria}>{i18n.t('Categories.uCategory')} </Text>
+          <Text style={styles.label}>{i18n.t('Transactions.Name')}</Text>
           <TextInput
             style={styles.inputNombre}
-            placeholder={i18n.t('Transactions.Name')}
             value={nombre}
             onChangeText={setNombre}
           />
+          <Text style={styles.label}>{i18n.t('Transactions.Description')}</Text>
           <TextInput
             style={styles.input}
-            placeholder={i18n.t('Transactions.Description')}
             value={descripcion}
             onChangeText={setDescripcion}
           />
-
           <Text style={styles.text}>{i18n.t('Categories.chooseColor')}</Text>
           <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
             {colors.map((color, index) => {
@@ -235,7 +234,7 @@ const colors = ['#FF6B6B','#F94144','#FFB5C2','#FF9E80','#FFBE0B','#FFF3B0','#FF
 
         <RBSheet
           ref={refRBSheet}
-          height={340}
+          height={350}
           openDuration={300}
           customStyles={{
             container: {
@@ -248,15 +247,15 @@ const colors = ['#FF6B6B','#F94144','#FFB5C2','#FF9E80','#FFBE0B','#FFF3B0','#FF
           }}
         >
           <Text style={styles.addCategoria}>{i18n.t('Categories.aCategory')}</Text>
+          <Text style={styles.label}>{i18n.t('Transactions.Name')}</Text>
           <TextInput
             style={styles.inputNombre}
-            placeholder={i18n.t('Transactions.Name')}
             value={nombre}
             onChangeText={setNombre}
           />
+          <Text style={styles.label}>{i18n.t('Transactions.Description')}</Text>
           <TextInput
             style={styles.input}
-            placeholder={i18n.t('Transactions.Description')}
             value={descripcion}
             onChangeText={setDescripcion}
           />
@@ -317,6 +316,11 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     marginLeft: 10,
     marginRight: 15
+  },
+  label:{
+    alignSelf:'flex-start',
+    marginLeft:20,
+    marginTop:8,
   },
   text: {
     fontSize: 18,
@@ -397,7 +401,7 @@ const styles = StyleSheet.create({
   inputNombre: {
     color: '#000',
     padding: 12,
-    marginVertical: 8,
+    marginVertical: 0,
     borderRadius: 8,
     backgroundColor: '#fff',
     borderColor: '#ddd',
@@ -408,7 +412,7 @@ const styles = StyleSheet.create({
   input: {
     color: '#000',
     padding: 12,
-    marginVertical: 8,
+    marginVertical: 0,
     borderRadius: 8,
     backgroundColor: '#fff',
     borderColor: '#ddd',
