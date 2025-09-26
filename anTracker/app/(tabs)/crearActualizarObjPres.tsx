@@ -80,26 +80,24 @@ export const CrearActualizarObjPres: React.FC<CrearActualizarObjPresProps> = ({ 
             {!esObjetivo &&
                 <View style={{ alignItems: 'center', marginBottom: 10 }}>
                     <Text style={{ fontSize: 16, fontStyle: 'italic' }}>{i18n.t('GoalsBudgets.CurrentBalance')} </Text>
-                    <Text style={{ fontSize: 24, fontWeight: '500' }}>{balance} </Text>
+                    <Text style={{ fontSize: 24, fontWeight: '500' }}>$ {balance.toFixed(2)} </Text>
                     <View style={{ height: 2, backgroundColor: '#b8b8b8ff', width: '90%', borderRadius: 5 }}></View>
                 </View>
             }
-
+            <Text style={styles.labelTitle}>{i18n.t('Transactions.Name')}</Text>
             <TextInput
                 style={styles.input}
                 value={cuenta_nombre}
                 onChangeText={setCuenta_nombre}
-                placeholder={i18n.t('Transactions.Name')}
             />
-
+            <Text style={styles.labelTitle}>{i18n.t('Transactions.Description')}</Text>
             <TextInput
                 style={[styles.input, styles.textArea]}
                 value={cuenta_descripcion}
                 onChangeText={setCuenta_descripcion}
-                placeholder={i18n.t('Transactions.Description')}
                 multiline
             />
-
+            <Text style={styles.labelTitle}>{i18n.t('Transactions.Amount')}</Text>
             <TextInput
                 style={styles.input}
                 placeholder={i18n.t('Transactions.Amount')}
@@ -135,6 +133,11 @@ const styles = StyleSheet.create({
         borderColor: '#ddd',
         borderWidth: 1,
         fontSize: 16,
+    },
+    labelTitle: {
+        alignSelf: 'flex-start',
+        marginLeft: 20,
+        marginTop: 8,
     },
     textArea: {
         height: 80,

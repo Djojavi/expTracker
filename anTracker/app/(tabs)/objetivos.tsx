@@ -52,7 +52,7 @@ const ObjetivosScreen = () => {
 
             <DrawerLayout screenName={i18n.t('Menu.Goals')} >
                 <RBSheet ref={refRBSheet}
-                    height={400}
+                    height={450}
                     openDuration={300}
                     customStyles={{
                         container: {

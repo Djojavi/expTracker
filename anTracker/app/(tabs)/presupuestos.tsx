@@ -41,7 +41,7 @@ const Presupuestos = () => {
         >
             <DrawerLayout screenName={i18n.t('Menu.Budgets')}>
                 <RBSheet ref={refRBSheet}
-                    height={450}
+                    height={525}
                     openDuration={300}
                     customStyles={{
                         container: {
