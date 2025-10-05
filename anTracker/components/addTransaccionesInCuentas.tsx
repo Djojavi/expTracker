@@ -26,7 +26,7 @@ export const AddInCuentasScreen: React.FC<addInCuentasProps> = ({ tipoAMostrar, 
     const { updateSaldo } = useObjetivos()
     const [transacciones, setTransacciones] = useState<Transaccion[]>([])
     const [transaccionesSeleccionadas, setTransaccionesSeleccionadas] = useState<{
-        [transaccion_id: number]: { checked: boolean; monto: number }
+        [transaccion_id: number]: { checked: boolean; monto: number; montoTexto: string }
     }>({});
 
 
@@ -43,19 +43,24 @@ export const AddInCuentasScreen: React.FC<addInCuentasProps> = ({ tipoAMostrar, 
     const toggleSeleccion = (id: number) => {
         setTransaccionesSeleccionadas(prev => ({
             ...prev,
-            [id]: { checked: !prev[id]?.checked, monto: prev[id]?.monto ?? 0 }
+            [id]: { checked: !prev[id]?.checked, monto: prev[id]?.monto ?? 0, montoTexto: prev[id]?.montoTexto ?? '' }
         }));
     };
 
 
     const handleMontoChange = (id: number, value: string) => {
-        const numero = Number(value);
+        const regex = /^[0-9]*\.?[0-9]*$/;
+        if (!regex.test(value)) return;
+
         setTransaccionesSeleccionadas(prev => ({
             ...prev,
-            [id]: { ...prev[id], monto: isNaN(numero) ? 0 : numero }
+            [id]: {
+                ...prev[id],
+                montoTexto: value,
+                monto: parseFloat(value) || 0,
+            },
         }));
     };
-
 
     const handleSubmitPresupuestos = async (id: number, monto?: number) => {
         console.log("Guardar:", { id, monto });
@@ -101,7 +106,7 @@ export const AddInCuentasScreen: React.FC<addInCuentasProps> = ({ tipoAMostrar, 
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}> {i18n.t('SelectTransactions',{nameShow: nombreAMostrar})}</Text>
+            <Text style={styles.title}> {i18n.t('SelectTransactions', { nameShow: nombreAMostrar })}</Text>
             <FlatList
                 data={transacciones}
                 keyExtractor={(item) => item.transaccion_id?.toString() ?? Math.random().toString()}
@@ -134,16 +139,11 @@ export const AddInCuentasScreen: React.FC<addInCuentasProps> = ({ tipoAMostrar, 
                             {transaccionesSeleccionadas[item.transaccion_id ?? 0]?.checked && tipoAMostrar === 'Ingreso' && (
                                 <TextInput
                                     placeholder={i18n.t('Transactions.Amount')}
-                                    keyboardType="numeric"
-                                    value={transaccionesSeleccionadas[item.transaccion_id ?? 0]?.monto.toString()}
-                                    onChangeText={(value) =>
-                                        handleMontoChange(item.transaccion_id ?? 0, value)
-                                    }
-                                    onSubmitEditing={() =>
-                                        [handleSubmit(item.transaccion_id ?? 0),
-                                        console.log('fsdfsd')]
-                                    }
+                                    keyboardType="decimal-pad"
+                                    value={transaccionesSeleccionadas[item.transaccion_id ?? 0]?.montoTexto ?? ''}
+                                    onChangeText={(value) => handleMontoChange(item.transaccion_id ?? 0, value)}
                                     style={{ borderWidth: 1, padding: 6, marginTop: 4, borderRadius: 8 }}
+                                    onSubmitEditing={() => [handleSubmit(item.transaccion_id ?? 0)] }
                                 />
                             )}
                             {transaccionesSeleccionadas[item.transaccion_id ?? 0]?.checked &&
