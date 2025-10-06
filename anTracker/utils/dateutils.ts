@@ -49,7 +49,7 @@ export const datosBarChart = (arrayTransacciones: Transaccion[]) => {
     })
     .map((fecha) => ({
       label: groupedData[fecha].etiqueta,
-      value: groupedData[fecha].monto,
+      value: Number(groupedData[fecha].monto.toFixed(2)),
     }));
 
   return chartDataArray;

@@ -63,10 +63,6 @@ const Ingreso = () => {
         setIngresos(nuevoIngresos);
     };
 
-    function buscarCategoriaPorId(id: number): string {
-        const categoria = categorias.find(cat => cat.categoria_id === id);
-        return categoria?.categoria_nombre ?? 'Sin categoría';
-    }
     const initializeCategorias = async () => {
         try {
             const data = await getCategorias();
