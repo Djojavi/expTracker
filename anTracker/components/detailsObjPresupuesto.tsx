@@ -4,7 +4,7 @@ import { en, es } from '@/utils/translations'
 import * as Localization from 'expo-localization'
 import { I18n } from 'i18n-js'
 import { useEffect, useState } from "react"
-import { FlatList, StyleSheet, Text, View } from "react-native"
+import { FlatList, KeyboardAvoidingView, Platform, StyleSheet, Text, View } from "react-native"
 import ProgressBar from "./progressBar"
 
 type detailsProps = {
@@ -84,7 +84,12 @@ export const DetailsObjPresupuestoComponent: React.FC<detailsProps> = ({ tipoAMo
     }
 
     return (
-        <View >
+        <KeyboardAvoidingView
+                    style={styles.container}
+                    behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                    keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
+                >
+          <View style={{ flex: 1 }}>
             <View style={styles.card}>
                 <View style={{ alignItems: 'center' }} >
                     <Text style={styles.title}>{nombre}</Text>
@@ -135,11 +140,16 @@ export const DetailsObjPresupuestoComponent: React.FC<detailsProps> = ({ tipoAMo
                     </View>
                 )}></FlatList>
         </View>
+        </KeyboardAvoidingView>
     );
 
 }
 
 const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: '#E0F7FA',
+    },
     card: {
         backgroundColor: "#fff",
         padding: 10,

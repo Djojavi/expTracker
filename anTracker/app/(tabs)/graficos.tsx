@@ -40,13 +40,13 @@ const Graficos = () => {
         let newFiltroIngresos = isFiltroIngresos;
         let newFiltroGastos = isFiltroGastos;
 
-        if (tipo === 'Ingresos') {
+        if (tipo === 'Ingresos' || tipo==='Income') {
             newFiltroIngresos = true;
-        } else if (tipo === 'Gastos') {
+        } else if (tipo === 'Gastos' || tipo==='Expenses') {
             newFiltroGastos = true;
-        } else if (tipo === 'Ingresosno') {
+        } else if (tipo === 'Ingresosno'|| tipo==='Incomeno') {
             newFiltroIngresos = false;
-        } else if (tipo === 'Gastosno') {
+        } else if (tipo === 'Gastosno'|| tipo==='Expensesno') {
             newFiltroGastos = false;
         }
         setIsFiltroIngresos(newFiltroIngresos);
@@ -97,7 +97,7 @@ const Graficos = () => {
                     <View style={[styles.circularTextView, { backgroundColor: categoria_color }]} />
                     <Text style={styles.title}>{categoria_nombre}</Text>
                 </View>
-                <Text style={styles.total}>{total_monto}$</Text>
+                <Text style={styles.total}>{total_monto.toFixed(2)}$</Text>
             </View>
         </View>
     );
