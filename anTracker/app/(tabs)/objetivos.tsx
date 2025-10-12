@@ -22,13 +22,15 @@ export type Cuenta = {
 
 //Pantalla con los objetivos del usuario
 const ObjetivosScreen = () => {
-    const { getObjetivos } = useObjetivos();
+    const { getObjetivos, getCuenta } = useObjetivos();
     const [objetivos, setObjetivos] = useState<Cuenta[]>([])
     interface RBSheetRef {
         open: () => void;
         close: () => void;
     }
     const refRBSheet = useRef<RBSheetRef>(null);
+    const updateRefRBSheet = useRef<RBSheetRef>(null);
+    const [id, setId] = useState(0)
 
     const initializeObjetivos = async () => {
         try {
@@ -64,6 +66,20 @@ const ObjetivosScreen = () => {
                     <CrearActualizarObjPres onCloseSheet={initializeObjetivos} esObjetivo={true} esCrear={true}></CrearActualizarObjPres>
                 </RBSheet>
 
+                <RBSheet ref={updateRefRBSheet}
+                    height={450}
+                    openDuration={300}
+                    customStyles={{
+                        container: {
+                            padding: 15,
+                            borderTopLeftRadius: 20,
+                            borderTopRightRadius: 20,
+                        }
+                    }} >
+                    <CrearActualizarObjPres onCloseSheet={initializeObjetivos} esObjetivo={true} esCrear={false} id={id}></CrearActualizarObjPres>
+                </RBSheet>
+                
+
                 <View style={styles.container}>
 
                     <View style={styles.content}>
@@ -82,9 +98,11 @@ const ObjetivosScreen = () => {
                             initialNumToRender={5}
                             maxToRenderPerBatch={5}
                             renderItem={({ item }) => (
-                                <View>
-                                    <ObjPresupuestoCard nombre={item.cuenta_nombre} descripcion={item.cuenta_descripcion ?? ''} actual={item.cuenta_actual} progreso={item.cuenta_progreso} tipo={item.cuenta_tipo} total={item.cuenta_total} seRepite={item.se_repite} frecuencia={item.cuenta_frecuencia} aMostrar='Ingreso' id={item.cuenta_id} onCloseSheet={initializeObjetivos} />
-                                </View>
+                                <Pressable onLongPress={() => { updateRefRBSheet.current?.open(); setId(item.cuenta_id); }}>
+                                    <View>
+                                        <ObjPresupuestoCard nombre={item.cuenta_nombre} descripcion={item.cuenta_descripcion ?? ''} actual={item.cuenta_actual} progreso={item.cuenta_progreso} tipo={item.cuenta_tipo} total={item.cuenta_total} seRepite={item.se_repite} frecuencia={item.cuenta_frecuencia} aMostrar='Ingreso' id={item.cuenta_id} onCloseSheet={initializeObjetivos} />
+                                    </View>
+                                </Pressable>
                             )}
                         />
                     </View>

@@ -5,21 +5,23 @@ import { I18n } from "i18n-js";
 import { useEffect, useState } from "react";
 import { Alert, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { en, es } from '../../utils/translations';
+import { Cuenta } from "./objetivos";
 
 type CrearActualizarObjPresProps = {
     esCrear: boolean
     esObjetivo: boolean
     onCloseSheet: () => void;
+    id?: number;
 }
 
-export const CrearActualizarObjPres: React.FC<CrearActualizarObjPresProps> = ({ esCrear, esObjetivo, onCloseSheet }) => {
+export const CrearActualizarObjPres: React.FC<CrearActualizarObjPresProps> = ({ esCrear, esObjetivo, onCloseSheet, id }) => {
     let [locale, setLocale] = useState(Localization.getLocales())
     const i18n = new I18n();
     i18n.enableFallback = true;
     i18n.translations = { en, es };
     i18n.locale = locale[0].languageCode ?? 'en';
 
-    const { crearCuenta } = useObjetivos()
+    const { crearCuenta, getCuenta, updateCuenta } = useObjetivos()
     const { getBalance } = useTransacciones()
     const [cuenta_nombre, setCuenta_nombre] = useState('')
     const [cuenta_descripcion, setCuenta_descripcion] = useState('')
@@ -31,11 +33,22 @@ export const CrearActualizarObjPres: React.FC<CrearActualizarObjPresProps> = ({ 
         setBalance(data)
     }
 
+    const loadDataUpdate = async () => {
+        if (!esCrear) {
+            const cuenta = getCuenta(id ?? 0)
+            setCuenta_descripcion((await cuenta).cuenta_descripcion ?? '')
+            setCuenta_monto((await cuenta).cuenta_total.toString())
+            setCuenta_nombre((await cuenta).cuenta_nombre)
+        }
+    }
+
     useEffect(() => {
         initializeBalance()
+        loadDataUpdate()
     }, [])
 
-    const handleAdd = () => {
+
+    const handlePress = () => {
         if (!cuenta_nombre || !cuenta_descripcion || !cuenta_monto) {
             Alert.alert("Error", "Por favor completa todos los campos.");
             return;
@@ -49,10 +62,24 @@ export const CrearActualizarObjPres: React.FC<CrearActualizarObjPresProps> = ({ 
         }
 
         if (cuenta_nombre && cuenta_descripcion && cuenta_monto) {
-            if (esObjetivo) {
+            if (esObjetivo && esCrear) {//crear objetivo
                 crearCuenta(cuenta_nombre, cuenta_descripcion, 'O', Number(cuenta_monto))
                 Alert.alert('Objetivo creado exitosamente')
-            } else {
+            } else if (!esCrear) {//actualizar 
+                const cuentaActualizar: Cuenta = {
+                    cuenta_nombre: cuenta_nombre,
+                    cuenta_descripcion: cuenta_descripcion,
+                    cuenta_total: Number(cuenta_monto),
+                    cuenta_id: 0,
+                    cuenta_actual: 0,
+                    cuenta_progreso: 0,
+                    cuenta_tipo: "",
+                    se_repite: 0,
+                    cuenta_frecuencia: 0
+                }
+                updateCuenta(id ?? 0, cuentaActualizar)
+                Alert.alert('Cuenta actualizada exitosamente')
+            } else if (!esObjetivo && esCrear) { //crear presupuesto
                 if (Number(cuenta_monto) > balance) {
                     Alert.alert('Error', 'Este presupuesto excede tu balance actual!')
                 } else {
@@ -74,7 +101,7 @@ export const CrearActualizarObjPres: React.FC<CrearActualizarObjPresProps> = ({ 
     return (
         <View style={styles.container}>
             <Text style={styles.title}>
-                {esCrear ? i18n.t('Common.New') : i18n.t('Common.Update')}{esObjetivo ? ' '+i18n.t('Common.Goal') : ' '+i18n.t('Common.Budget')}
+                {esCrear ? i18n.t('Common.New') : i18n.t('Common.Update')}{esObjetivo ? ' ' + i18n.t('Common.Goal') : ' ' + i18n.t('Common.Budget')}
             </Text>
 
             {!esObjetivo &&
@@ -106,7 +133,7 @@ export const CrearActualizarObjPres: React.FC<CrearActualizarObjPresProps> = ({ 
                 onChangeText={setCuenta_monto}
             />
 
-            <Pressable style={styles.addButton} onPress={() => handleAdd()}>
+            <Pressable style={styles.addButton} onPress={() => handlePress()}>
                 <Text style={{ color: "#fff", textAlign: "center", fontWeight: "bold" }}>{i18n.t('Transactions.Done')}</Text>
             </Pressable>
         </View>

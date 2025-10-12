@@ -93,6 +93,9 @@ export const DetailsObjPresupuestoComponent: React.FC<detailsProps> = ({ tipoAMo
             <View style={styles.card}>
                 <View style={{ alignItems: 'center' }} >
                     <Text style={styles.title}>{nombre}</Text>
+                    <View style={styles.header}>
+                    <Text style={{fontSize:12,fontStyle:'italic'}}>{current}$</Text>
+                </View>
                     <View style={styles.feedbackContainer}>
                         <Text style={styles.text}>{feedbackEmoji}</Text>
                         <Text style={styles.feedbackText}>{feedbackMessage}</Text>
@@ -146,15 +149,23 @@ export const DetailsObjPresupuestoComponent: React.FC<detailsProps> = ({ tipoAMo
 }
 
 const styles = StyleSheet.create({
+    header:{
+        flexDirection:'row',
+        borderBottomColor:'#999999ff',
+        borderBottomWidth:1,
+        justifyContent:'space-around',
+        marginBottom:5
+    },
     container: {
         flex: 1,
         backgroundColor: '#E0F7FA',
     },
     card: {
         backgroundColor: "#fff",
-        padding: 10,
+        paddingVertical: 2,
+        paddingHorizontal:15,
         borderRadius: 12,
-        marginVertical: 8,
+        marginVertical: 5,
         elevation: 3,
     },
     title: {

@@ -104,13 +104,13 @@ const colors = ['#FF6B6B','#F94144','#FFB5C2','#FF9E80','#FFBE0B','#FFF3B0','#FF
 
 
   const handleDeleteCategoria = (nombre: string) => {
-    Alert.alert('¿Está seguro de eliminar la categoría?', 'Esta acción será permanente', [
+    Alert.alert(i18n.t('Alerts.deleteConfirmation',{name:nombre}), i18n.t('Alerts.actionPermanent'), [
       {
-        text: 'Cancelar',
+        text: i18n.t('Alerts.Cancel'),
         onPress: () => updateCategoriaRBSheet.current?.close(),
         style: 'cancel',
       },
-      { text: 'Eliminar', onPress: () => [deleteCategoria(nombre), updateCategoriaRBSheet.current?.close(), initializeCategorias()] },
+      { text: i18n.t('Alerts.Delete'), onPress: () => [deleteCategoria(nombre), updateCategoriaRBSheet.current?.close(), initializeCategorias()] },
     ]);
   };
 

@@ -16,6 +16,16 @@ export function useObjetivos() {
         await db.runAsync('INSERT INTO Cuenta (cuenta_nombre, cuenta_descripcion, cuenta_tipo, cuenta_total, cuenta_actual, cuenta_progreso) VALUES (?,?,?,?,0,0)', [cuenta_nombre, cuenta_descripcion, cuenta_tipo, cuenta_total])
     }
 
+    const getCuenta = async(id:number):Promise<Cuenta> =>{
+        const cuenta = await db.getFirstAsync<Cuenta>('SELECT * FROM Cuenta WHERE cuenta_id = ?',[id]);
+        if (!cuenta) throw new Error(`Account with id ${id} not found`);
+        return cuenta;
+    }
+
+    const updateCuenta = async(id:number, cuenta:Cuenta) =>{
+        await db.runAsync('UPDATE Cuenta SET cuenta_nombre = ?, cuenta_descripcion = ?, cuenta_total = ? WHERE cuenta_id = ? ',[cuenta.cuenta_nombre, cuenta.cuenta_descripcion ?? '', cuenta.cuenta_total, id])
+    }
+
     const getObjetivos = async (): Promise<Cuenta[]> => {
         return await db.getAllAsync(`SELECT * FROM Cuenta WHERE cuenta_tipo = 'O' ORDER BY cuenta_nombre ASC`)
     }
@@ -78,7 +88,7 @@ export function useObjetivos() {
         await db.execAsync('DELETE  FROM Transaccion_cuenta');
     }
 
-    return { getObjetivos, getPresupuestos, updateSaldo, getDetallesCuentas, crearCuenta, getPresupuestadoBalance, deleteCuentas}
+    return { getObjetivos, getPresupuestos, updateSaldo, getDetallesCuentas, crearCuenta, getPresupuestadoBalance, deleteCuentas, getCuenta, updateCuenta}
 
 }
 

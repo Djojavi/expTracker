@@ -100,6 +100,14 @@ const en = {
         Left: 'You have left in total ',
         Details: 'Details',
         Add: 'Add'
+    },
+    Alerts:{
+        Cancel:'Cancel',
+        Continue:'Continue',
+        deleteConfirmation:'Are you sure of deleting %{name}?',
+        successDeleting: '%{name} was deleted succesfully',
+        actionPermanent:'This action will be permanent',
+        Delete:'Delete'
     }
 }
 
@@ -203,6 +211,14 @@ const es = {
         Left: 'Te quedan ',
         Details: 'Detalles',
         Add: 'Añadir'
+    },
+    Alerts:{
+        Cancel:'Cancelar',
+        Delete:'Eliminar',
+        Continue:'Continuar',
+        deleteConfirmation:'¿Estás seguro de eliminar %{name}?',
+        successDeleting: '%{name} fue eliminado exitosamente',
+        actionPermanent:'Esta acción será permanente'
     }
 }
 

@@ -18,6 +18,8 @@ const Presupuestos = () => {
         close: () => void;
     }
     const refRBSheet = useRef<RBSheetRef>(null);
+    const updateRefRBSheet = useRef<RBSheetRef>(null);
+    const [id, setId] = useState(0)
 
     const initializePresupuestos = async () => {
         try {
@@ -53,6 +55,19 @@ const Presupuestos = () => {
                     <CrearActualizarObjPres esObjetivo={false} esCrear={true} onCloseSheet={initializePresupuestos}></CrearActualizarObjPres>
                 </RBSheet>
 
+                <RBSheet ref={updateRefRBSheet}
+                    height={525}
+                    openDuration={300}
+                    customStyles={{
+                        container: {
+                            padding: 15,
+                            borderTopLeftRadius: 20,
+                            borderTopRightRadius: 20,
+                        }
+                    }} >
+                    <CrearActualizarObjPres onCloseSheet={initializePresupuestos} esObjetivo={false} esCrear={false} id={id}></CrearActualizarObjPres>
+                </RBSheet>
+
                 <View style={styles.container}>
                     <View style={styles.content}>
                         {presupuestos.length === 0 &&
@@ -66,7 +81,7 @@ const Presupuestos = () => {
                         <FlatList
                             data={presupuestos}
                             renderItem={({ item }) => (
-                                <Pressable>
+                                <Pressable onLongPress={() => { updateRefRBSheet.current?.open(); setId(item.cuenta_id); }}>                                    
                                     <ObjPresupuestoCard nombre={item.cuenta_nombre} descripcion={item.cuenta_descripcion ?? ''} actual={item.cuenta_actual} progreso={item.cuenta_progreso} tipo={item.cuenta_tipo} total={item.cuenta_total} seRepite={item.se_repite} frecuencia={item.cuenta_frecuencia} aMostrar='Gasto' id={item.cuenta_id} onCloseSheet={initializePresupuestos} />
                                 </Pressable>
                             )}
