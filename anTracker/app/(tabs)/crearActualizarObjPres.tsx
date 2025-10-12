@@ -21,7 +21,7 @@ export const CrearActualizarObjPres: React.FC<CrearActualizarObjPresProps> = ({ 
     i18n.translations = { en, es };
     i18n.locale = locale[0].languageCode ?? 'en';
 
-    const { crearCuenta, getCuenta, updateCuenta } = useObjetivos()
+    const { crearCuenta, getCuenta, updateCuenta, deleteRemoveCuenta, deleteReplaceCuenta } = useObjetivos()
     const { getBalance } = useTransacciones()
     const [cuenta_nombre, setCuenta_nombre] = useState('')
     const [cuenta_descripcion, setCuenta_descripcion] = useState('')
@@ -47,6 +47,27 @@ export const CrearActualizarObjPres: React.FC<CrearActualizarObjPresProps> = ({ 
         loadDataUpdate()
     }, [])
 
+    const handleDelete = async () => {
+        if (esObjetivo) {
+            Alert.alert(i18n.t('Delete.howDeleteGoal'), '', [{
+                text: i18n.t('Alerts.Cancel'), style: 'cancel'
+            }, {
+                text: i18n.t('Delete.remove'), onPress: () => {deleteRemoveCuenta(id ??0), setToNull()}, style: 'destructive'
+            }
+                , {
+                text: i18n.t('Delete.replace'), onPress: () => {deleteReplaceCuenta(id ?? 0), setToNull()}, style:'destructive'
+            }])
+        } else {
+            Alert.alert(i18n.t('Delete.howDeleteBudget'), '', [{
+                text: i18n.t('Alerts.Cancel'), style: 'cancel'
+            }, {
+                text: i18n.t('Delete.remove'), onPress: () => {deleteRemoveCuenta(id ??0), setToNull()}, style: 'destructive'
+            }
+                , {
+                text: i18n.t('Delete.replace'), onPress: () => {deleteReplaceCuenta(id ?? 0), setToNull()}, style:'destructive'
+            }])
+        }
+    }
 
     const handlePress = () => {
         if (!cuenta_nombre || !cuenta_descripcion || !cuenta_monto) {
@@ -133,9 +154,16 @@ export const CrearActualizarObjPres: React.FC<CrearActualizarObjPresProps> = ({ 
                 onChangeText={setCuenta_monto}
             />
 
-            <Pressable style={styles.addButton} onPress={() => handlePress()}>
-                <Text style={{ color: "#fff", textAlign: "center", fontWeight: "bold" }}>{i18n.t('Transactions.Done')}</Text>
-            </Pressable>
+            <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
+                {!esCrear &&
+                    <Pressable style={styles.deleteButton} onPress={() => handleDelete()}>
+                        <Text style={{ color: "#fff", textAlign: "center", fontWeight: "bold" }}>{i18n.t('Alerts.Delete')}</Text>
+                    </Pressable>
+                }
+                <Pressable style={styles.addButton} onPress={() => handlePress()}>
+                    <Text style={{ color: "#fff", textAlign: "center", fontWeight: "bold" }}>{i18n.t('Transactions.Done')}</Text>
+                </Pressable>
+            </View>
         </View>
     )
 }
@@ -178,6 +206,17 @@ const styles = StyleSheet.create({
         width: 120,
         paddingHorizontal: 15,
         marginHorizontal: 10,
+        alignSelf: 'center'
+    },
+    deleteButton: {
+        backgroundColor: '#ff6161',
+        borderRadius: 20,
+        justifyContent: 'center',
+        height: 45,
+        width: 120,
+        paddingHorizontal: 15,
+        marginHorizontal: 10,
+        marginTop: 2,
         alignSelf: 'center'
     },
 })

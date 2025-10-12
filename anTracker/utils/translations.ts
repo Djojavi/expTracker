@@ -108,6 +108,12 @@ const en = {
         successDeleting: '%{name} was deleted succesfully',
         actionPermanent:'This action will be permanent',
         Delete:'Delete'
+    },
+    Delete:{
+        howDeleteBudget: 'How to handle the money inside the budget?',
+        howDeleteGoal: 'How to handle the money saved?',
+        remove:`Delete it all, this can't be undone`,
+        replace:'Add it back to my account'
     }
 }
 
@@ -219,6 +225,12 @@ const es = {
         deleteConfirmation:'¿Estás seguro de eliminar %{name}?',
         successDeleting: '%{name} fue eliminado exitosamente',
         actionPermanent:'Esta acción será permanente'
+    },
+    Delete:{
+        howDeleteBudget: '¿Qué quieres hacer con el dinero que queda en el presupuesto?',
+        howDeleteGoal: '¿Qué quieres hacer con el dinero ahorrado en el objetivo?',
+        remove:`Delete it all, this can't be undone`,
+        replace:'Add it back to my account'
     }
 }
 
