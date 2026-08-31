@@ -52,7 +52,7 @@ const Categoria = () => {
 const colors = ['#FF6B6B','#F94144','#FFB5C2','#FF9E80','#FFBE0B','#FFF3B0','#FFD6A5','#A3F7BF','#55A630','#C1FBA4','#B9FBC0','#D0F4DE','#E2ECE9','#90E0EF','#0077B6','#A0C4FF','#BBD6FF','#D9F0FF','#C77DFF','#E0AAFF','#7209B7','#E4C1F9','#FAD2E1','#FDE2E4','#FFC8DD'];
 
   const handleAddCategoria = async () => {
-    if (nombre && descripcion && selectedColor !== null) {
+    if (nombre && selectedColor !== null) {
       const nuevaCategoria: Categoria = { categoria_nombre: nombre, categoria_descripcion: descripcion, categoria_color: selectedColor }
       console.log(nuevaCategoria)
       try {

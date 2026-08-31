@@ -193,7 +193,7 @@ const Transacciones = () => {
 
     const handleAddTransaccion = async () => {
         console.log('Current state values:', { nombre, descripcion, monto, tipo, categoria, metodo });
-        if (nombre && descripcion && monto && tipo && categoria && metodo) {
+        if (nombre && monto && tipo && categoria && metodo) {
             const fechaNumero = Date.now();
             const nuevaTransaccion: Transaccion = { categoria_id: Number(categoria), transaccion_monto: Number(monto), transaccion_nombre: nombre, transaccion_metodo: metodo, transaccion_fecha: fechaNumero, transaccion_descripcion: descripcion, transaccion_tipo: tipo }
             try {
