@@ -553,23 +553,23 @@ const Transacciones = () => {
                         <View
                             style={{
                                 flexDirection: 'row',
-                                justifyContent: 'space-around',
-                                gap: 5,
-                                width: '85%',
+                                justifyContent: 'space-between',
+                                gap: 8,
+                                width: '95%',
                             }}
                         >
-                            <Link href={'/(tabs)/ingresos'} style={{ flex: 1 }}>
-                                <View style={styles.card}>
+                            <View style={styles.card}>
+                                <Link href={'/(tabs)/ingresos'} >
                                     <Text style={styles.label1}>{i18n.t('Menu.Income')}</Text>
                                     <Text
                                         style={[styles.amount, { color: '#1F7900' }]}
                                         adjustsFontSizeToFit
                                         numberOfLines={1}
                                     >
-                                        + ${ingresos.toFixed(2)}
+                                        {'\n'}+ ${ingresos.toFixed(2)}
                                     </Text>
-                                </View>
-                            </Link>
+                                </Link>
+                            </View>
                             <View style={styles.card}>
                                 <Text style={styles.label1}>{i18n.t('Transactions.Budgeted')}</Text>
                                 <Text
@@ -580,18 +580,18 @@ const Transacciones = () => {
                                     ${presupuestado === 0 ? '--' : presupuestado.toFixed(2)}
                                 </Text>
                             </View>
-                            <Link href={'/(tabs)/gastos'} style={{ flex: 1 }}>
-                                <View style={styles.card}>
+                            <View style={styles.card} >
+                                <Link href={'/(tabs)/gastos'}  >
                                     <Text style={styles.label1}>{i18n.t('Menu.Expenses')}</Text>
                                     <Text
                                         style={[styles.amount, { color: '#BF0000' }]}
                                         adjustsFontSizeToFit
                                         numberOfLines={1}
                                     >
-                                        - ${gastos.toFixed(2)}
+                                        {'\n'}- ${gastos.toFixed(2)}
                                     </Text>
-                                </View>
-                            </Link>
+                                </Link>
+                            </View>
                         </View>
                     </View>
 
@@ -639,6 +639,7 @@ const Transacciones = () => {
 
 const styles = StyleSheet.create({
     card: {
+        flex: 1,
         backgroundColor: '#fff',
         borderRadius: 12,
         paddingVertical: 10,
