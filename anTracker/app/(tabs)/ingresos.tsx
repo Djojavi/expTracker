@@ -121,6 +121,7 @@ const Ingreso = () => {
                                     transaccion_metodo={item.transaccion_metodo}
                                     transaccion_tipo='Ingreso'
                                     categoria_id={item.categoria_id}
+                                    transaccion_monto_disponible={item.transaccion_monto_disponible}
                                 />
                             )}
                             keyExtractor={(item) => item.transaccion_id!.toString()}

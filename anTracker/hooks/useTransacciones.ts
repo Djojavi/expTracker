@@ -8,7 +8,7 @@ export function useTransacciones() {
     const getBalance = async (): Promise<number> => {
         const result = await db.getAllAsync<{ balance: number }>(
             `SELECT COALESCE(
-            (SELECT SUM(transaccion_monto) FROM Transacciones WHERE transaccion_tipo = 'Ingreso'), 0)
+            (SELECT SUM(transaccion_monto_disponible) FROM Transacciones WHERE transaccion_tipo = 'Ingreso'), 0)
         - COALESCE(
             (SELECT SUM(transaccion_monto) FROM Transacciones WHERE transaccion_tipo = 'Gasto'),0)
         - COALESCE(
