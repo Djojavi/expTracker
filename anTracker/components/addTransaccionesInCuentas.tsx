@@ -162,7 +162,7 @@ export const AddInCuentasScreen: React.FC<addInCuentasProps> = ({ tipoAMostrar, 
                                             backgroundColor: '#2195f3a9'
                                         }}
                                     >
-                                        <Text style={{ color: '#fff', fontWeight: 'bold' }}>{saldoPresupuesto} </Text>
+                                        <Text style={{ color: '#fff', fontWeight: 'bold' }}>{i18n.t('OPCard.Add')} </Text>
                                     </Pressable>
                                 )}
 
