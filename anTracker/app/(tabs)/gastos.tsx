@@ -118,6 +118,7 @@ const Gastos = () => {
                                     transaccion_metodo={item.transaccion_metodo}
                                     transaccion_tipo='Gasto'
                                     categoria_id={item.categoria_id}
+                                    transaccion_monto_disponible={item.transaccion_monto_disponible}
                                 />
                             )}
                             keyExtractor={(item, index) => item.transaccion_id?.toString() ?? index.toString()}

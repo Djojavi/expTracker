@@ -8,7 +8,7 @@ export function useTransacciones() {
     const getBalance = async (): Promise<number> => {
         const result = await db.getAllAsync<{ balance: number }>(
             `SELECT COALESCE(
-            (SELECT SUM(transaccion_monto) FROM Transacciones WHERE transaccion_tipo = 'Ingreso'), 0)
+            (SELECT SUM(transaccion_monto_disponible) FROM Transacciones WHERE transaccion_tipo = 'Ingreso'), 0)
         - COALESCE(
             (SELECT SUM(transaccion_monto) FROM Transacciones WHERE transaccion_tipo = 'Gasto'),0)
         - COALESCE(
@@ -60,7 +60,7 @@ export function useTransacciones() {
 
     const addTransaccion = async (transaccion: Transaccion) => {
         await db.runAsync(
-            'INSERT INTO Transacciones (categoria_id, transaccion_monto, transaccion_nombre, transaccion_metodo, transaccion_fecha, transaccion_descripcion, transaccion_tipo) VALUES (?,?,?,?,?,?,?)', [transaccion.categoria_id, transaccion.transaccion_monto, transaccion.transaccion_nombre, transaccion.transaccion_metodo, transaccion.transaccion_fecha, transaccion.transaccion_descripcion, transaccion.transaccion_tipo]
+            'INSERT INTO Transacciones (categoria_id, transaccion_monto, transaccion_monto_disponible, transaccion_nombre, transaccion_metodo, transaccion_fecha, transaccion_descripcion, transaccion_tipo) VALUES (?,?,?,?,?,?,?,?)', [transaccion.categoria_id,transaccion.transaccion_monto, transaccion.transaccion_monto, transaccion.transaccion_nombre, transaccion.transaccion_metodo, transaccion.transaccion_fecha, transaccion.transaccion_descripcion, transaccion.transaccion_tipo]
         )
     }
 
