@@ -134,6 +134,7 @@ export const AddInCuentasScreen: React.FC<addInCuentasProps> = ({ tipoAMostrar, 
                                         transaccion_monto={item.transaccion_monto}
                                         transaccion_tipo={item.transaccion_tipo}
                                         categoria_id={item.categoria_id}
+                                        transaccion_monto_disponible={item.transaccion_monto_disponible}
                                     />
                                 </View>
                             </View>

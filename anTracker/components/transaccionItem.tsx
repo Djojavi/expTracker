@@ -10,10 +10,11 @@ type TransaccionItemProps = {
     transaccion_metodo: string
     transaccion_fecha: number
     categoria_id: number
-    transaccion_tipo: string
+    transaccion_tipo: string,
+    transaccion_monto_disponible: number
 }
 
-export const TransaccionItemComponent: React.FC<TransaccionItemProps> = ({ transaccion_descripcion, transaccion_nombre, transaccion_monto, transaccion_fecha, categoria_id, transaccion_tipo, transaccion_metodo }) => {
+export const TransaccionItemComponent: React.FC<TransaccionItemProps> = ({ transaccion_descripcion, transaccion_nombre, transaccion_monto, transaccion_monto_disponible, transaccion_fecha, categoria_id, transaccion_tipo, transaccion_metodo }) => {
     const { getCategoriaById } = useCategorias()
     const [catName, setCatName] = useState('')
 
@@ -41,22 +42,32 @@ export const TransaccionItemComponent: React.FC<TransaccionItemProps> = ({ trans
                 <View style={styles.containerRight}>
                     <Text >{catName}</Text>
                     {transaccion_monto ? (
-                        <Text
-                            style={
-                                transaccion_tipo === 'Ingreso'
-                                    ? styles.montoIngreso
+                        <>
+                            <Text
+                                style={
+                                    transaccion_tipo === 'Ingreso'
+                                        ? styles.montoIngreso
+                                        : transaccion_tipo === 'Gasto'
+                                            ? styles.montoGasto
+                                            : styles.montoDefault
+                                }
+                            >
+                                {transaccion_tipo === 'Ingreso'
+                                    ? `+$${transaccion_monto_disponible.toFixed(2)}`
                                     : transaccion_tipo === 'Gasto'
-                                        ? styles.montoGasto
-                                        : styles.montoDefault
-                            }
-                        >
-                            {transaccion_tipo === 'Ingreso'
-                                ? `+$${transaccion_monto.toFixed(2)}`
-                                : transaccion_tipo === 'Gasto'
-                                    ? `-$${transaccion_monto.toFixed(2)}`
-                                    : `$${transaccion_monto.toFixed(2)}`}
-                        </Text>
-
+                                        ? `-$${transaccion_monto_disponible.toFixed(2)}`
+                                        : `$${transaccion_monto_disponible.toFixed(2)}`}
+                            </Text>
+                            {transaccion_monto !== transaccion_monto_disponible ? (
+                                <Text style={styles.montoOriginal}>
+                                    {transaccion_tipo === 'Ingreso'
+                                        ? `+$${transaccion_monto.toFixed(2)}`
+                                        : transaccion_tipo === 'Gasto'
+                                            ? `-$${transaccion_monto.toFixed(2)}`
+                                            : `$${transaccion_monto.toFixed(2)}`}
+                                </Text>
+                            ) : null}
+                        </>
                     ) : null}
                     <Text style={styles.description} >{transaccion_metodo}</Text>
 
@@ -108,6 +119,11 @@ const styles = StyleSheet.create({
     montoDefault: {
         color: '#fefefe',
         backgroundColor: '#BF0000',
+    },
+    montoOriginal: {
+        fontSize: 12,
+        color: '#9E9E9E',
+        textDecorationLine: 'line-through',
     },
     title: {
         fontSize: 17,

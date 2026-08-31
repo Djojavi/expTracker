@@ -4,7 +4,7 @@ import { useSQLiteContext } from 'expo-sqlite';
 import { Alert } from 'react-native';
 
 type TransaccionRow = {
-    transaccion_monto: number;
+    transaccion_monto_disponible: number;
 };
 
 export function useObjetivos() {
@@ -80,12 +80,12 @@ export function useObjetivos() {
         await db.execAsync('BEGIN TRANSACTION');
         try {
             const montoTransaccion = await db.getFirstAsync(
-                'SELECT transaccion_monto FROM Transacciones WHERE transaccion_id = ?',
+                'SELECT transaccion_monto_disponible FROM Transacciones WHERE transaccion_id = ?',
                 [transaccionId]
             ) as TransaccionRow;
-            if (monto <= montoTransaccion.transaccion_monto) {
+            if (monto <= montoTransaccion.transaccion_monto_disponible) {
                 if (esAObjetivo) {
-                    await db.runAsync('UPDATE Transacciones SET transaccion_monto = transaccion_monto - ? WHERE transaccion_id = ?', [monto, transaccionId])
+                    await db.runAsync('UPDATE Transacciones SET transaccion_monto_disponible = transaccion_monto_disponible - ? WHERE transaccion_id = ?', [monto, transaccionId])
                     await db.runAsync(
                         'UPDATE Cuenta SET cuenta_actual = cuenta_actual + ? WHERE cuenta_id = ?',
                         [monto, cuentaId]
