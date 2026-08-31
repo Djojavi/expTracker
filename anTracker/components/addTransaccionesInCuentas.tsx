@@ -85,7 +85,8 @@ export const AddInCuentasScreen: React.FC<addInCuentasProps> = ({ tipoAMostrar, 
     const handleSubmit = async (id: number) => {
         const monto = transaccionesSeleccionadas[id]?.monto;
         console.log("Guardar:", { id, monto });
-        if (Number(monto) > 0 && saldoObjetivo > Number(monto)) {
+        console.log("Saldo:", { id, saldoObjetivo });
+        if (Number(monto) > 0 && saldoObjetivo >= Number(monto)) {
             await updateSaldo(idCuenta, id, Number(monto), tipoAMostrar === 'Ingreso' ? true : false).then(res => {
                 handleIniciar()
             })
