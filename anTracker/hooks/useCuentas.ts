@@ -74,6 +74,14 @@ export function useObjetivos() {
         )
         return result[0].balance ?? 0
     }
+    const getObjetivoBalance = async (): Promise<number> => {
+        const result = await db.getAllAsync<{ balance: number }>(
+            `SELECT COALESCE(SUM(cuenta_actual), 0) AS balance 
+         FROM Cuenta 
+         WHERE cuenta_tipo = 'O'`
+        )
+        return result[0].balance ?? 0
+    }
 
 
     const updateSaldo = async (cuentaId: number, transaccionId: number, monto: number, esAObjetivo: boolean) => {
@@ -121,7 +129,7 @@ export function useObjetivos() {
         await db.execAsync('DELETE  FROM Transaccion_cuenta');
     }
 
-    return { getObjetivos, getPresupuestos, updateSaldo, getDetallesCuentas, crearCuenta, getPresupuestadoBalance, deleteCuentas, getCuenta, updateCuenta, deleteRemoveCuenta, deleteReplaceCuenta }
+    return { getObjetivos, getPresupuestos, updateSaldo, getDetallesCuentas, crearCuenta, getPresupuestadoBalance, getObjetivoBalance, deleteCuentas, getCuenta, updateCuenta, deleteRemoveCuenta, deleteReplaceCuenta }
 
 }
 

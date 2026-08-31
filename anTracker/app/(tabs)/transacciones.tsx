@@ -71,7 +71,7 @@ const Transacciones = () => {
 
     let isMounted = true;
     const { addTransaccion, getTransacciones, getTransaccion, updateTransaccion, deleteTransaccion, getTransaccionesPorFecha, getTransaccionesByName, getTransaccionesByCategoria, getIngresoBalance, getGastoBalance, getBalance, getIngresosGastosPorFecha, getIngresosYGastosByCategoria, getIngresosYGastosByName } = useTransacciones();
-    const { getPresupuestadoBalance } = useObjetivos();
+    const { getPresupuestadoBalance, getObjetivoBalance } = useObjetivos();
     const [transacciones, setTransacciones] = useState<Transaccion[]>([]);
     const [nombre, setNombre] = useState('');
     const [descripcion, setDescripcion] = useState('');
@@ -83,6 +83,7 @@ const Transacciones = () => {
     const [balance, setBalance] = useState(0);
     const [ingresos, setIngresos] = useState(0);
     const [presupuestado, setPresupuestado] = useState(0);
+    const [ahorrado, setAhorrado] = useState(0);
     const [gastos, setGastos] = useState(0);
     const [transaccionesFiltradas, setTransaccionesFiltradas] = useState<Transaccion[]>([]);
     const [idActualizar, setIdActualizar] = useState(0);
@@ -250,12 +251,14 @@ const Transacciones = () => {
         let gastoData = await getGastoBalance()
         const presupuestadoData = await getPresupuestadoBalance()
         const balanceData = await getBalance()
+        const savedBalance = await getObjetivoBalance()
 
 
         setBalance(balanceData);
         setIngresos(ingresoData);
         setGastos(gastoData);
         setPresupuestado(presupuestadoData);
+        setAhorrado(savedBalance);
     };
 
     const handleLongPress = (id: number) => {
@@ -532,7 +535,7 @@ const Transacciones = () => {
                             style={{
                                 backgroundColor: '#fff',
                                 width: '95%',
-                                paddingVertical: 15,
+                                paddingVertical: 7,
                                 borderRadius: 16,
                                 elevation: 4,
                                 shadowColor: '#000',
@@ -571,16 +574,6 @@ const Transacciones = () => {
                                     </Text>
                                 </Link>
                             </View>
-                            <View style={styles.card}>
-                                <Text style={styles.label1}>{i18n.t('Transactions.Budgeted')}</Text>
-                                <Text
-                                    style={[styles.amount, { color: '#120079' }]}
-                                    adjustsFontSizeToFit
-                                    numberOfLines={1}
-                                >
-                                    ${presupuestado === 0 ? '--' : presupuestado.toFixed(2)}
-                                </Text>
-                            </View>
                             <View style={styles.card} >
                                 <Link href={'/(tabs)/gastos'}  >
                                     <Text style={styles.label1}>{i18n.t('Menu.Expenses')}</Text>
@@ -592,6 +585,36 @@ const Transacciones = () => {
                                         {'\n'}- ${gastos.toFixed(2)}
                                     </Text>
                                 </Link>
+                            </View>
+                        </View>
+                        <View
+                            style={{
+                                flexDirection: 'row',
+                                justifyContent: 'space-between',
+                                gap: 8,
+                                width: '95%',
+                                marginTop:10
+                            }}
+                        >
+                            <View style={styles.card}>
+                                <Text style={styles.label1}>{i18n.t('Transactions.Saved')}</Text>
+                                <Text
+                                    style={[styles.amount, { color: '#b88313' }]}
+                                    adjustsFontSizeToFit
+                                    numberOfLines={1}
+                                >
+                                    ${ahorrado === 0 ? '--' : ahorrado.toFixed(2)}
+                                </Text>
+                            </View>
+                            <View style={styles.card}>
+                                <Text style={styles.label1}>{i18n.t('Transactions.Budgeted')}</Text>
+                                <Text
+                                    style={[styles.amount, { color: '#120079' }]}
+                                    adjustsFontSizeToFit
+                                    numberOfLines={1}
+                                >
+                                    ${presupuestado === 0 ? '--' : presupuestado.toFixed(2)}
+                                </Text>
                             </View>
                         </View>
                     </View>
@@ -644,7 +667,7 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#fff',
         borderRadius: 12,
-        paddingVertical: 10,
+        paddingVertical: 6,
         paddingHorizontal: 6,
         elevation: 3,
         shadowColor: '#000',
