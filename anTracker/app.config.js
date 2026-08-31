@@ -1,0 +1,72 @@
+export default ({ config }) => ({
+  ...config,
+
+  name: "anTracker",
+  slug: "anTracker",
+  version: "1.0.0",
+  orientation: "portrait",
+  icon: "./assets/images/icon.png",
+  scheme: "antracker",
+  userInterfaceStyle: "automatic",
+  newArchEnabled: true,
+
+  ios: {
+    supportsTablet: true,
+  },
+
+  android: {
+    adaptiveIcon: {
+      foregroundImage: "./assets/images/icon.png",
+      backgroundColor: "#ffffff",
+    },
+    edgeToEdgeEnabled: true,
+
+    package:
+      process.env.APP_VARIANT === "development"
+        ? "com.froggotkd.anTracker.dev"
+        : "com.froggotkd.anTracker",
+  },
+
+  web: {
+    bundler: "metro",
+    output: "static",
+    favicon: "./assets/images/icon.png",
+  },
+
+  plugins: [
+    "expo-router",
+    [
+      "expo-splash-screen",
+      {
+        image: "./assets/images/icon.png",
+        imageWidth: 200,
+        resizeMode: "contain",
+        backgroundColor: "#ffffff",
+      },
+    ],
+    "expo-sqlite",
+    "expo-localization",
+  ],
+
+  experiments: {
+    typedRoutes: true,
+  },
+
+  extra: {
+    router: {},
+    eas: {
+      projectId: "d607168e-9662-41e3-a63e-256fbab1ae48",
+    },
+  },
+
+  runtimeVersion: {
+    policy: "sdkVersion",
+  },
+
+  updates: {
+    enabled: true,
+    checkAutomatically: "ON_LOAD",
+    fallbackToCacheTimeout: 0,
+    url: "https://u.expo.dev/d607168e-9662-41e3-a63e-256fbab1ae48",
+  },
+});
