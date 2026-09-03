@@ -353,6 +353,11 @@ const Transacciones = () => {
                                 <Text style={styles.radioText}>{i18n.t('Menu.Expenses')}</Text>
                             </View>
                         </View>
+                        <View>
+                            {tipo == 'Gasto' && 
+                                <Text>{i18n.t('Transactions.isThisPartOfBudget')}</Text>
+                            }
+                        </View>
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                             <Text style={styles.labelTitle}>{i18n.t('Transactions.Name')}</Text>
                             <Text style={styles.labelTitle}>{i18n.t('Transactions.Amount')}</Text>
