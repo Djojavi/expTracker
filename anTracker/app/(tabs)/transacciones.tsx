@@ -86,6 +86,7 @@ const Transacciones = () => {
     const [presupuestado, setPresupuestado] = useState(0);
     const [ahorrado, setAhorrado] = useState(0);
     const [gastos, setGastos] = useState(0);
+    const [isBudgetChecked, setIsBudgetChecked] = useState(false);
     const [transaccionesFiltradas, setTransaccionesFiltradas] = useState<Transaccion[]>([]);
     const [idActualizar, setIdActualizar] = useState(0);
     const [idBorrar, setIdBorrar] = useState(0);
@@ -225,7 +226,7 @@ const Transacciones = () => {
         console.log('Current state values:', { nombre, descripcion, monto, tipo, categoria, metodo });
         if (nombre && descripcion && monto && tipo && categoria && metodo) {
             const fechaNumero = Date.now();
-            const actualizadaTransaccion: Transaccion = { categoria_id: Number(categoria), transaccion_monto: Number(monto), transaccion_monto_disponible:Number(monto), transaccion_nombre: nombre, transaccion_metodo: metodo, transaccion_fecha: fechaNumero, transaccion_descripcion: descripcion, transaccion_tipo: tipo }
+            const actualizadaTransaccion: Transaccion = { categoria_id: Number(categoria), transaccion_monto: Number(monto), transaccion_monto_disponible: Number(monto), transaccion_nombre: nombre, transaccion_metodo: metodo, transaccion_fecha: fechaNumero, transaccion_descripcion: descripcion, transaccion_tipo: tipo }
             try {
                 const result = await updateTransaccion(actualizadaTransaccion, transaccion_id)
                 setNombre('');
@@ -353,11 +354,22 @@ const Transacciones = () => {
                                 <Text style={styles.radioText}>{i18n.t('Menu.Expenses')}</Text>
                             </View>
                         </View>
-                        <View>
-                            {tipo == 'Gasto' && 
-                                <Text>{i18n.t('Transactions.isThisPartOfBudget')}</Text>
-                            }
-                        </View>
+                        {tipo == 'Gasto' &&
+                            <View>
+                                <Pressable
+                                    onPress={() => setIsBudgetChecked(!isBudgetChecked)}
+                                    style={{flexDirection:'row', justifyContent:'center'}}
+                                >
+                                    <Text style={[styles.checkbox, isBudgetChecked ? styles.checkboxChecked : null]}>
+                                        {isBudgetChecked ? "✔" : ""}
+                                    </Text>
+                                    <Text>{i18n.t('Transactions.isThisPartOfBudget')}</Text>
+                                    
+                                </Pressable>
+
+                            </View>
+
+                        }
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                             <Text style={styles.labelTitle}>{i18n.t('Transactions.Name')}</Text>
                             <Text style={styles.labelTitle}>{i18n.t('Transactions.Amount')}</Text>
@@ -660,7 +672,7 @@ const Transacciones = () => {
                                     transaccion_metodo={item.transaccion_metodo}
                                     transaccion_tipo={item.transaccion_tipo}
                                     categoria_id={item.categoria_id}
-                                    transaccion_monto_disponible = {item.transaccion_monto_disponible}
+                                    transaccion_monto_disponible={item.transaccion_monto_disponible}
                                 />
                             </Pressable>
                         )}
@@ -1032,6 +1044,22 @@ const styles = StyleSheet.create({
     },
     radioText: {
         fontSize: 18,
+    },
+    checkbox: {
+        width: 24,
+        height: 24,
+        borderRadius: 6,
+        borderWidth: 2,
+        borderColor: "#999",
+        textAlign: "center",
+        textAlignVertical: "center",
+        marginRight: 12,
+        fontWeight: "bold",
+        color: "#1890ff",
+    },
+    checkboxChecked: {
+        backgroundColor: "#1890ff",
+        color: "#fff",
     },
 });
 
