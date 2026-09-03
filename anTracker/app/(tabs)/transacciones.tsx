@@ -15,6 +15,7 @@ import { Dropdown } from 'react-native-element-dropdown';
 import RBSheet from 'react-native-raw-bottom-sheet';
 import i18n from '../../utils/i18n';
 import { Categoria } from './categoria';
+import { Cuenta } from './objetivos';
 
 //Pantalla con las transacciones
 
@@ -72,7 +73,7 @@ const Transacciones = () => {
 
     let isMounted = true;
     const { addTransaccion, getTransacciones, getTransaccion, updateTransaccion, deleteTransaccion, getTransaccionesPorFecha, getTransaccionesByName, getTransaccionesByCategoria, getIngresoBalance, getGastoBalance, getBalance, getIngresosGastosPorFecha, getIngresosYGastosByCategoria, getIngresosYGastosByName } = useTransacciones();
-    const { getPresupuestadoBalance, getObjetivoBalance } = useObjetivos();
+    const { getPresupuestadoBalance, getObjetivoBalance, getPresupuestos } = useObjetivos();
     const [transacciones, setTransacciones] = useState<Transaccion[]>([]);
     const [nombre, setNombre] = useState('');
     const [descripcion, setDescripcion] = useState('');
@@ -88,6 +89,8 @@ const Transacciones = () => {
     const [gastos, setGastos] = useState(0);
     const [isBudgetChecked, setIsBudgetChecked] = useState(false);
     const [transaccionesFiltradas, setTransaccionesFiltradas] = useState<Transaccion[]>([]);
+    const [budgets, setBudgets] = useState<Cuenta[]>([]);
+    const [budget, setBudget] = useState('');
     const [idActualizar, setIdActualizar] = useState(0);
     const [idBorrar, setIdBorrar] = useState(0);
     const [rango, setRango] = useState<{ inicio: number; fin: number } | null>(null);
@@ -180,9 +183,21 @@ const Transacciones = () => {
         }
     };
 
+    const initializeBudgets = async () => {
+        try {
+            const data = await getPresupuestos();
+            if (isMounted) {
+                setBudgets(data);
+            }
+        } catch (error) {
+            console.error("Error:", error);
+        }
+    };
+
     useEffect(() => {
         initializeCategorias();
         initializeTransacciones();
+        initializeBudgets();
         calcularBalance();
         return () => { isMounted = false };
     }, []);
@@ -305,10 +320,12 @@ const Transacciones = () => {
         setTipo('');
         setCategoria('');
         setMetodo('');
+        setIsBudgetChecked(false),
+        setBudget('')
     }
 
     const [isFocus, setIsFocus] = useState(true);
-    const [statsExpanded, setStatsExpanded] = useState(true);
+    const [statsExpanded, setStatsExpanded] = useState(false);
 
 
     return (
@@ -358,17 +375,32 @@ const Transacciones = () => {
                             <View>
                                 <Pressable
                                     onPress={() => setIsBudgetChecked(!isBudgetChecked)}
-                                    style={{flexDirection:'row', justifyContent:'center'}}
+                                    style={{ flexDirection: 'row', justifyContent: 'center' }}
                                 >
                                     <Text style={[styles.checkbox, isBudgetChecked ? styles.checkboxChecked : null]}>
                                         {isBudgetChecked ? "✔" : ""}
                                     </Text>
                                     <Text>{i18n.t('Transactions.isThisPartOfBudget')}</Text>
-                                    
                                 </Pressable>
-
                             </View>
-
+                        }
+                        {isBudgetChecked && tipo == 'Gasto' &&
+                            <View >
+                                <Dropdown
+                                    style={[styles.dropdown, isFocus && { borderColor: 'black', width: '100%' }]}
+                                    data={budgets}
+                                    labelField="cuenta_nombre"
+                                    valueField="cuenta_id"
+                                    placeholder={i18n.t('Transactions.FindBudget')}
+                                    value={budget}
+                                    onChange={item => setBudget(item.cuenta_id)}
+                                    renderItem={(item) => (
+                                        <View style={{ flexDirection: 'row', alignItems: 'center', padding: 8 }}>
+                                            <Text style={{ marginLeft: 8 }}>{item.cuenta_nombre}</Text>
+                                        </View>
+                                    )}
+                                />
+                            </View>
                         }
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                             <Text style={styles.labelTitle}>{i18n.t('Transactions.Name')}</Text>

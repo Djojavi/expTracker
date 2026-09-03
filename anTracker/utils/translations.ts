@@ -21,15 +21,16 @@ const en = {
         Balance: 'Balance',
         Statistics: 'Statistics',
         Budgeted: 'Budgeted',
-        Saved:'Saved',
+        Saved: 'Saved',
         aTransaction: 'Add Transaction',
-        isThisPartOfBudget:'Is this transaction part of a budget?',
+        isThisPartOfBudget: 'Is this transaction part of a budget?',
         Name: 'Name',
         Description: 'Description',
         Amount: 'Amount',
         Method: 'Method',
         SelectCategory: 'Select a category!',
         FindCategory: 'Find your categories',
+        FindBudget: 'Find your budgets',
         Done: 'Done!',
         dTransaction: 'Delete Transaction',
         uTransaction: 'Update Transaction',
@@ -104,19 +105,19 @@ const en = {
         Details: 'Details',
         Add: 'Add'
     },
-    Alerts:{
-        Cancel:'Cancel',
-        Continue:'Continue',
-        deleteConfirmation:'Are you sure of deleting %{name}?',
+    Alerts: {
+        Cancel: 'Cancel',
+        Continue: 'Continue',
+        deleteConfirmation: 'Are you sure of deleting %{name}?',
         successDeleting: '%{name} was deleted succesfully',
-        actionPermanent:'This action will be permanent',
-        Delete:'Delete'
+        actionPermanent: 'This action will be permanent',
+        Delete: 'Delete'
     },
-    Delete:{
+    Delete: {
         howDeleteBudget: 'How to handle the money inside the budget?',
         howDeleteGoal: 'How to handle the money saved?',
-        remove:`Delete it all, this can't be undone`,
-        replace:'Add it back to my account'
+        remove: `Delete it all, this can't be undone`,
+        replace: 'Add it back to my account'
     }
 }
 
@@ -141,15 +142,16 @@ const es = {
         Balance: 'Balance',
         Statistics: 'Estadísticas',
         Budgeted: 'Presupuestado',
-        Saved:'Ahorrado',
+        Saved: 'Ahorrado',
         aTransaction: 'Añadir Transacción',
-        isThisPartOfBudget:'¿Esta transacción pertenece a un presupuesto?',
+        isThisPartOfBudget: '¿Esta transacción pertenece a un presupuesto?',
         Name: 'Nombre',
         Description: 'Descripción',
         Amount: 'Monto',
         Method: 'Método',
         SelectCategory: 'Selecciona una categoría!',
         FindCategory: 'Encuentra tus categorías',
+        FindBudget: 'Encuentra tus presupuestos',
         Done: 'Listo!',
         dTransaction: 'Eliminar Transacción',
         uTransaction: 'Actualizar Transacción',
@@ -224,19 +226,19 @@ const es = {
         Details: 'Detalles',
         Add: 'Añadir'
     },
-    Alerts:{
-        Cancel:'Cancelar',
-        Delete:'Eliminar',
-        Continue:'Continuar',
-        deleteConfirmation:'¿Estás seguro de eliminar %{name}?',
+    Alerts: {
+        Cancel: 'Cancelar',
+        Delete: 'Eliminar',
+        Continue: 'Continuar',
+        deleteConfirmation: '¿Estás seguro de eliminar %{name}?',
         successDeleting: '%{name} fue eliminado exitosamente',
-        actionPermanent:'Esta acción será permanente'
+        actionPermanent: 'Esta acción será permanente'
     },
-    Delete:{
+    Delete: {
         howDeleteBudget: '¿Qué quieres hacer con el dinero que queda en el presupuesto?',
         howDeleteGoal: '¿Qué quieres hacer con el dinero ahorrado en el objetivo?',
-        remove:`Delete it all, this can't be undone`,
-        replace:'Add it back to my account'
+        remove: `Delete it all, this can't be undone`,
+        replace: 'Add it back to my account'
     }
 }
 
