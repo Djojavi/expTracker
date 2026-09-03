@@ -7,6 +7,7 @@ import { NoData } from '@/components/ui/NoData';
 import { useCategorias } from '@/hooks/useCategorias';
 import { useObjetivos } from '@/hooks/useCuentas';
 import { useTransacciones } from '@/hooks/useTransacciones';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { Link } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import { Alert, FlatList, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
@@ -306,6 +307,7 @@ const Transacciones = () => {
     }
 
     const [isFocus, setIsFocus] = useState(true);
+    const [statsExpanded, setStatsExpanded] = useState(true);
 
 
     return (
@@ -554,69 +556,80 @@ const Transacciones = () => {
                                 $ {balance.toFixed(2)}
                             </Text>
                         </View>
-                        <View
-                            style={{
-                                flexDirection: 'row',
-                                justifyContent: 'space-between',
-                                gap: 8,
-                                width: '95%',
-                            }}
+                        <TouchableOpacity
+                            style={styles.statsToggle}
+                            onPress={() => setStatsExpanded(prev => !prev)}
                         >
-                            <View style={styles.card}>
-                                <Link href={'/(tabs)/ingresos'} >
-                                    <Text style={styles.label1}>{i18n.t('Menu.Income')}</Text>
-                                    <Text
-                                        style={[styles.amount, { color: '#1F7900' }]}
-                                        adjustsFontSizeToFit
-                                        numberOfLines={1}
-                                    >
-                                        {'\n'}+ ${ingresos.toFixed(2)}
-                                    </Text>
-                                </Link>
-                            </View>
-                            <View style={styles.card} >
-                                <Link href={'/(tabs)/gastos'}  >
-                                    <Text style={styles.label1}>{i18n.t('Menu.Expenses')}</Text>
-                                    <Text
-                                        style={[styles.amount, { color: '#BF0000' }]}
-                                        adjustsFontSizeToFit
-                                        numberOfLines={1}
-                                    >
-                                        {'\n'}- ${gastos.toFixed(2)}
-                                    </Text>
-                                </Link>
-                            </View>
-                        </View>
-                        <View
-                            style={{
-                                flexDirection: 'row',
-                                justifyContent: 'space-between',
-                                gap: 8,
-                                width: '95%',
-                                marginTop:10
-                            }}
-                        >
-                            <View style={styles.card}>
-                                <Text style={styles.label1}>{i18n.t('Transactions.Saved')}</Text>
-                                <Text
-                                    style={[styles.amount, { color: '#b88313' }]}
-                                    adjustsFontSizeToFit
-                                    numberOfLines={1}
+                            <Text style={styles.statsToggleText}>{i18n.t('Transactions.Statistics')}</Text>
+                            <MaterialIcons name={statsExpanded ? 'expand-less' : 'expand-more'} size={22} color="#666" />
+                        </TouchableOpacity>
+                        {statsExpanded && (
+                            <>
+                                <View
+                                    style={{
+                                        flexDirection: 'row',
+                                        justifyContent: 'space-between',
+                                        gap: 8,
+                                        width: '95%',
+                                    }}
                                 >
-                                    ${ahorrado === 0 ? '--' : ahorrado.toFixed(2)}
-                                </Text>
-                            </View>
-                            <View style={styles.card}>
-                                <Text style={styles.label1}>{i18n.t('Transactions.Budgeted')}</Text>
-                                <Text
-                                    style={[styles.amount, { color: '#120079' }]}
-                                    adjustsFontSizeToFit
-                                    numberOfLines={1}
+                                    <View style={styles.card}>
+                                        <Link href={'/(tabs)/ingresos'} >
+                                            <Text style={styles.label1}>{i18n.t('Menu.Income')}</Text>
+                                            <Text
+                                                style={[styles.amount, { color: '#1F7900' }]}
+                                                adjustsFontSizeToFit
+                                                numberOfLines={1}
+                                            >
+                                                {'\n'}+ ${ingresos.toFixed(2)}
+                                            </Text>
+                                        </Link>
+                                    </View>
+                                    <View style={styles.card} >
+                                        <Link href={'/(tabs)/gastos'}  >
+                                            <Text style={styles.label1}>{i18n.t('Menu.Expenses')}</Text>
+                                            <Text
+                                                style={[styles.amount, { color: '#BF0000' }]}
+                                                adjustsFontSizeToFit
+                                                numberOfLines={1}
+                                            >
+                                                {'\n'}- ${gastos.toFixed(2)}
+                                            </Text>
+                                        </Link>
+                                    </View>
+                                </View>
+                                <View
+                                    style={{
+                                        flexDirection: 'row',
+                                        justifyContent: 'space-between',
+                                        gap: 8,
+                                        width: '95%',
+                                        marginTop: 10
+                                    }}
                                 >
-                                    ${presupuestado === 0 ? '--' : presupuestado.toFixed(2)}
-                                </Text>
-                            </View>
-                        </View>
+                                    <View style={styles.card}>
+                                        <Text style={styles.label1}>{i18n.t('Transactions.Saved')}</Text>
+                                        <Text
+                                            style={[styles.amount, { color: '#b88313' }]}
+                                            adjustsFontSizeToFit
+                                            numberOfLines={1}
+                                        >
+                                            ${ahorrado === 0 ? '--' : ahorrado.toFixed(2)}
+                                        </Text>
+                                    </View>
+                                    <View style={styles.card}>
+                                        <Text style={styles.label1}>{i18n.t('Transactions.Budgeted')}</Text>
+                                        <Text
+                                            style={[styles.amount, { color: '#120079' }]}
+                                            adjustsFontSizeToFit
+                                            numberOfLines={1}
+                                        >
+                                            ${presupuestado === 0 ? '--' : presupuestado.toFixed(2)}
+                                        </Text>
+                                    </View>
+                                </View>
+                            </>
+                        )}
                     </View>
 
                     {transaccionesFiltradas.length === 0 &&
@@ -679,6 +692,18 @@ const styles = StyleSheet.create({
         fontSize: 13,
         color: '#666',
         marginBottom: 4,
+    },
+    statsToggle: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '95%',
+        paddingVertical: 6,
+    },
+    statsToggleText: {
+        fontSize: 14,
+        color: '#666',
+        marginRight: 4,
     },
     amount: {
         fontSize: 18,

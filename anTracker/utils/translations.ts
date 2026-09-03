@@ -19,6 +19,7 @@ const en = {
             "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
         ],
         Balance: 'Balance',
+        Statistics: 'Statistics',
         Budgeted: 'Budgeted',
         Saved:'Saved',
         aTransaction: 'Add Transaction',
@@ -137,6 +138,7 @@ const es = {
         Months: ["Ene", "Feb", "Mar", "Abr", "May", "Jun",
             "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"],
         Balance: 'Balance',
+        Statistics: 'Estadísticas',
         Budgeted: 'Presupuestado',
         Saved:'Ahorrado',
         aTransaction: 'Añadir Transacción',
