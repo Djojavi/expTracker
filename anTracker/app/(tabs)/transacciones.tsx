@@ -371,37 +371,6 @@ const Transacciones = () => {
                                 <Text style={styles.radioText}>{i18n.t('Menu.Expenses')}</Text>
                             </View>
                         </View>
-                        {tipo == 'Gasto' &&
-                            <View>
-                                <Pressable
-                                    onPress={() => setIsBudgetChecked(!isBudgetChecked)}
-                                    style={{ flexDirection: 'row', justifyContent: 'center' }}
-                                >
-                                    <Text style={[styles.checkbox, isBudgetChecked ? styles.checkboxChecked : null]}>
-                                        {isBudgetChecked ? "✔" : ""}
-                                    </Text>
-                                    <Text>{i18n.t('Transactions.isThisPartOfBudget')}</Text>
-                                </Pressable>
-                            </View>
-                        }
-                        {isBudgetChecked && tipo == 'Gasto' &&
-                            <View >
-                                <Dropdown
-                                    style={[styles.dropdown, isFocus && { borderColor: 'black', width: '100%' }]}
-                                    data={budgets}
-                                    labelField="cuenta_nombre"
-                                    valueField="cuenta_id"
-                                    placeholder={i18n.t('Transactions.FindBudget')}
-                                    value={budget}
-                                    onChange={item => setBudget(item.cuenta_id)}
-                                    renderItem={(item) => (
-                                        <View style={{ flexDirection: 'row', alignItems: 'center', padding: 8 }}>
-                                            <Text style={{ marginLeft: 8 }}>{item.cuenta_nombre}</Text>
-                                        </View>
-                                    )}
-                                />
-                            </View>
-                        }
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                             <Text style={styles.labelTitle}>{i18n.t('Transactions.Name')}</Text>
                             <Text style={styles.labelTitle}>{i18n.t('Transactions.Amount')}</Text>
@@ -435,6 +404,39 @@ const Transacciones = () => {
                             value={metodo}
                             onChangeText={setMetodo}
                         />
+                        {tipo == 'Gasto' &&
+                            <View>
+                                <Pressable
+                                    onPress={() => setIsBudgetChecked(!isBudgetChecked)}
+                                    style={{ flexDirection: 'row', justifyContent: 'center' }}
+                                >
+                                    <Text style={[styles.checkbox, isBudgetChecked ? styles.checkboxChecked : null]}>
+                                        {isBudgetChecked ? "✔" : ""}
+                                    </Text>
+                                    <Text>{i18n.t('Transactions.isThisPartOfBudget')}</Text>
+                                </Pressable>
+                            </View>
+                        }
+                        {isBudgetChecked && tipo == 'Gasto' &&
+                            <View style={{flexDirection:'row'}}>
+                                <Dropdown
+                                    style={[styles.dropdown, isFocus && { borderColor: 'black', width: '50%' }]}
+                                    data={budgets}
+                                    labelField="cuenta_nombre"
+                                    valueField="cuenta_id"
+                                    placeholder={i18n.t('Transactions.FindBudget')}
+                                    value={budget}
+                                    onChange={item => setBudget(item.cuenta_id)}
+                                    renderItem={(item) => (
+                                        <View style={{ flexDirection: 'row', alignItems: 'center', padding: 8 }}>
+                                            <Text style={{ marginLeft: 8 }}>{item.cuenta_nombre}</Text>
+                                        </View>
+                                    )}
+                                />
+                                <Text style={styles.signoDolar}>$</Text>
+                                <TextInput style={styles.inputMonto}></TextInput>
+                            </View>
+                        }
                         <Text style={styles.catText}>{i18n.t('Transactions.SelectCategory')}</Text>
                         <View >
                             <Dropdown
