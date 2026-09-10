@@ -408,7 +408,7 @@ const Transacciones = () => {
                             <View>
                                 <Pressable
                                     onPress={() => setIsBudgetChecked(!isBudgetChecked)}
-                                    style={{ flexDirection: 'row', justifyContent: 'center' }}
+                                    style={{ flexDirection: 'row', justifyContent: 'center', paddingVertical:5 }}
                                 >
                                     <Text style={[styles.checkbox, isBudgetChecked ? styles.checkboxChecked : null]}>
                                         {isBudgetChecked ? "✔" : ""}
@@ -418,9 +418,9 @@ const Transacciones = () => {
                             </View>
                         }
                         {isBudgetChecked && tipo == 'Gasto' &&
-                            <View style={{flexDirection:'row'}}>
+                            <View style={{flexDirection:'row', paddingVertical:5}}>
                                 <Dropdown
-                                    style={[styles.dropdown, isFocus && { borderColor: 'black', width: '50%' }]}
+                                    style={[styles.dropdown, isFocus && { borderColor: 'black', width: '100%' }]}
                                     data={budgets}
                                     labelField="cuenta_nombre"
                                     valueField="cuenta_id"
@@ -433,8 +433,6 @@ const Transacciones = () => {
                                         </View>
                                     )}
                                 />
-                                <Text style={styles.signoDolar}>$</Text>
-                                <TextInput style={styles.inputMonto}></TextInput>
                             </View>
                         }
                         <Text style={styles.catText}>{i18n.t('Transactions.SelectCategory')}</Text>
